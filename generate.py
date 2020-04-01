@@ -22,11 +22,11 @@ def unfold(vec, fold_matrix):
   return fold(vec, invert(fold_matrix))
 
 class Line():
-  def __init__(self):
-    self.start_x = -1
-    self.start_y = -1
-    self.end_x = -1
-    self.end_y = -1
+  def __init__(self, start_x = -1, start_y = -1, end_x = -1, end_y = -1):
+    self.start_x = start_x
+    self.start_y = start_y
+    self.end_x = end_x
+    self.end_y = end_y
 
   def coords(self):
     return (self.start_x, self.start_y, self.end_x, self.end_y)
@@ -48,7 +48,9 @@ class Line():
       foldings.append(((0, 1), (1, 0)))
       vec = fold(vec, foldings[-1])
     # Perform snapping
-    if vec.y/vec.x < math.tan(45/2 * math.pi/180):
+    if vec.x == 0:
+      pass
+    elif vec.y/vec.x < math.tan(45/2 * math.pi/180):
       # Project to x-axis
       vec = Vec(vec.x, 0)
     else:
@@ -78,6 +80,38 @@ class Window(Frame):
     Frame.__init__(self, master)
     self.master = master
 
+class ViewModel:
+  def __init__(self, canvas):
+    self.canvas = canvas
+    self.drag = Line(-1, -1, -1, -1)
+    self.dragline = canvas.create_line(self.drag.coords(), fill='red', width=3)
+    self.is_dragging = False
+    canvas.bind("<Button-1>", self.start_drag)
+    canvas.bind("<B1-Motion>", self.dragging)
+    canvas.bind("<ButtonRelease-1>", self.release)
+    canvas.pack()
+
+  def draw(self):
+    self.canvas.coords(self.dragline,
+                       self.drag.coords() if self.is_dragging
+                       else Line(-1, -1, -1, -1).coords())
+
+  def start_drag(self, event):
+    self.drag.start_x = event.x
+    self.drag.start_y = event.y
+
+  def dragging(self, event):
+    self.is_dragging = True
+    self.drag.end_x = event.x
+    self.drag.end_y = event.y
+    self.drag.snap_to_45()
+    self.draw()
+
+  def release(self, _):
+    self.is_dragging = False
+    self.canvas.create_line(self.drag.coords(), fill='red', width=3)
+    self.draw()
+
 lastx, lasty = 0, 0
 def main():
   root = Tk()
@@ -85,27 +119,7 @@ def main():
   root.wm_title("Tkinter window test")
 
   canvas = Canvas(root, bg="black", height=600, width=600)
-  dragline = canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
-
-  dragline_coords = Line()
-
-  def draw():
-    canvas.coords(dragline, dragline_coords.coords())
-
-  def start_drag(event):
-    dragline_coords.start_x = event.x
-    dragline_coords.start_y = event.y
-
-  def drag(event):
-    dragline_coords.end_x = event.x
-    dragline_coords.end_y = event.y
-    dragline_coords.snap_to_45()
-    draw()
-
-  canvas.bind("<Button-1>", start_drag)
-  canvas.bind("<B1-Motion>", drag)
-
-  canvas.pack()
+  viewmodel = ViewModel(canvas)
   root.mainloop()
 
 if __name__ == '__main__':
