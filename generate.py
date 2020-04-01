@@ -80,48 +80,97 @@ class Window(Frame):
     Frame.__init__(self, master)
     self.master = master
 
+class EmptyTool:
+  def draw(self):
+    pass
+
+  def start_drag(self, _):
+    pass
+
+  def dragging(self, _):
+    pass
+
+  def release(self, _):
+    pass
+
+  def rightclick(self, _):
+    pass
+
+class DrawTool:
+  def __init__(self, viewmodel):
+    self.viewmodel = viewmodel
+    self.canvas = self.viewmodel.canvas
+    self.dragline = self.canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
+
+  def draw(self):
+    self.canvas.coords(self.dragline,
+                       self.viewmodel.drag.coords() if self.viewmodel.is_dragging
+                       else Line(-1, -1, -1, -1).coords())
+
+  def start_drag(self, _):
+    pass
+
+  def dragging(self, _):
+    self.viewmodel.drag.snap_to_45()
+
+  def release(self, _):
+    self.viewmodel.lines.append(
+      self.canvas.create_line(self.viewmodel.drag.coords(), fill='red', width=3))
+    print(self.viewmodel.lines)
+
+  def rightclick(self, event):
+    x, y = event.x, event.y
+    self.canvas.addtag_closest("rightclick", x, y)
+
 class ViewModel:
   def __init__(self, canvas):
     self.canvas = canvas
-    self.drag = Line(-1, -1, -1, -1)
-    self.dragline = canvas.create_line(self.drag.coords(), fill='red', width=3)
-    self.is_dragging = False
     self.lines = []
+    self.is_dragging = False
+    self.drag = Line(-1, -1, -1, -1)
+    self.emptytool = EmptyTool()
+    self.drawtool = DrawTool(self)
+    self.tool = self.drawtool
     canvas.bind("<Button-1>", self.start_drag)
     canvas.bind("<B1-Motion>", self.dragging)
     canvas.bind("<ButtonRelease-1>", self.release)
     canvas.bind("<Button-3>", self.rightclick)
+    canvas.bind("q", self.tool_exit)
+    canvas.bind("w", self.tool_draw)
     canvas.pack()
 
   def draw(self):
-    self.canvas.coords(self.dragline,
-                       self.drag.coords() if self.is_dragging
-                       else Line(-1, -1, -1, -1).coords())
+    self.tool.draw()
     for handle in self.canvas.find_withtag("rightclick"):
       self.canvas.itemconfig(handle, fill='yellow')
 
   def start_drag(self, event):
     self.drag.start_x = event.x
     self.drag.start_y = event.y
+    self.tool.start_drag(event)
+    self.draw()
 
   def dragging(self, event):
     self.is_dragging = True
     self.drag.end_x = event.x
     self.drag.end_y = event.y
-    self.drag.snap_to_45()
+    self.tool.dragging(event)
     self.draw()
 
-  def release(self, _):
+  def release(self, event):
     self.is_dragging = False
-    self.lines.append(self.canvas.create_line(self.drag.coords(), fill='red', width=3))
-    print(self.lines)
+    self.tool.release(event)
     self.draw()
 
   def rightclick(self, event):
-    x, y = event.x, event.y
-    self.canvas.addtag_closest("rightclick", x, y)
+    self.tool.rightclick(event)
     self.draw()
 
+  def tool_draw(self, _):
+    self.tool = self.drawtool
+
+  def tool_exit(self, _):
+    self.tool = self.emptytool
 
 lastx, lasty = 0, 0
 def main():
@@ -131,6 +180,8 @@ def main():
 
   canvas = Canvas(root, bg="black", height=600, width=600)
   viewmodel = ViewModel(canvas)
+  # Set keyboard focus to canvas
+  canvas.focus_set()
   root.mainloop()
 
 if __name__ == '__main__':
