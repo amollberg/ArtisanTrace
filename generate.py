@@ -86,15 +86,19 @@ class ViewModel:
     self.drag = Line(-1, -1, -1, -1)
     self.dragline = canvas.create_line(self.drag.coords(), fill='red', width=3)
     self.is_dragging = False
+    self.lines = []
     canvas.bind("<Button-1>", self.start_drag)
     canvas.bind("<B1-Motion>", self.dragging)
     canvas.bind("<ButtonRelease-1>", self.release)
+    canvas.bind("<Button-3>", self.rightclick)
     canvas.pack()
 
   def draw(self):
     self.canvas.coords(self.dragline,
                        self.drag.coords() if self.is_dragging
                        else Line(-1, -1, -1, -1).coords())
+    for handle in self.canvas.find_withtag("rightclick"):
+      self.canvas.itemconfig(handle, fill='yellow')
 
   def start_drag(self, event):
     self.drag.start_x = event.x
@@ -109,8 +113,15 @@ class ViewModel:
 
   def release(self, _):
     self.is_dragging = False
-    self.canvas.create_line(self.drag.coords(), fill='red', width=3)
+    self.lines.append(self.canvas.create_line(self.drag.coords(), fill='red', width=3))
+    print(self.lines)
     self.draw()
+
+  def rightclick(self, event):
+    x, y = event.x, event.y
+    self.canvas.addtag_closest("rightclick", x, y)
+    self.draw()
+
 
 lastx, lasty = 0, 0
 def main():
