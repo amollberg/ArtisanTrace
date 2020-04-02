@@ -21,6 +21,11 @@ def invert(matrix2x2):
 def unfold(vec, fold_matrix):
   return fold(vec, invert(fold_matrix))
 
+def remove_tag(canvas, item, tag_to_remove):
+  tags = canvas.gettags(item)
+  canvas.itemconfig(item, tags=(tag for tag in tags
+                                if tag != tag_to_remove))
+
 class Line():
   def __init__(self, start_x = -1, start_y = -1, end_x = -1, end_y = -1):
     self.start_x = start_x
@@ -113,6 +118,13 @@ class TraceDrawTool(EmptyTool):
                        self.viewmodel.drag.coords() if self.viewmodel.is_dragging
                        else Line(-1, -1, -1, -1).coords())
 
+  def start_drag(self, _):
+    for handle in self.canvas.find_withtag("hover"):
+      self.canvas.itemconfig(handle, fill='yellow')
+      tl_x, tl_y, br_x, br_y = self.canvas.bbox(handle)
+      c_x, c_y = (tl_x + br_x)/2, (tl_y + br_y)/2
+      self.viewmodel.drag.start_x = c_x
+      self.viewmodel.drag.start_y = c_y
 
   def dragging(self, _):
     self.viewmodel.drag.snap_to_45()
@@ -203,6 +215,9 @@ class ViewModel:
     self.draw()
 
   def mouse_move(self, event):
+    x, y = event.x, event.y
+    remove_tag(self.canvas, "hover", "hover")
+    self.canvas.addtag_closest("hover", x, y)
     self.cursor = (event.x, event.y)
     self.tool.mouse_move(event)
     self.draw()
