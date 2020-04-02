@@ -96,7 +96,7 @@ class EmptyTool:
   def rightclick(self, _):
     pass
 
-class DrawTool:
+class TraceDrawTool:
   def __init__(self, viewmodel):
     self.viewmodel = viewmodel
     self.canvas = self.viewmodel.canvas
@@ -129,14 +129,14 @@ class ViewModel:
     self.is_dragging = False
     self.drag = Line(-1, -1, -1, -1)
     self.emptytool = EmptyTool()
-    self.drawtool = DrawTool(self)
-    self.tool = self.drawtool
+    self.tracedrawtool = TraceDrawTool(self)
+    self.tool = self.tracedrawtool
     canvas.bind("<Button-1>", self.start_drag)
     canvas.bind("<B1-Motion>", self.dragging)
     canvas.bind("<ButtonRelease-1>", self.release)
     canvas.bind("<Button-3>", self.rightclick)
     canvas.bind("q", self.tool_exit)
-    canvas.bind("w", self.tool_draw)
+    canvas.bind("w", self.tool_draw_trace)
     canvas.pack()
 
   def draw(self):
@@ -166,8 +166,8 @@ class ViewModel:
     self.tool.rightclick(event)
     self.draw()
 
-  def tool_draw(self, _):
-    self.tool = self.drawtool
+  def tool_draw_trace(self, _):
+    self.tool = self.tracedrawtool
 
   def tool_exit(self, _):
     self.tool = self.emptytool
