@@ -120,7 +120,8 @@ class TraceDrawTool(EmptyTool):
   def release(self, _):
     self.viewmodel.lines.append(
       self.canvas.create_line(self.viewmodel.drag.coords(), fill='red', width=3))
-    print(self.viewmodel.lines)
+    # Move to bottom of z-stack
+    self.canvas.lower(self.viewmodel.lines[-1])
 
   def rightclick(self, event):
     x, y = event.x, event.y
@@ -140,6 +141,8 @@ class PadDrawTool(EmptyTool):
     x, y = event.x, event.y
     self.viewmodel.pads.append(
       self.canvas.create_oval((x-5, y-5, x+5, y+5), outline='red', fill='black'))
+    # Move to top of z-stack
+    self.canvas.lift(self.viewmodel.pads[-1])
 
   def dragging(self, _):
     self.mouse_move(None)
