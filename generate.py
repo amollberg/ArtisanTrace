@@ -120,11 +120,13 @@ class TraceDrawTool(EmptyTool):
 
   def start_drag(self, _):
     for handle in self.canvas.find_withtag("hover"):
-      self.canvas.itemconfig(handle, fill='yellow')
-      tl_x, tl_y, br_x, br_y = self.canvas.bbox(handle)
-      c_x, c_y = (tl_x + br_x)/2, (tl_y + br_y)/2
-      self.viewmodel.drag.start_x = c_x
-      self.viewmodel.drag.start_y = c_y
+      if handle in self.viewmodel.pads:
+        self.canvas.itemconfig(handle, outline='yellow')
+        tl_x, tl_y, br_x, br_y = self.canvas.bbox(handle)
+        c_x, c_y = (tl_x + br_x)/2, (tl_y + br_y)/2
+        self.viewmodel.drag.start_x = c_x
+        self.viewmodel.drag.start_y = c_y
+        break
 
   def dragging(self, _):
     self.viewmodel.drag.snap_to_45()
