@@ -84,6 +84,9 @@ class EmptyTool:
   def draw(self):
     pass
 
+  def deactivate(self):
+    pass
+
   def start_drag(self, _):
     pass
 
@@ -96,7 +99,10 @@ class EmptyTool:
   def rightclick(self, _):
     pass
 
-class TraceDrawTool:
+  def mouse_move(self, _):
+    pass
+
+class TraceDrawTool(EmptyTool):
   def __init__(self, viewmodel):
     self.viewmodel = viewmodel
     self.canvas = self.viewmodel.canvas
@@ -107,8 +113,6 @@ class TraceDrawTool:
                        self.viewmodel.drag.coords() if self.viewmodel.is_dragging
                        else Line(-1, -1, -1, -1).coords())
 
-  def start_drag(self, _):
-    pass
 
   def dragging(self, _):
     self.viewmodel.drag.snap_to_45()
@@ -122,21 +126,49 @@ class TraceDrawTool:
     x, y = event.x, event.y
     self.canvas.addtag_closest("rightclick", x, y)
 
+class PadDrawTool(EmptyTool):
+  def __init__(self, viewmodel):
+    self.viewmodel = viewmodel
+    self.canvas = self.viewmodel.canvas
+    self.cursorpad = self.canvas.create_oval((-1, -1, -1, -1), outline='yellow', fill='black')
+
+  def deactivate(self):
+    self.canvas.coords(self.cursorpad,
+                       (-1, -1, -1, -1))
+
+  def start_drag(self, event):
+    x, y = event.x, event.y
+    self.viewmodel.pads.append(
+      self.canvas.create_oval((x-5, y-5, x+5, y+5), outline='red', fill='black'))
+
+  def dragging(self, _):
+    self.mouse_move(None)
+
+  def mouse_move(self, _):
+    x, y = self.viewmodel.cursor
+    self.canvas.coords(self.cursorpad,
+                       (x-5, y-5, x+5, y+5))
+
 class ViewModel:
   def __init__(self, canvas):
     self.canvas = canvas
     self.lines = []
+    self.pads = []
     self.is_dragging = False
     self.drag = Line(-1, -1, -1, -1)
     self.emptytool = EmptyTool()
     self.tracedrawtool = TraceDrawTool(self)
+    self.paddrawtool = PadDrawTool(self)
     self.tool = self.tracedrawtool
+    self.cursor = (-1, -1)
     canvas.bind("<Button-1>", self.start_drag)
     canvas.bind("<B1-Motion>", self.dragging)
     canvas.bind("<ButtonRelease-1>", self.release)
     canvas.bind("<Button-3>", self.rightclick)
+    canvas.bind("<Motion>", self.mouse_move)
     canvas.bind("q", self.tool_exit)
     canvas.bind("w", self.tool_draw_trace)
+    canvas.bind("e", self.tool_draw_pad)
     canvas.pack()
 
   def draw(self):
@@ -152,6 +184,7 @@ class ViewModel:
 
   def dragging(self, event):
     self.is_dragging = True
+    self.cursor = (event.x, event.y)
     self.drag.end_x = event.x
     self.drag.end_y = event.y
     self.tool.dragging(event)
@@ -166,11 +199,23 @@ class ViewModel:
     self.tool.rightclick(event)
     self.draw()
 
+  def mouse_move(self, event):
+    self.cursor = (event.x, event.y)
+    self.tool.mouse_move(event)
+    self.draw()
+
+  def change_tool(self, new_tool):
+    self.tool.deactivate()
+    self.tool = new_tool
+
   def tool_draw_trace(self, _):
-    self.tool = self.tracedrawtool
+    self.change_tool(self.tracedrawtool)
+
+  def tool_draw_pad(self, _):
+    self.change_tool(self.paddrawtool)
 
   def tool_exit(self, _):
-    self.tool = self.emptytool
+    self.change_tool(self.emptytool)
 
 lastx, lasty = 0, 0
 def main():
