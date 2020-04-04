@@ -107,6 +107,9 @@ class EmptyTool:
   def mouse_move(self, _):
     pass
 
+  def key_press(self, _):
+    pass
+
 class TraceDrawTool(EmptyTool):
   def __init__(self, viewmodel):
     self.viewmodel = viewmodel
@@ -140,6 +143,23 @@ class TraceDrawTool(EmptyTool):
   def rightclick(self, event):
     x, y = event.x, event.y
     self.canvas.addtag_closest("rightclick", x, y)
+
+  def mouse_move(self, _):
+    for handle in self.viewmodel.pads:
+      if handle in self.canvas.find_withtag("hover"):
+        self.canvas.itemconfig(handle, outline='yellow')
+      else:
+        self.canvas.itemconfig(handle, outline='red')
+
+  def key_press(self, event):
+    if event.char == " ":
+      if self.viewmodel.is_dragging:
+        self.release(None)
+        self.start_drag(None)
+        # Set the start of the new drag to the end of the newly created line
+        new_line = Line(*self.canvas.coords(self.viewmodel.lines[-1]))
+        self.viewmodel.drag.start_x = new_line.end_x
+        self.viewmodel.drag.start_y = new_line.end_y
 
 class PadDrawTool(EmptyTool):
   def __init__(self, viewmodel):
@@ -183,6 +203,7 @@ class ViewModel:
     canvas.bind("<ButtonRelease-1>", self.release)
     canvas.bind("<Button-3>", self.rightclick)
     canvas.bind("<Motion>", self.mouse_move)
+    canvas.bind("<Key>", self.key_press)
     canvas.bind("q", self.tool_exit)
     canvas.bind("w", self.tool_draw_trace)
     canvas.bind("e", self.tool_draw_pad)
@@ -222,6 +243,10 @@ class ViewModel:
     self.canvas.addtag_closest("hover", x, y)
     self.cursor = (event.x, event.y)
     self.tool.mouse_move(event)
+    self.draw()
+
+  def key_press(self, event):
+    self.tool.key_press(event)
     self.draw()
 
   def change_tool(self, new_tool):
