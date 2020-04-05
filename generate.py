@@ -24,17 +24,16 @@ class Vec(namedtuple('Vec', 'x y')):
   pass
 
 def arg(xy):
-  """ Return the counter-clockwise angle from positive x-axis to xy in degrees, 0-360
+  """ Return the counter-clockwise angle from positive x-axis to xy in degrees, -180 to 180
   """
   x, y = xy
   z = x + y*1j
   phi_rad = cmath.phase(z)
-  phi_rad_pos = 2*math.pi + phi_rad if phi_rad < 0 else phi_rad
-  return phi_rad_pos * 180/math.pi
+  return phi_rad * 180/math.pi
 def test_arg():
   assert(0 == arg((1, 0)))
   assert(45 == arg((1, 1)))
-  assert(225 ==round(arg((-1, -1))))
+  assert(-135 ==round(arg((-1, -1))))
 test_arg()
 
 def fold(vec, fold_matrix):
@@ -69,6 +68,9 @@ def invert3(matrix3x3):
   return ((A, D, G),
           (B, E, H),
           (C, F, I))
+
+def minus(vec1, vec2):
+  return Vec(vec1.x - vec2.x, vec1.y - vec2.y)
 
 
 def unfold(vec, fold_matrix):
@@ -163,77 +165,12 @@ class EmptyTool:
   def key_press(self, _):
     pass
 
-class DirectionAndCorner(namedtuple('DirectionAndCorner', 'direction angle')):
-  def next(self):
-    next_direction = (self.direction + 45) % 360
-    next_angle = (self.angle - 1) % 3
-    if self.angle == 0:
-      direction = next_direction
-      angle = next_angle
-    else:
-      direction = self.direction
-      angle = next_angle
-    return DirectionAndCorner(direction, angle)
-
-  def fold(self, fold_matrix):
-    math_angle = 90 - self.direction
-    vec = Vec(math.cos(math_angle * math.pi/180),
-              math.sin(math_angle * math.pi/180))
-    folded_vec = fold(vec, fold_matrix)
-    direction = (90 - arg(folded_vec)) % 360
-    rounded_direction = int(round(direction/45))*45
-    return DirectionAndCorner(rounded_direction, self.angle)
-
-  def unfold(self, fold_matrix):
-    return self.fold(invert(fold_matrix))
-
-def test_directionandcorner():
-  N = Direction.N
-  NE = Direction.NE
-  E = Direction.E
-  SE = Direction.SE
-  S = Direction.S
-  SW = Direction.SW
-  W = Direction.W
-  NW = Direction.NW
-  OBTUSE = Angle.OBTUSE
-  RIGHT = Angle.RIGHT
-  ACUTE = Angle.ACUTE
-  assert(DirectionAndCorner(N, RIGHT) == DirectionAndCorner(N, OBTUSE).next())
-  assert(DirectionAndCorner(N, ACUTE) == DirectionAndCorner(N, RIGHT).next())
-  assert(DirectionAndCorner(NE, OBTUSE) == DirectionAndCorner(N, ACUTE).next())
-  assert(DirectionAndCorner(NE, RIGHT) == DirectionAndCorner(NE, OBTUSE).next())
-  assert(DirectionAndCorner(NE, ACUTE) == DirectionAndCorner(NE, RIGHT).next())
-  assert(DirectionAndCorner(E, OBTUSE) == DirectionAndCorner(NE, ACUTE).next())
-  assert(DirectionAndCorner(E, RIGHT) == DirectionAndCorner(E, OBTUSE).next())
-  assert(DirectionAndCorner(E, ACUTE) == DirectionAndCorner(E, RIGHT).next())
-  assert(DirectionAndCorner(SE, OBTUSE) == DirectionAndCorner(E, ACUTE).next())
-
-  assert(DirectionAndCorner(S, RIGHT) == DirectionAndCorner(S, OBTUSE).next())
-  assert(DirectionAndCorner(S, ACUTE) == DirectionAndCorner(S, RIGHT).next())
-  assert(DirectionAndCorner(SW, OBTUSE) == DirectionAndCorner(S, ACUTE).next())
-  assert(DirectionAndCorner(SW, RIGHT) == DirectionAndCorner(SW, OBTUSE).next())
-  assert(DirectionAndCorner(SW, ACUTE) == DirectionAndCorner(SW, RIGHT).next())
-  assert(DirectionAndCorner(W, OBTUSE) == DirectionAndCorner(SW, ACUTE).next())
-  assert(DirectionAndCorner(W, RIGHT) == DirectionAndCorner(W, OBTUSE).next())
-  assert(DirectionAndCorner(W, ACUTE) == DirectionAndCorner(W, RIGHT).next())
-  assert(DirectionAndCorner(NW, OBTUSE) == DirectionAndCorner(W, ACUTE).next())
-
-  # Mirror over y-axis
-  mirror_y = ((-1, 0),(0, 1))
-  # Mirror over 45 degree line
-  mirror_45 = ((0, 1),(1, 0))
-  assert(DirectionAndCorner(NW, RIGHT) == DirectionAndCorner(NE, RIGHT).fold(mirror_y))
-  assert(DirectionAndCorner(S, RIGHT) == DirectionAndCorner(S, RIGHT).fold(mirror_y))
-  assert(DirectionAndCorner(W, RIGHT) == DirectionAndCorner(S, RIGHT).fold(mirror_45))
-  assert(DirectionAndCorner(NE, RIGHT) == DirectionAndCorner(NE, RIGHT).fold(mirror_45))
-test_directionandcorner()
-
 class Trace:
   def __init__(self):
     self.line1 = Line(-1, -1, -1, -1)
     self.line2 = Line(-1, -1, -1, -1)
-    self.direction_and_corner = None
+    self.angle = Angle.OBTUSE
+    self.knee = 0
 
   def _recalculate(self):
     """ Calculate the location of the kneepoint given
@@ -241,37 +178,44 @@ class Trace:
     """
     trace = Vec(self.line2.end_x - self.line1.start_x,
                 self.line2.end_y - self.line1.start_y)
-    dac = self.direction_and_corner
-    foldings = []
-    def apply_fold(trace, dac, matrix):
-      foldings.append(matrix)
-      trace = fold(trace, matrix)
-      dac = dac.fold(matrix) if dac is not None else None
-      return trace, dac
-    if trace.x < 0:
-      trace, dac = apply_fold(trace, dac, ((-1, 0),(0, 1)))
-    if trace.y < 0:
-      trace, dac = apply_fold(trace, dac, ((1, 0),(0, -1)))
-    if trace.x < trace.y:
-      trace, dac = apply_fold(trace, dac, ((0, 1), (1, 0)))
+    x, y = trace.x, trace.y
+    kneepoints = [
+      Vec(x-y, 0),
+      Vec(x, 0),
+      Vec(x+y, 0),
 
-    if dac is None:
-      if trace.y/trace.x < math.tan(45/2 * math.pi/180):
-        # Project on x-axis
-        direction = E
-      else:
-        # Project on diagonal
-        direction = NE
-      dac = DirectionAndCorner(direction, Angle.OBTUSE)
+      Vec(0, y-x),
+      Vec(0, y),
+      Vec(0, y+x),
 
-    # Calculate the intersections of all 4 lines from end
+      Vec(-y, y),
+      Vec((x-y)/2, (y-x)/2),
+      Vec(x, -x),
 
-
-
-    for folding in reversed(foldings):
-      trace = unfold(trace, folding)
-    self.line2.start_x = self.line1.end_x = self.line1.start_x + trace.x
-    self.line2.end_x = self.line1.end_y = self.line1.start_y + trace.y
+      Vec(y, y),
+      Vec((x+y)/2, (x+y)/2),
+      Vec(x, x),
+    ]
+    def angle_of(k):
+      origin = Vec(0,0)
+      a1 = arg(minus(origin, k))
+      a2 = arg(minus(trace, k))
+      return (a1 - a2) % 360
+    # TODO: Pick the most suitable knee first
+    for k in kneepoints:
+      kneepoint = k
+      a = abs(angle_of(k))
+      if self.angle == Angle.OBTUSE:
+        if a > 90:
+          break
+      if self.angle == Angle.RIGHT:
+        if a == 90:
+          break
+      if self.angle == Angle.ACUTE:
+        if a < 90:
+          break
+    self.line2.start_x = self.line1.end_x = self.line1.start_x + kneepoint.x
+    self.line2.end_x = self.line1.end_y = self.line1.start_y + kneepoint.y
 
 
   def get_kneepoint(self):
@@ -289,8 +233,8 @@ class Trace:
     self.line2.end_y = y
     self._recalculate()
 
-  def set_direction_and_corner(self, direction, right_angle=False):
-    self.direction_and_corner = DirectionAndCorner(direction, right_angle)
+  def set_angle(self, angle):
+    self.angle = angle
     self._recalculate()
 
 def test_trace():
