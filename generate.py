@@ -124,6 +124,9 @@ class Line():
     self.end_x = self.start_x + vec.x
     self.end_y = self.start_y + vec.y
 
+  def __repr__(self):
+    return f"<Line ({self.start_x}, {self.start_y}) to ({self.end_x}, {self.end_y})>"
+
 def test_line():
   line = Line()
   line.start_x = 0
@@ -204,7 +207,7 @@ class Trace:
     # TODO: Pick the most suitable knee first
     for k in kneepoints:
       kneepoint = k
-      a = abs(angle_of(k))
+      a = 180 - abs(angle_of(k) - 180)
       if self.angle == Angle.OBTUSE:
         if a > 90:
           break
@@ -215,7 +218,7 @@ class Trace:
         if a < 90:
           break
     self.line2.start_x = self.line1.end_x = self.line1.start_x + kneepoint.x
-    self.line2.end_x = self.line1.end_y = self.line1.start_y + kneepoint.y
+    self.line2.start_y = self.line1.end_y = self.line1.start_y + kneepoint.y
 
 
   def get_kneepoint(self):
@@ -241,7 +244,13 @@ def test_trace():
   t = Trace()
   t.set_start((0,0))
   t.set_end((20, 10))
-  #assert((10, 0) == t.get_kneepoint())
+  assert((10, 0) == t.get_kneepoint())
+
+  t = Trace()
+  t.set_start((10, 5))
+  t.set_end((110, 205))
+  t.set_angle(Angle.OBTUSE)
+  assert((10, 105) == t.get_kneepoint())
 test_trace()
 
 
@@ -252,13 +261,14 @@ class TraceDrawTool(EmptyTool):
   def __init__(self, viewmodel):
     self.viewmodel = viewmodel
     self.canvas = self.viewmodel.canvas
-    self.dragline1 = self.canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
-    self.dragline2 = self.canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
+    self.line1 = self.canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
+    self.line2 = self.canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
     self.trace = Trace()
     self.state = TraceDrawTool.STATE_INACTIVE
 
   def draw(self):
-    pass
+    self.canvas.coords(self.line1, self.trace.line1.coords())
+    self.canvas.coords(self.line2, self.trace.line2.coords())
 
   def start_drag(self, _):
     for handle in self.canvas.find_withtag("hover"):
@@ -266,18 +276,18 @@ class TraceDrawTool(EmptyTool):
         self.canvas.itemconfig(handle, outline='yellow')
         tl_x, tl_y, br_x, br_y = self.canvas.bbox(handle)
         c_x, c_y = (tl_x + br_x)/2, (tl_y + br_y)/2
-        self.viewmodel.drag.start_x = c_x
-        self.viewmodel.drag.start_y = c_y
-        break
+        self.trace.set_start((c_x, c_y))
 
   def dragging(self, _):
     pass
 
   def release(self, _):
-    self.viewmodel.lines.append(
-      self.canvas.create_line(self.viewmodel.drag.coords(), fill='red', width=3))
-    # Move to bottom of z-stack
-    self.canvas.lower(self.viewmodel.lines[-1])
+    def add(line_handle):
+      self.viewmodel.lines.append(line_handle)
+      # Move to bottom of z-stack
+      self.canvas.lower(self.viewmodel.lines[-1])
+    add(self.canvas.create_line(self.trace.line1.coords(), fill='red', width=3))
+    add(self.canvas.create_line(self.trace.line2.coords(), fill='red', width=3))
 
   def rightclick(self, event):
     x, y = event.x, event.y
@@ -289,6 +299,7 @@ class TraceDrawTool(EmptyTool):
         self.canvas.itemconfig(handle, outline='yellow')
       else:
         self.canvas.itemconfig(handle, outline='red')
+    self.trace.set_end(self.viewmodel.cursor)
 
   def key_press(self, event):
     if event.char == " ":
