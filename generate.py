@@ -292,6 +292,8 @@ class TraceDrawTool(EmptyTool):
         tl_x, tl_y, br_x, br_y = self.canvas.bbox(handle)
         c_x, c_y = (tl_x + br_x)/2, (tl_y + br_y)/2
         self.trace.set_start((c_x, c_y))
+        return
+    self.trace.set_start(self.viewmodel.cursor)
 
   def rightclick(self, event):
     x, y = event.x, event.y
