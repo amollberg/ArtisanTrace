@@ -168,6 +168,9 @@ class EmptyTool:
   def key_press(self, _):
     pass
 
+  def key_release(self, _):
+    pass
+
 class Trace:
   def __init__(self):
     self.line1 = Line(-1, -1, -1, -1)
@@ -220,6 +223,8 @@ class Trace:
     self.line2.start_x = self.line1.end_x = self.line1.start_x + kneepoint.x
     self.line2.start_y = self.line1.end_y = self.line1.start_y + kneepoint.y
 
+  def is_initialized(self):
+    return (self.line1.start_x, self.line1.start_y) != (-1, -1)
 
   def get_kneepoint(self):
     return self.line1.end_x, self.line1.end_y
@@ -265,12 +270,22 @@ class TraceDrawTool(EmptyTool):
     self.line2 = self.canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
     self.trace = Trace()
     self.state = TraceDrawTool.STATE_INACTIVE
+    self.do_snap = False
 
   def draw(self):
-    self.canvas.coords(self.line1, self.trace.line1.coords())
-    self.canvas.coords(self.line2, self.trace.line2.coords())
+    if self.trace.is_initialized():
+      self.canvas.coords(self.line1, self.trace.line1.coords())
+      self.canvas.coords(self.line2, self.trace.line2.coords())
 
   def start_drag(self, _):
+    def add(line_handle):
+      self.viewmodel.lines.append(line_handle)
+      # Move to bottom of z-stack
+      self.canvas.lower(self.viewmodel.lines[-1])
+    if self.trace.is_initialized():
+      add(self.canvas.create_line(self.trace.line1.coords(), fill='red', width=3))
+      add(self.canvas.create_line(self.trace.line2.coords(), fill='red', width=3))
+
     for handle in self.canvas.find_withtag("hover"):
       if handle in self.viewmodel.pads:
         self.canvas.itemconfig(handle, outline='yellow')
@@ -278,28 +293,22 @@ class TraceDrawTool(EmptyTool):
         c_x, c_y = (tl_x + br_x)/2, (tl_y + br_y)/2
         self.trace.set_start((c_x, c_y))
 
-  def dragging(self, _):
-    pass
-
-  def release(self, _):
-    def add(line_handle):
-      self.viewmodel.lines.append(line_handle)
-      # Move to bottom of z-stack
-      self.canvas.lower(self.viewmodel.lines[-1])
-    add(self.canvas.create_line(self.trace.line1.coords(), fill='red', width=3))
-    add(self.canvas.create_line(self.trace.line2.coords(), fill='red', width=3))
-
   def rightclick(self, event):
     x, y = event.x, event.y
     self.canvas.addtag_closest("rightclick", x, y)
 
   def mouse_move(self, _):
-    for handle in self.viewmodel.pads:
-      if handle in self.canvas.find_withtag("hover"):
-        self.canvas.itemconfig(handle, outline='yellow')
-      else:
-        self.canvas.itemconfig(handle, outline='red')
-    self.trace.set_end(self.viewmodel.cursor)
+    if self.do_snap:
+      for handle in self.viewmodel.pads:
+        if handle in self.canvas.find_withtag("hover"):
+          self.canvas.itemconfig(handle, outline='yellow')
+          tl_x, tl_y, br_x, br_y = self.canvas.bbox(handle)
+          c_x, c_y = (tl_x + br_x)/2, (tl_y + br_y)/2
+          self.trace.set_end((c_x, c_y))
+        else:
+          self.canvas.itemconfig(handle, outline='red')
+    else:
+      self.trace.set_end(self.viewmodel.cursor)
 
   def key_press(self, event):
     if event.char == " ":
@@ -310,6 +319,21 @@ class TraceDrawTool(EmptyTool):
         new_line = Line(*self.canvas.coords(self.viewmodel.lines[-1]))
         self.viewmodel.drag.start_x = new_line.end_x
         self.viewmodel.drag.start_y = new_line.end_y
+
+    elif event.keysym in ("Control_L", "Control_R"):
+      self.do_snap = True
+      self.mouse_move(None)
+
+  def key_release(self, event):
+    if event.keysym in ("Control_L", "Control_R"):
+      self.do_snap = False
+      self.mouse_move(None)
+
+
+  def deactivate(self):
+    self.trace = Trace()
+    self.canvas.coords(self.line1, self.trace.line1.coords())
+    self.canvas.coords(self.line2, self.trace.line2.coords())
 
 class PadDrawTool(EmptyTool):
   def __init__(self, viewmodel):
@@ -346,7 +370,7 @@ class ViewModel:
     self.emptytool = EmptyTool()
     self.tracedrawtool = TraceDrawTool(self)
     self.paddrawtool = PadDrawTool(self)
-    self.tool = self.tracedrawtool
+    self.tool = self.paddrawtool
     self.cursor = (-1, -1)
     canvas.bind("<Button-1>", self.start_drag)
     canvas.bind("<B1-Motion>", self.dragging)
@@ -354,6 +378,7 @@ class ViewModel:
     canvas.bind("<Button-3>", self.rightclick)
     canvas.bind("<Motion>", self.mouse_move)
     canvas.bind("<Key>", self.key_press)
+    canvas.bind("<KeyRelease>", self.key_release)
     canvas.bind("q", self.tool_exit)
     canvas.bind("w", self.tool_draw_trace)
     canvas.bind("e", self.tool_draw_pad)
@@ -397,6 +422,10 @@ class ViewModel:
 
   def key_press(self, event):
     self.tool.key_press(event)
+    self.draw()
+
+  def key_release(self, event):
+    self.tool.key_release(event)
     self.draw()
 
   def change_tool(self, new_tool):
