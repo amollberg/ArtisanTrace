@@ -270,7 +270,7 @@ class TraceDrawTool(EmptyTool):
     self.line2 = self.canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
     self.trace = Trace()
     self.state = TraceDrawTool.STATE_INACTIVE
-    self.do_snap = False
+    self.do_snap = True
 
   def draw(self):
     if self.trace.is_initialized():
@@ -321,12 +321,12 @@ class TraceDrawTool(EmptyTool):
         self.viewmodel.drag.start_y = new_line.end_y
 
     elif event.keysym in ("Control_L", "Control_R"):
-      self.do_snap = True
+      self.do_snap = False
       self.mouse_move(None)
 
   def key_release(self, event):
     if event.keysym in ("Control_L", "Control_R"):
-      self.do_snap = False
+      self.do_snap = True
       self.mouse_move(None)
 
 
