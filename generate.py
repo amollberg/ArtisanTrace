@@ -84,22 +84,53 @@ def remove_tag(canvas, item, tag_to_remove):
   canvas.itemconfig(item, tags=(tag for tag in tags
                                 if tag != tag_to_remove))
 
-class Line():
-  def __init__(self, start_x = -1, start_y = -1, end_x = -1, end_y = -1):
-    self.start_x = start_x
-    self.start_y = start_y
-    self.end_x = end_x
-    self.end_y = end_y
+class AbstractLine:
 
   def coords(self):
-    return (self.start_x, self.start_y, self.end_x, self.end_y)
+    raise NotImplementedError
+
+  def start(self):
+    return (self.start_x(), self.start_y())
+
+  def end(self):
+    return (self.end_x(), self.end_y())
+
+  def start_x(self):
+    start_x, _, _, _ = self.coords()
+    return start_x
+
+  def start_y(self):
+    _, start_y, _, _ = self.coords()
+    return start_y
+
+  def end_x(self):
+    _, _, end_x, _ = self.coords()
+    return end_x
+
+  def end_y(self):
+    _, _, _, end_y = self.coords()
+    return end_y
+
+  def set_coords(self, coords):
+    raise NotImplementedError
+
+  def set_start(self, xy):
+    _, _, end_x, end_y = self.coords()
+    start_x, start_y = xy
+    self.set_coords((start_x, start_y, end_x, end_y))
+
+  def set_end(self, xy):
+    start_x, start_y, _, _ = self.coords()
+    end_x, end_y = xy
+    self.set_coords((start_x, start_y, end_x, end_y))
 
   def snap_to_45(self):
     """ Make the end the nearest point that also makes the line
         slope a multiple of 45 degrees
     """
-    vec = Vec(self.end_x - self.start_x,
-              self.end_y - self.start_y)
+    start_x, start_y, end_x, end_y = self.coords()
+    vec = Vec(end_x - start_x,
+              end_y - start_y)
     foldings = []
     if vec.x < 0:
       foldings.append(((-1, 0),(0, 1)))
@@ -124,22 +155,69 @@ class Line():
     # Undo folding
     for folding in reversed(foldings):
       vec = unfold(vec, folding)
-    self.end_x = self.start_x + vec.x
-    self.end_y = self.start_y + vec.y
+    end_x = start_x + vec.x
+    end_y = start_y + vec.y
+    self.set_coords((start_x, start_y, end_x, end_y))
 
   def __repr__(self):
-    return f"<Line ({self.start_x}, {self.start_y}) to ({self.end_x}, {self.end_y})>"
+    x1, y1, x2, y2 = self.coords()
+    class_name = type(self).__name__
+    return f"<{class_name} ({x1}, {y1}) to ({x2}, {y2})>"
+
+class FreeLine(AbstractLine):
+  def __init__(self, start_x = -1, start_y = -1, end_x = -1, end_y = -1):
+    self._coords = (start_x, start_y, end_x, end_y)
+
+  def coords(self):
+    return self._coords
+
+  def set_coords(self, coords):
+    x1, y1, x2, y2 = coords
+    self._coords = (x1, y1, x2, y2)
+
+class CanvasLine(AbstractLine):
+  def __init__(self, canvas, *create_line_args, **create_line_kwargs):
+    self.canvas = canvas
+    self.handle = self.canvas.create_line(*create_line_args, **create_line_kwargs)
+
+  def coords(self):
+    return self.canvas.coords(self.handle)
+
+  def set_coords(self, coords):
+    self.canvas.coords(self.handle, coords)
 
 def test_line():
-  line = Line()
-  line.start_x = 0
-  line.start_y = 0
-  line.end_x = 3
-  line.end_y = 100
+  line = FreeLine()
+  line.set_start((0, 0))
+  line.set_end((3, 100))
   line.snap_to_45()
-  assert(line.end_x == 0)
-  assert(line.end_y == 100)
+  print(line)
+  assert(line.end_x() == 0)
+  assert(line.end_y() == 100)
 test_line()
+
+class CanvasOval:
+  def __init__(self, canvas, *create_oval_args, **create_oval_kwargs):
+    self.canvas = canvas
+    self.handle = self.canvas.create_oval(*create_oval_args, **create_oval_kwargs)
+
+  def coords(self):
+    return self.canvas.coords(self.handle)
+
+  def set_coords(self, coords):
+    self.canvas.coords(self.handle, coords)
+
+  def move_to(self, new_center_xy):
+    tl_x, tl_y, br_x, br_y = self.canvas.bbox(self.handle)
+    c_x, c_y = (tl_x + br_x)/2, (tl_y + br_y)/2
+    nc_x, nc_y = new_center_xy
+    delta_x = nc_x - c_x
+    delta_y = nc_y - c_y
+    tl_x += delta_x
+    tl_y += delta_y
+    br_x += delta_x
+    br_y += delta_y
+    self.set_coords((tl_x, tl_y, br_x, br_y))
 
 class Window(Frame):
   def __init__(self, master=None):
@@ -175,9 +253,9 @@ class EmptyTool:
     pass
 
 class Trace:
-  def __init__(self):
-    self.line1 = Line(-1, -1, -1, -1)
-    self.line2 = Line(-1, -1, -1, -1)
+  def __init__(self, line1, line2):
+    self.line1 = line1
+    self.line2 = line2
     self.angle = Angle.OBTUSE
     self.knee = 0
 
@@ -185,8 +263,8 @@ class Trace:
     """ Calculate the location of the kneepoint given
         the start, end, direction, and corner angle
     """
-    trace = Vec(self.line2.end_x - self.line1.start_x,
-                self.line2.end_y - self.line1.start_y)
+    trace = Vec(self.line2.end_x() - self.line1.start_x(),
+                self.line2.end_y() - self.line1.start_y())
     x, y = trace.x, trace.y
     kneepoints = [
       Vec(x-y, 0),
@@ -223,25 +301,22 @@ class Trace:
       if self.angle == Angle.ACUTE:
         if a < 90:
           break
-    self.line2.start_x = self.line1.end_x = self.line1.start_x + kneepoint.x
-    self.line2.start_y = self.line1.end_y = self.line1.start_y + kneepoint.y
+    kx, ky = self.line1.start_x() + kneepoint.x, self.line1.start_y() + kneepoint.y
+    self.line1.set_end((kx, ky))
+    self.line2.set_start((kx, ky))
 
   def is_initialized(self):
     return (self.line1.start_x, self.line1.start_y) != (-1, -1)
 
   def get_kneepoint(self):
-    return self.line1.end_x, self.line1.end_y
+    return self.line1.end()
 
   def set_start(self, xy):
-    x, y = xy
-    self.line1.start_x = x
-    self.line1.start_y = y
+    self.line1.set_start(xy)
     self._recalculate()
 
   def set_end(self, xy):
-    x, y = xy
-    self.line2.end_x = x
-    self.line2.end_y = y
+    self.line2.set_end(xy)
     self._recalculate()
 
   def set_angle(self, angle):
@@ -249,12 +324,12 @@ class Trace:
     self._recalculate()
 
 def test_trace():
-  t = Trace()
+  t = Trace(FreeLine(), FreeLine())
   t.set_start((0,0))
   t.set_end((20, 10))
   assert((10, 0) == t.get_kneepoint())
 
-  t = Trace()
+  t = Trace(FreeLine(), FreeLine())
   t.set_start((10, 5))
   t.set_end((110, 205))
   t.set_angle(Angle.OBTUSE)
@@ -269,16 +344,10 @@ class TraceDrawTool(EmptyTool):
   def __init__(self, viewmodel):
     self.viewmodel = viewmodel
     self.canvas = self.viewmodel.canvas
-    self.line1 = self.canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
-    self.line2 = self.canvas.create_line((-1, -1, -1, -1), fill='red', width=3)
-    self.trace = Trace()
+    self.trace = Trace(CanvasLine(self.canvas, (-1, -1, -1, -1), fill='red', width=3),
+                       CanvasLine(self.canvas, (-1, -1, -1, -1), fill='red', width=3))
     self.state = TraceDrawTool.STATE_INACTIVE
     self.do_snap = True
-
-  def draw(self):
-    if self.trace.is_initialized():
-      self.canvas.coords(self.line1, self.trace.line1.coords())
-      self.canvas.coords(self.line2, self.trace.line2.coords())
 
   def start_drag(self, _):
     def add(line_handle):
@@ -315,20 +384,6 @@ class TraceDrawTool(EmptyTool):
     else:
       self.trace.set_end(self.viewmodel.cursor)
 
-  def key_press(self, event):
-    if event.char == " ":
-      if self.viewmodel.is_dragging:
-        self.release(None)
-        self.start_drag(None)
-        # Set the start of the new drag to the end of the newly created line
-        new_line = Line(*self.canvas.coords(self.viewmodel.lines[-1]))
-        self.viewmodel.drag.start_x = new_line.end_x
-        self.viewmodel.drag.start_y = new_line.end_y
-
-    elif event.keysym in ("Control_L", "Control_R"):
-      self.do_snap = False
-      self.mouse_move(None)
-
   def key_release(self, event):
     if event.keysym in ("Control_L", "Control_R"):
       self.do_snap = True
@@ -336,9 +391,84 @@ class TraceDrawTool(EmptyTool):
 
 
   def deactivate(self):
-    self.trace = Trace()
-    self.canvas.coords(self.line1, self.trace.line1.coords())
-    self.canvas.coords(self.line2, self.trace.line2.coords())
+    self.trace.line1.set_coords((-1, -1, -1, -1))
+    self.trace.line2.set_coords((-1, -1, -1, -1))
+
+class Interface:
+  def __init__(self, line):
+     self.line = line
+
+  def point1(self):
+    return (self.line.start_x, self.line.start_y)
+
+  def set_point1(self, xy):
+    x, y = xy
+    self.line.start_x = x
+    self.line.start_y = y
+
+  def set_point2(self, xy):
+    x, y = xy
+    self.line.end_x = x
+    self.line.end_y = y
+
+  def get_position(self):
+    x1, y1, x2, y2 = self.line.coords()
+    return (x1 + x2)/2, (y1 + y2)/2
+
+  def move(self, xy):
+    px, py = self.get_position()
+    new_px, new_py = xy
+    dx, dy = new_px - px, new_py - py
+    self.line.start_x += dx
+    self.line.start_y += dy
+    self.line.end_x += dx
+    self.line.end_y += dy
+
+class InterfaceDrawTool(EmptyTool):
+  STATE_TOPLACE = 0
+  STATE_PLACED1 = 1
+
+  def __init__(self, viewmodel):
+    self.viewmodel = viewmodel
+    self.canvas = self.viewmodel.canvas
+    self.cursor_pad = self.canvas.create_oval((-1, -1, -1, -1), outline='yellow', fill='black')
+    self.cursor_line = CanvasLine(self.canvas, (-1, -1, -1, -1), fill='red', width=1)
+    self.interface = Interface(self.cursor_line)
+    self.state = InterfaceDrawTool.STATE_TOPLACE
+
+  def draw(self):
+    self.canvas.coords(self.cursor_pad, self.viewmodel.cursor)
+    if self.state == InterfaceDrawTool.STATE_TOPLACE:
+      self.canvas.coords(self.cursor_line, (-1, -1, -1, -1))
+    elif self.state == InterfaceDrawTool.STATE_PLACED1:
+      self.canvas.coords(self.cursor_line, self.interface.line.coords())
+
+  def deactivate(self):
+    self.cursor_line.set_coords((-1, -1, -1, -1))
+    self.state = InterfaceDrawTool.STATE_TOPLACE
+
+  def start_drag(self, event):
+    x, y = event.x, event.y
+    if self.state == InterfaceDrawTool.STATE_TOPLACE:
+      self.cursor_pad = CanvasOval((x-2, y-2, x+2, y+2), self.canvas, outline='red', fill='black')
+      # Move to top of z-stack
+      self.canvas.lift(self.cursor_pad.handle)
+      self.state = InterfaceDrawTool.STATE_PLACED1
+    elif self.state == InterfaceDrawTool.STATE_PLACED1:
+      self.
+
+  def dragging(self, _):
+    self.mouse_move(None)
+
+  def mouse_move(self, _):
+    if self.state == InterfaceDrawTool.STATE_TOPLACE:
+      self.interface.set_point1(self.viewmodel.cursor)
+    elif self.state == InterfaceDrawTool.STATE_PLACED1:
+      x1, y1 = self.interface.point1()
+      cx, cy = self.viewmodel.cursor
+      self.interface.line.set_end(cx, cy)
+      self.interface.line.snap_to_45()
+      self.interface.set_point2((self.interface.line.end_x, self.interface.line.end_y))
 
 class PadDrawTool(EmptyTool):
   def __init__(self, viewmodel):
@@ -371,10 +501,11 @@ class ViewModel:
     self.lines = []
     self.pads = []
     self.is_dragging = False
-    self.drag = Line(-1, -1, -1, -1)
+    self.drag = FreeLine()
     self.emptytool = EmptyTool()
     self.tracedrawtool = TraceDrawTool(self)
     self.paddrawtool = PadDrawTool(self)
+    self.interfacedrawtool = InterfaceDrawTool(self)
     self.tool = self.paddrawtool
     self.cursor = (-1, -1)
     canvas.bind("<Button-1>", self.start_drag)
@@ -387,6 +518,7 @@ class ViewModel:
     canvas.bind("q", self.tool_exit)
     canvas.bind("w", self.tool_draw_trace)
     canvas.bind("e", self.tool_draw_pad)
+    canvas.bind("r", self.tool_draw_interface)
     canvas.pack()
 
   def draw(self):
@@ -442,6 +574,9 @@ class ViewModel:
 
   def tool_draw_pad(self, _):
     self.change_tool(self.paddrawtool)
+
+  def tool_draw_interface(self, _):
+    self.change_tool(self.interfacedrawtool)
 
   def tool_exit(self, _):
     self.change_tool(self.emptytool)
