@@ -65,9 +65,12 @@ def invert3(matrix3x3):
   G = b*f-c*e
   H = -(a*f-c*d)
   I = a*e-b*d
-  return ((A, D, G),
-          (B, E, H),
-          (C, F, I))
+  return ((deti * A, deti * D, deti * G),
+          (deti * B, deti * E, deti * H),
+          (deti * C, deti * F, deti * I))
+def test_invert3():
+  pass
+test_invert3()
 
 def minus(vec1, vec2):
   return Vec(vec1.x - vec2.x, vec1.y - vec2.y)
