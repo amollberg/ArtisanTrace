@@ -431,13 +431,13 @@ class InterfaceDrawTool(EmptyTool):
   def __init__(self, viewmodel):
     self.viewmodel = viewmodel
     self.canvas = self.viewmodel.canvas
-    self.cursor_pad = self.canvas.create_oval((-1, -1, -1, -1), outline='yellow', fill='black')
+    self.cursor_pad = CanvasOval(self.canvas, (-1, -1, -1, -1), outline='red', fill='black')
     self.cursor_line = CanvasLine(self.canvas, (-1, -1, -1, -1), fill='red', width=1)
     self.interface = Interface(self.cursor_line)
     self.state = InterfaceDrawTool.STATE_TOPLACE
 
   def draw(self):
-    self.canvas.coords(self.cursor_pad, self.viewmodel.cursor)
+    self.canvas.coords(self.cursor_pad.coords(), self.viewmodel.cursor)
     if self.state == InterfaceDrawTool.STATE_TOPLACE:
       self.canvas.coords(self.cursor_line, (-1, -1, -1, -1))
     elif self.state == InterfaceDrawTool.STATE_PLACED1:
@@ -450,12 +450,13 @@ class InterfaceDrawTool(EmptyTool):
   def start_drag(self, event):
     x, y = event.x, event.y
     if self.state == InterfaceDrawTool.STATE_TOPLACE:
-      self.cursor_pad = CanvasOval((x-2, y-2, x+2, y+2), self.canvas, outline='red', fill='black')
+      self.interface.set_point1(self.viewmodel.cursor)
+      self.cursor_pad = CanvasOval(self.canvas, (x-2, y-2, x+2, y+2), outline='red', fill='black')
       # Move to top of z-stack
       self.canvas.lift(self.cursor_pad.handle)
       self.state = InterfaceDrawTool.STATE_PLACED1
     elif self.state == InterfaceDrawTool.STATE_PLACED1:
-      self.
+      self.state = InterfaceDrawTool.STATE_TOPLACE
 
   def dragging(self, _):
     self.mouse_move(None)
@@ -463,10 +464,10 @@ class InterfaceDrawTool(EmptyTool):
   def mouse_move(self, _):
     if self.state == InterfaceDrawTool.STATE_TOPLACE:
       self.interface.set_point1(self.viewmodel.cursor)
+      print(self.interface.line.coords())
     elif self.state == InterfaceDrawTool.STATE_PLACED1:
-      x1, y1 = self.interface.point1()
       cx, cy = self.viewmodel.cursor
-      self.interface.line.set_end(cx, cy)
+      self.interface.line.set_end((cx, cy))
       self.interface.line.snap_to_45()
       self.interface.set_point2((self.interface.line.end_x, self.interface.line.end_y))
 
@@ -500,6 +501,7 @@ class ViewModel:
     self.canvas = canvas
     self.lines = []
     self.pads = []
+    self.interfaces = []
     self.is_dragging = False
     self.drag = FreeLine()
     self.emptytool = EmptyTool()
