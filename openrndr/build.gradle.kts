@@ -178,7 +178,18 @@ dependencies {
     }
 
     implementation(kotlin("stdlib-jdk8"))
-    testImplementation("junit", "junit", "4.12")
+    testImplementation("org.junit.vintage", "junit-vintage-engine", "5.6.2")
+    testImplementation("org.junit.platform", "junit-platform-runner", "1.6.2")
+    testImplementation("org.junit.platform", "junit-platform-console-standalone", "1.6.2")
+    testImplementation("org.junit.platform", "junit-platform-testkit", "1.6.2")
+    testImplementation("org.junit.platform", "junit-platform-suite-api", "1.6.2")
+    testImplementation("org.junit.platform", "junit-platform-console", "1.6.2")
+    testImplementation("org.junit.platform", "junit-platform-commons", "1.6.2")
+    testImplementation("org.junit.platform", "junit-platform-engine", "1.6.2")
+    testImplementation("org.junit.platform", "junit-platform-launcher", "1.6.2")
+    testImplementation("org.junit.platform", "junit-platform-reporting", "1.6.2")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.6.2")
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.6.2")
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -250,4 +261,8 @@ runtime {
     options.add("--no-man-pages")
     modules.empty()
     modules.add("jdk.unsupported")
+}
+
+val test by tasks.getting(Test::class) {
+    useJUnitPlatform { }
 }
