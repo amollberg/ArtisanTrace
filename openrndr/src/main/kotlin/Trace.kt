@@ -7,7 +7,7 @@ class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
 
     constructor(points: Iterable<Vector2>) : this(points.toMutableList())
 
-    fun withPoint(point : Vector2): Trace {
+    fun withPoint(point: Vector2): Trace {
         return Trace(points + point)
     }
 
@@ -25,4 +25,8 @@ class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
             drawer.contour(c.offset(-15.0, joinType = SegmentJoin.MITER))
         }
     }
+}
+
+fun snapTo45(firstPoint: Vector2, secondPoint: Vector2) : Vector2 {
+    return secondPoint
 }
