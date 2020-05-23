@@ -4,7 +4,7 @@ import org.openrndr.math.Vector2
 import org.openrndr.math.Vector3
 import org.openrndr.shape.SegmentJoin
 import org.openrndr.shape.contours
-import kotlin.math.tan
+import kotlin.math.*
 
 class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
 
@@ -27,6 +27,91 @@ class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
             drawer.contour(c.offset(15.0, joinType = SegmentJoin.MITER))
             drawer.contour(c.offset(-15.0, joinType = SegmentJoin.MITER))
         }
+    }
+}
+
+/** Return the counter-clockwise angle from positive x-axis to xy in degrees,
+ *  -180 to 180
+ */
+fun arg(p: Vector2): Double {
+    return 180 / PI * atan2(p.y, p.x)
+}
+
+enum class Angle {
+    ACUTE,
+    RIGHT,
+    OBTUSE
+}
+
+/** A segment of a trace composed of two straight lines with a 45 or 90 degree
+ *  corner.
+ */
+class TraceSegment(
+    private var start: Vector2, private var end: Vector2, val angle: Angle) {
+    lateinit private var knee: Vector2
+
+
+    init {
+        recalculate()
+    }
+
+    fun setEnd(position: Vector2) {
+        end = position
+        recalculate()
+    }
+
+    fun setStart(position: Vector2) {
+        start = position
+        recalculate()
+    }
+
+    fun getKnee() = knee
+
+    private fun recalculate() {
+        var vec = end - start
+        val (x, y) = vec
+        val kneepoints = listOf(
+            Vector2(x-y, 0.0),
+            Vector2(x, 0.0),
+            Vector2(x+y, 0.0),
+
+            Vector2(0.0, y-x),
+            Vector2(0.0, y),
+            Vector2(0.0, y+x),
+
+            Vector2(-y, y),
+            Vector2((x-y)/2, (y-x)/2),
+            Vector2(x, -x),
+
+            Vector2(y, y),
+            Vector2((x+y)/2, (x+y)/2),
+            Vector2(x, x)
+        )
+        fun angleOf(point: Vector2): Int {
+            val origin = Vector2.ZERO
+            val a1 = arg(origin - point)
+            val a2 = arg(vec - point)
+            return abs((a1 - a2).toInt() % 360)
+        }
+        fun pred(kneepoint: Vector2): Boolean {
+            val a = 180 - abs(angleOf(kneepoint) - 180)
+            println("$kneepoint : $a")
+            println(a < 90)
+            println(a == 90)
+            println(a > 90)
+            return when (angle) {
+                Angle.ACUTE -> a < 90
+                Angle.RIGHT -> a == 90
+                Angle.OBTUSE -> a > 90
+            }
+        }
+        val relativeKnee = kneepoints.first { kp ->
+            val matches = pred(kp)
+            println("$kp $matches")
+            matches
+        }
+        knee = start + relativeKnee
+        println("Selected $knee")
     }
 }
 
