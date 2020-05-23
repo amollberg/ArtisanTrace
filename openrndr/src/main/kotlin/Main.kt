@@ -1,3 +1,4 @@
+import org.openrndr.KeyEvent
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
@@ -7,17 +8,11 @@ import org.openrndr.shape.contours
 
 abstract class BaseTool(var viewModel : ViewModel) {
 
-    open fun mouseClicked(position: Vector2) {
-        // Empty
-    }
+    open fun mouseClicked(position: Vector2) {}
 
-    open fun draw(drawer : Drawer) {
-        // Empty
-    }
+    open fun draw(drawer : Drawer) {}
 
-    open fun exit() {
-        // Empty
-    }
+    open fun exit() {}
 }
 
 class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
