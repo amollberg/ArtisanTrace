@@ -13,6 +13,17 @@ class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
         return Trace(points + point)
     }
 
+    fun add(segment: TraceSegment) {
+        if (points.isEmpty()) {
+            points.add(segment.getStart())
+        }
+        else {
+            assert(segment.getStart() == points.last())
+        }
+        points.add(segment.getKnee())
+        points.add(segment.getEnd())
+    }
+
     fun draw(drawer: Drawer) {
         val cs = contours {
             points.forEachIndexed { i, point ->
@@ -26,6 +37,13 @@ class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
             drawer.contour(c.offset(15.0, joinType = SegmentJoin.MITER))
             drawer.contour(c.offset(-15.0, joinType = SegmentJoin.MITER))
         }
+    }
+
+    fun withSegment(segment: TraceSegment): Trace {
+        // Note: Cloning the point list to avoid shared references
+        var t = Trace(points.toMutableList())
+        t.add(segment)
+        return t
     }
 }
 

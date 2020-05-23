@@ -3,26 +3,24 @@ import org.openrndr.math.Vector2
 
 class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val trace = Trace()
-    private var doSnapTo45 = true
+    private var previousPoint : Vector2? = null
+    private val angle = Angle.OBTUSE
 
     override fun mouseClicked(position : Vector2) {
-        trace.points.add(snappedPoint(position, doSnapTo45))
+        if (previousPoint != null) {
+            trace.add(TraceSegment(previousPoint!!, position, angle))
+        }
+        previousPoint = position
     }
 
     override fun draw(drawer : Drawer) {
-        trace
-            .withPoint(snappedPoint(viewModel.mousePoint, doSnapTo45))
-            .draw(drawer)
+        if (previousPoint != null) {
+            val s = TraceSegment(previousPoint!!, viewModel.mousePoint, angle)
+            trace.withSegment(s).draw(drawer)
+        }
     }
 
     override fun exit() {
         viewModel.traces.add(trace)
     }
-
-    private fun snappedPoint(position : Vector2, doSnapTo45 : Boolean) =
-        if (doSnapTo45 && trace.points.isNotEmpty()) {
-            snapTo45(trace.points.last(), position)
-        } else {
-            position
-        }
 }

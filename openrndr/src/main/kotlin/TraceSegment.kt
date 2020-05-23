@@ -22,7 +22,9 @@ class TraceSegment(
         recalculate()
     }
 
+    fun getStart() = start
     fun getKnee() = knee
+    fun getEnd() = end
 
     private fun recalculate() {
         var vec = end - start
@@ -51,25 +53,16 @@ class TraceSegment(
             val a2 = arg(vec - point)
             return abs((a1 - a2).toInt() % 360)
         }
-        fun pred(kneepoint: Vector2): Boolean {
+
+        val relativeKnee = kneepoints.filter { kneepoint ->
             val a = 180 - abs(angleOf(kneepoint) - 180)
-            println("$kneepoint : $a")
-            println(a < 90)
-            println(a == 90)
-            println(a > 90)
-            return when (angle) {
+            when (angle) {
                 Angle.ACUTE -> a < 90
                 Angle.RIGHT -> a == 90
                 Angle.OBTUSE -> a > 90
             }
-        }
-        val relativeKnee = kneepoints.first { kp ->
-            val matches = pred(kp)
-            println("$kp $matches")
-            matches
-        }
+        }.getOrElse(0, { Vector2.ZERO })
         knee = start + relativeKnee
-        println("Selected $knee")
     }
 }
 
