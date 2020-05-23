@@ -74,6 +74,11 @@ class ViewModel {
             }
         }
     }
+
+    fun draw(drawer: Drawer) {
+        traces.forEach { it -> it.draw(drawer) }
+        activeTool.draw(drawer)
+    }
 }
 
 fun main() = application {
@@ -98,7 +103,7 @@ fun main() = application {
             drawer.fill = ColorRGBa.WHITE
             drawer.stroke = ColorRGBa.PINK
             drawer.strokeWeight = 2.0
-            viewModel.activeTool.draw(drawer)
+            viewModel.draw(drawer)
         }
     }
 }
