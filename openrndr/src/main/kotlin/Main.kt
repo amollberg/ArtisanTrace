@@ -64,20 +64,19 @@ class ViewModel {
 
     fun keyUp(key : KeyEvent) {
         when (key.name) {
-            "q" -> {
-                activeTool.exit()
-                activeTool = EmptyTool(this)
-            }
-            "w" -> {
-                activeTool.exit()
-                activeTool = TraceDrawTool(this)
-            }
+            "q" -> { changeTool(EmptyTool(this)) }
+            "w" -> { changeTool(TraceDrawTool(this)) }
         }
     }
 
     fun draw(drawer: Drawer) {
         traces.forEach { it -> it.draw(drawer) }
         activeTool.draw(drawer)
+    }
+
+    private fun changeTool(newTool : BaseTool) {
+        activeTool.exit()
+        activeTool = newTool
     }
 }
 
