@@ -5,6 +5,21 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.SegmentJoin.MITER
 import org.openrndr.shape.contours
 
+abstract class BaseTool(var viewModel : ViewModel) {
+
+    open fun mouseClicked(position: Vector2) {
+        // Empty
+    }
+
+    open fun draw(drawer : Drawer) {
+        // Empty
+    }
+
+    open fun exit() {
+        // Empty
+    }
+}
+
 class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
 
     constructor(points: Iterable<Vector2>) : this(points.toMutableList())
@@ -29,18 +44,18 @@ class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
     }
 }
 
-class TraceDrawTool(var viewModel: ViewModel) {
+class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val trace = Trace()
 
-    fun mouseClicked(position : Vector2) {
+    override fun mouseClicked(position : Vector2) {
         trace.points.add(position)
     }
 
-    fun draw(drawer : Drawer) {
+    override fun draw(drawer : Drawer) {
         trace.withPoint(viewModel.mousePoint).draw(drawer)
     }
 
-    fun exit() {
+    override fun exit() {
         viewModel.traces.add(trace)
     }
 }
