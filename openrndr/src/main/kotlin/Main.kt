@@ -63,6 +63,7 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
 class ViewModel {
     var mousePoint = Vector2(-1.0, -1.0)
     var traces : MutableList<Trace> = mutableListOf()
+    var activeTool : BaseTool = TraceDrawTool(this)
 }
 
 fun main() = application {
@@ -73,19 +74,18 @@ fun main() = application {
 
     program {
         var viewModel = ViewModel()
-        val traceDrawTool = TraceDrawTool(viewModel)
 
         mouse.moved.listen {
             viewModel.mousePoint = it.position
         }
         mouse.clicked.listen {
-            traceDrawTool.mouseClicked(it.position)
+            viewModel.activeTool.mouseClicked(it.position)
         }
         extend {
             drawer.fill = ColorRGBa.WHITE
             drawer.stroke = ColorRGBa.PINK
             drawer.strokeWeight = 2.0
-            traceDrawTool.draw(drawer)
+            viewModel.activeTool.draw(drawer)
         }
     }
 }
