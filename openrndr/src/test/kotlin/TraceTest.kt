@@ -19,26 +19,6 @@ internal class TraceTest {
     }
 
     @Test
-    fun traceSegment1() {
-        var s = TraceSegment(
-            Vector2(0.0, 0.0),
-            Vector2(20.0, 10.0),
-            Angle.OBTUSE
-        )
-        assertEquals(Vector2(10.0, 0.0), s.getKnee())
-    }
-
-    @Test
-    fun traceSegment2() {
-        var s = TraceSegment(
-            Vector2(10.0, 5.0),
-            Vector2(110.0, 205.0),
-            Angle.OBTUSE
-        )
-        assertEquals(Vector2(10.0, 105.0), s.getKnee())
-    }
-
-    @Test
     fun arg() {
         assertEquals(0.0, arg(Vector2(1.0, 0.0)))
         assertEquals(45.0, arg(Vector2(1.0, 1.0)))
