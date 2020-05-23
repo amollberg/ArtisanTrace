@@ -39,6 +39,8 @@ class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>()) {
     }
 }
 
+class EmptyTool(viewModel: ViewModel) : BaseTool(viewModel)
+
 class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val trace = Trace()
 
@@ -58,7 +60,20 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
 class ViewModel {
     var mousePoint = Vector2(-1.0, -1.0)
     var traces : MutableList<Trace> = mutableListOf()
-    var activeTool : BaseTool = TraceDrawTool(this)
+    var activeTool : BaseTool = EmptyTool(this)
+
+    fun keyUp(key : KeyEvent) {
+        when (key.name) {
+            "q" -> {
+                activeTool.exit()
+                activeTool = EmptyTool(this)
+            }
+            "w" -> {
+                activeTool.exit()
+                activeTool = TraceDrawTool(this)
+            }
+        }
+    }
 }
 
 fun main() = application {
@@ -75,6 +90,9 @@ fun main() = application {
         }
         mouse.clicked.listen {
             viewModel.activeTool.mouseClicked(it.position)
+        }
+        keyboard.keyUp.listen {
+            viewModel.keyUp(it)
         }
         extend {
             drawer.fill = ColorRGBa.WHITE
