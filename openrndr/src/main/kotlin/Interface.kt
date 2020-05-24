@@ -1,5 +1,6 @@
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
+import org.openrndr.shape.LineSegment
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -12,7 +13,16 @@ class Interface(
 
     fun draw(drawer: Drawer) {
         val (end1, end2) = getEnds()
-        drawer.lineSegment(end1, end2)
+        val line = LineSegment(end1, end2)
+        drawer.lineSegment(line)
+        when (terminals) {
+            0 -> {}
+            1 -> drawer.circle(center, 4.0)
+            else ->  {
+                drawer.circles(
+                    line.contour.equidistantPositions(terminals),4.0)
+            }
+        }
     }
 
     internal fun getEnds(): List<Vector2> {
