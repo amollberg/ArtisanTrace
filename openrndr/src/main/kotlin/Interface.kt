@@ -5,10 +5,10 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class Interface(
-    val center: Vector2,
-    val angle: Double,
-    val length: Double,
-    val terminals: Int) {
+    var center: Vector2,
+    var angle: Double,
+    var length: Double,
+    var terminals: Int) {
 
     fun draw(drawer: Drawer) {
         val (end1, end2) = getEnds()
@@ -18,5 +18,9 @@ class Interface(
     internal fun getEnds(): List<Vector2> {
         val vec = Vector2(cos(angle * PI / 180), sin(angle * PI / 180))
         return listOf(center - vec * (length / 2), center + vec * (length / 2))
+    }
+
+    fun clone(): Interface {
+        return Interface(center, angle, length, terminals)
     }
 }

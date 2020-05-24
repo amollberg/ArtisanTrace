@@ -5,6 +5,7 @@ import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 
 class ViewModel {
+    var interfaces: MutableList<Interface> = mutableListOf()
     var mousePoint = Vector2(-1.0, -1.0)
     var traces : MutableList<Trace> = mutableListOf()
     var activeTool : BaseTool = EmptyTool(this)
@@ -13,11 +14,13 @@ class ViewModel {
         when (key.name) {
             "q" -> { changeTool(EmptyTool(this)) }
             "w" -> { changeTool(TraceDrawTool(this)) }
+            "e" -> { changeTool(InterfaceDrawTool(this)) }
         }
     }
 
     fun draw(drawer: Drawer) {
         traces.forEach { it -> it.draw(drawer) }
+        interfaces.forEach { it -> it.draw(drawer) }
         activeTool.draw(drawer)
     }
 
