@@ -7,15 +7,21 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val angle = Angle.OBTUSE
 
     override fun mouseClicked(position : Vector2) {
+        val connectPosition =
+            viewModel.activeSelection.getInterface()?.center ?:
+            position
         if (previousPoint != null) {
-            trace.add(TraceSegment(previousPoint!!, position, angle))
+            trace.add(TraceSegment(previousPoint!!, connectPosition, angle))
         }
-        previousPoint = position
+        previousPoint = connectPosition
     }
 
     override fun draw(drawer : Drawer) {
+        val connectPosition =
+            viewModel.activeSelection.getInterface()?.center ?:
+            viewModel.mousePoint
         if (previousPoint != null) {
-            val s = TraceSegment(previousPoint!!, viewModel.mousePoint, angle)
+            val s = TraceSegment(previousPoint!!, connectPosition, angle)
             trace.withSegment(s).draw(drawer)
         }
     }
