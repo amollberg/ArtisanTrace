@@ -24,9 +24,4 @@ internal class TraceTest {
         assertEquals(45.0, arg(Vector2(1.0, 1.0)))
         assertEquals(-135.0, arg(Vector2(-1.0, -1.0)))
     }
-
-    private fun assertEquals(a: Vector2, b: Vector2) {
-        assertEquals(a.x, b.x)
-        assertEquals(a.y, b.y)
-    }
 }
