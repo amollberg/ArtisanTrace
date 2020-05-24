@@ -1,9 +1,18 @@
+import org.openrndr.MouseEvent
 import org.openrndr.draw.Drawer
 import org.openrndr.shape.Circle
+import kotlin.math.max
+import kotlin.math.min
 
 /** On hover, select a contiguous range of terminals near the mouse */
 class MouseHoverTerminalSelection(viewModel: ViewModel) : BaseSelection(viewModel) {
     var desiredLeads: Int = 1
+
+    override fun mouseScrolled(mouse: MouseEvent) {
+        desiredLeads += mouse.rotation.y.toInt()
+        desiredLeads = max(1, desiredLeads)
+        desiredLeads = min(desiredLeads, getInterface()?.terminalCount ?: desiredLeads)
+    }
 
     override fun getTerminals(): Terminals? {
         val itf = getInterface() ?: return null
@@ -14,9 +23,10 @@ class MouseHoverTerminalSelection(viewModel: ViewModel) : BaseSelection(viewMode
     }
 
     override fun draw(drawer: Drawer) {
-        val selectedInterface = getInterface()
-        if (selectedInterface != null) {
-            drawer.circle(Circle(selectedInterface.center, 8.0))
+        val terminals = getTerminals() ?: return
+        val selectedInterface = terminals.hostInterface
+        terminals.range.forEach { i ->
+            drawer.circle(selectedInterface.getTerminalPosition(i), 6.0)
         }
     }
 
