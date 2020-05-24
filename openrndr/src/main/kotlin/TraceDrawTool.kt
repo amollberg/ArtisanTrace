@@ -34,6 +34,6 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
 
     // TODO: Handle source interface too
     private fun requiredLeads() =
-        viewModel.activeSelection.getInterface()?.terminals ?:
+        viewModel.activeSelection.getInterface()?.getTerminals()?.count() ?:
         trace.leads
 }

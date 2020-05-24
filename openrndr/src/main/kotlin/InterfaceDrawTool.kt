@@ -17,8 +17,8 @@ class InterfaceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
             itf.length += 4 * mouse.rotation.y
         }
         else if (mouse.modifiers.contains(KeyModifier.ALT)) {
-            itf.terminals += mouse.rotation.y.toInt()
-            itf.terminals = max(1, itf.terminals)
+            itf.terminalCount += mouse.rotation.y.toInt()
+            itf.terminalCount = max(1, itf.terminalCount)
         }
         else {
             itf.angle -= mouse.rotation.y * 45 % 360

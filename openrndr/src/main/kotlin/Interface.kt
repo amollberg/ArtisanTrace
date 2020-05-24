@@ -9,19 +9,29 @@ class Interface(
     var center: Vector2,
     var angle: Double,
     var length: Double,
-    var terminals: Int) {
+    var terminalCount: Int) {
 
     fun draw(drawer: Drawer) {
         val (end1, end2) = getEnds()
         val line = LineSegment(end1, end2)
         drawer.lineSegment(line)
-        when (terminals) {
-            0 -> {}
-            1 -> drawer.circle(center, 4.0)
-            else ->  {
-                drawer.circles(
-                    line.contour.equidistantPositions(terminals),4.0)
-            }
+        drawer.circles(
+            (0 until terminalCount).map { getTerminalPosition(it) },
+            4.0)
+    }
+
+    fun getTerminals(): Terminals {
+        return Terminals(this, 0 until terminalCount)
+    }
+
+    fun getTerminalPosition(terminalIndex: Int): Vector2 {
+        assert(terminalIndex < terminalCount)
+        val (end1, end2) = getEnds()
+        val line = LineSegment(end1, end2)
+        return when (terminalCount) {
+            1 -> center
+            else -> line.contour
+                .equidistantPositions(terminalCount)[terminalIndex]
         }
     }
 
@@ -31,6 +41,6 @@ class Interface(
     }
 
     fun clone(): Interface {
-        return Interface(center, angle, length, terminals)
+        return Interface(center, angle, length, terminalCount)
     }
 }
