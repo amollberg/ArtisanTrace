@@ -22,23 +22,37 @@ class TraceSegment(
     fun getEnd() = end
 
     fun draw(drawer: Drawer) {
-        val cs = contours {
-            // TODO
-            moveTo(start.hostInterface.center)
-            lineTo(getKnee())
-            lineTo(end.hostInterface.center)
+        if (start.count() > 1) {
+            // Divide segment into one per lead
+            start.range.zip(end.range).forEach{ (startTerminal, endTerminal) ->
+                TraceSegment(
+                    Terminals(start.hostInterface,
+                        startTerminal..startTerminal),
+                    Terminals(end.hostInterface,
+                        endTerminal..endTerminal),
+                    angle)
+                    .draw(drawer)
+            }
         }
-        if (cs.isNotEmpty()) {
-            val c = cs.first()
-            (0 until start.count()).forEach { i ->
-                drawer.contour(
-                    c.offset(10.0 * i, SegmentJoin.MITER))
+        else {
+            val cs = contours {
+                moveTo(firstStartPosition())
+                lineTo(getKnee())
+                lineTo(firstEndPosition())
+            }
+            if (cs.isNotEmpty()) {
+                val c = cs.first()
+                (0 until start.count()).forEach { i ->
+                    drawer.contour(
+                        c.offset(10.0 * i, SegmentJoin.MITER)
+                    )
+                }
             }
         }
     }
 
     private fun recalculate() {
-        var vec = end.hostInterface.center - start.hostInterface.center
+        var vec = firstEndPosition() - firstStartPosition()
         val (x, y) = vec
         val kneepoints = listOf(
             Vector2(x - y, 0.0),
@@ -74,8 +88,14 @@ class TraceSegment(
             }
         }.getOrElse(0, { Vector2.ZERO })
         // TODO
-        knee = start.hostInterface.center + relativeKnee
+        knee = firstStartPosition() + relativeKnee
     }
+
+    fun firstStartPosition() =
+        start.hostInterface.getTerminalPosition(start.range.first)
+
+    fun firstEndPosition() =
+        end.hostInterface.getTerminalPosition(end.range.first)
 }
 
 /** Return the counter-clockwise angle from positive x-axis to xy in degrees,
