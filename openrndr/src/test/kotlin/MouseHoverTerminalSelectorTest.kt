@@ -2,14 +2,14 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
 
-class MouseHoverTerminalSelectionTest {
+class MouseHoverTerminalSelectorTest {
 
     @Test
     fun getTerminals() {
         var view = ViewModel()
         var itf = Interface(Vector2(x = 15.0), 0.0, 10.0, 4)
         view.interfaces = mutableListOf(itf)
-        var selection = MouseHoverTerminalSelection(view)
+        var selection = MouseHoverTerminalSelector(view)
         selection.desiredLeads = 3
 
         view.mousePoint = Vector2(x = 0.0)

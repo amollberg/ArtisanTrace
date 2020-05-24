@@ -10,7 +10,6 @@ class ViewModel {
     var mousePoint = Vector2(-1.0, -1.0)
     var traces : MutableList<Trace> = mutableListOf()
     var activeTool : BaseTool = EmptyTool(this)
-    var activeSelection : BaseSelection = MouseHoverTerminalSelection(this)
 
     fun keyUp(key : KeyEvent) {
         when (key.name) {
@@ -23,7 +22,6 @@ class ViewModel {
     fun draw(drawer: Drawer) {
         traces.forEach { it -> it.draw(drawer) }
         interfaces.forEach { it -> it.draw(drawer) }
-        activeSelection.draw(drawer)
         activeTool.draw(drawer)
     }
 
@@ -49,7 +47,6 @@ fun main() = application {
             viewModel.activeTool.mouseClicked(it.position)
         }
         mouse.scrolled.listen {
-            viewModel.activeSelection.mouseScrolled(it)
             viewModel.activeTool.mouseScrolled(it)
         }
         keyboard.keyUp.listen {

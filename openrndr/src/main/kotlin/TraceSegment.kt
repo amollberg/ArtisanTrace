@@ -1,24 +1,19 @@
+import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
+import org.openrndr.shape.SegmentJoin
+import org.openrndr.shape.contours
 import kotlin.math.*
 
 /** A segment of a trace composed of two straight lines with a 45 or 90 degree
  *  corner.
  */
 class TraceSegment(
-    private var start: Vector2, private var end: Vector2, val angle: Angle) {
+    private var start: Terminals,
+    private var end: Terminals,
+    val angle: Angle) {
     lateinit private var knee: Vector2
 
     init {
-        recalculate()
-    }
-
-    fun setEnd(position: Vector2) {
-        end = position
-        recalculate()
-    }
-
-    fun setStart(position: Vector2) {
-        start = position
         recalculate()
     }
 
@@ -26,8 +21,24 @@ class TraceSegment(
     fun getKnee() = knee
     fun getEnd() = end
 
+    fun draw(drawer: Drawer) {
+        val cs = contours {
+            // TODO
+            moveTo(start.hostInterface.center)
+            lineTo(getKnee())
+            lineTo(end.hostInterface.center)
+        }
+        if (cs.isNotEmpty()) {
+            val c = cs.first()
+            (0 until start.count()).forEach { i ->
+                drawer.contour(
+                    c.offset(10.0 * i, SegmentJoin.MITER))
+            }
+        }
+    }
+
     private fun recalculate() {
-        var vec = end - start
+        var vec = end.hostInterface.center - start.hostInterface.center
         val (x, y) = vec
         val kneepoints = listOf(
             Vector2(x - y, 0.0),
@@ -62,7 +73,8 @@ class TraceSegment(
                 Angle.OBTUSE -> a > 90
             }
         }.getOrElse(0, { Vector2.ZERO })
-        knee = start + relativeKnee
+        // TODO
+        knee = start.hostInterface.center + relativeKnee
     }
 }
 

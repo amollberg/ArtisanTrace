@@ -5,49 +5,26 @@ import org.openrndr.shape.SegmentJoin
 import org.openrndr.shape.contours
 import kotlin.math.tan
 
-class Trace(var points: MutableList<Vector2> = mutableListOf<Vector2>(),
-            var leads: Int = 3) {
 
-    constructor(points: Iterable<Vector2>, leads: Int) :
-            this(points.toMutableList(), leads)
+class Trace(var segments: MutableList<TraceSegment> =
+                mutableListOf<TraceSegment>()) {
 
-    fun withPoint(point: Vector2): Trace {
-        return Trace(points + point, leads)
-    }
+    constructor(points: Iterable<TraceSegment>) :
+            this(points.toMutableList())
 
     fun add(segment: TraceSegment) {
-        if (points.isEmpty()) {
-            points.add(segment.getStart())
+        if (segments.isNotEmpty()) {
+            assert(segment.getStart() == segments.last().getEnd())
         }
-        else {
-            assert(segment.getStart() == points.last())
-        }
-        points.add(segment.getKnee())
-        points.add(segment.getEnd())
+        segments.add(segment)
     }
 
     fun draw(drawer: Drawer) {
-        val cs = contours {
-            points.forEachIndexed { i, point ->
-                if (i == 0) moveTo(point)
-                else lineTo(point)
-            }
-        }
-        if (cs.isNotEmpty()) {
-            val c = cs.first()
-            (0 until leads).forEach { i ->
-                drawer.contour(
-                    c.offset(10.0 * i, SegmentJoin.MITER))
-            }
-        }
+        segments.forEach { it.draw(drawer) }
+
     }
 
-    fun withSegment(segment: TraceSegment): Trace {
-        // Note: Cloning the point list to avoid shared references
-        var t = Trace(points.toMutableList(), leads)
-        t.add(segment)
-        return t
-    }
+    fun withSegment(segment: TraceSegment) = Trace(segments + segment)
 }
 
 class Matrix22(val c0r0: Double = 0.0, val c1r0: Double = 0.0,

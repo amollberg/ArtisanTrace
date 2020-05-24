@@ -5,16 +5,10 @@ import kotlin.math.max
 import kotlin.math.min
 
 /** On hover, select a contiguous range of terminals near the mouse */
-class MouseHoverTerminalSelection(viewModel: ViewModel) : BaseSelection(viewModel) {
+class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
     var desiredLeads: Int = 1
 
-    override fun mouseScrolled(mouse: MouseEvent) {
-        desiredLeads += mouse.rotation.y.toInt()
-        desiredLeads = max(1, desiredLeads)
-        desiredLeads = min(desiredLeads, getInterface()?.terminalCount ?: desiredLeads)
-    }
-
-    override fun getTerminals(): Terminals? {
+    fun getTerminals(): Terminals? {
         val itf = getInterface() ?: return null
         val nearestIndices = itf.getTerminals().range.sortedBy {
             (itf.getTerminalPosition(it) - viewModel.mousePoint).length
@@ -22,7 +16,7 @@ class MouseHoverTerminalSelection(viewModel: ViewModel) : BaseSelection(viewMode
         return Terminals(itf, rangeOfList(nearestIndices))
     }
 
-    override fun draw(drawer: Drawer) {
+    fun draw(drawer: Drawer) {
         val terminals = getTerminals() ?: return
         val selectedInterface = terminals.hostInterface
         terminals.range.forEach { i ->
@@ -30,7 +24,7 @@ class MouseHoverTerminalSelection(viewModel: ViewModel) : BaseSelection(viewMode
         }
     }
 
-    override fun getInterface(): Interface? {
+    fun getInterface(): Interface? {
         // Get the interface nearest to the mouse
         return viewModel.interfaces.minBy {
             (it.center - viewModel.mousePoint).length
