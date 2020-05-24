@@ -45,6 +45,9 @@ fun main() = application {
         mouse.clicked.listen {
             viewModel.activeTool.mouseClicked(it.position)
         }
+        mouse.scrolled.listen {
+            viewModel.activeTool.mouseScrolled(it)
+        }
         keyboard.keyUp.listen {
             viewModel.keyUp(it)
         }
