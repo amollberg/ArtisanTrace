@@ -7,6 +7,7 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val angle = Angle.OBTUSE
 
     override fun mouseClicked(position : Vector2) {
+        trace.leads = requiredLeads()
         val connectPosition =
             viewModel.activeSelection.getInterface()?.center ?:
             position
@@ -17,6 +18,7 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
     override fun draw(drawer : Drawer) {
+        trace.leads = requiredLeads()
         val connectPosition =
             viewModel.activeSelection.getInterface()?.center ?:
             viewModel.mousePoint
@@ -29,4 +31,9 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     override fun exit() {
         viewModel.traces.add(trace)
     }
+
+    // TODO: Handle source interface too
+    private fun requiredLeads() =
+        viewModel.activeSelection.getInterface()?.terminals ?:
+        trace.leads
 }
