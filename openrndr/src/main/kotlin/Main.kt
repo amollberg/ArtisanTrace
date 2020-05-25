@@ -1,4 +1,5 @@
 import org.openrndr.KeyEvent
+import org.openrndr.KeyEventType
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
@@ -10,10 +11,13 @@ class ViewModel {
     var mousePoint = Vector2(-1.0, -1.0)
     var traces : MutableList<Trace> = mutableListOf()
     var activeTool : BaseTool = EmptyTool(this)
+    // Map KEY_CODE to whether the key is held or not
+    var modifierKeysHeld = HashMap<Int, Boolean>()
 
     var areInterfacesVisible = true
 
     fun keyUp(key : KeyEvent) {
+        updateModifiers(key)
         when (key.name) {
             "q" -> { changeTool(EmptyTool(this)) }
             "w" -> { changeTool(TraceDrawTool(this)) }
@@ -40,6 +44,14 @@ class ViewModel {
         activeTool.exit()
         activeTool = newTool
     }
+
+    fun keyDown(key: KeyEvent) {
+        updateModifiers(key)
+    }
+
+    private fun updateModifiers(key: KeyEvent) {
+        modifierKeysHeld[key.key] = key.type == KeyEventType.KEY_DOWN
+    }
 }
 
 fun main() = application {
@@ -62,6 +74,9 @@ fun main() = application {
         }
         keyboard.keyUp.listen {
             viewModel.keyUp(it)
+        }
+        keyboard.keyDown.listen {
+            viewModel.keyDown(it)
         }
         extend {
             drawer.fill = ColorRGBa.WHITE

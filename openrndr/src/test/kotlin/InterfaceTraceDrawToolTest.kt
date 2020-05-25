@@ -39,6 +39,40 @@ class InterfaceTraceDrawToolTest {
             terminalDistance(createdInterface), 1e-10)
     }
 
+    @Test
+    fun projectOrthogonalOddNumberOfTerminals() {
+        // Interface oriented vertically
+        val itf = Interface(Vector2(x = 20.0), 90.0, 40.0, 5)
+        val terminals = Terminals(itf, 0..2)
+        val inputPosition = Vector2(17.0, 47.0)
+
+        val expectedX = inputPosition.x
+        // The point should be on the same y-coordinate as terminal 1 which
+        // is in the middle of 0..2
+        val expectedY = terminals.hostInterface.getTerminalPosition(1).y
+        assertEquals(
+            Vector2(expectedX, expectedY),
+            projectOrthogonal(inputPosition, terminals))
+    }
+
+    @Test
+    fun projectOrthogonalEvenNumberOfTerminals() {
+        // Interface oriented vertically
+        val itf = Interface(Vector2(x = 25.0), 90.0, 30.0, 4)
+        val terminals = Terminals(itf, 0..3)
+        val inputPosition = Vector2(17.0, 47.0)
+
+        val expectedX = inputPosition.x
+        // The point should be on the same y-coordinate as the middle of
+        // terminal 1 and 2
+        val expectedY =
+            (terminals.hostInterface.getTerminalPosition(1).y +
+             terminals.hostInterface.getTerminalPosition(2).y) / 2.0
+        assertEquals(
+            Vector2(expectedX, expectedY),
+            projectOrthogonal(inputPosition, terminals))
+    }
+
     fun terminalDistance(itf: Interface): Double {
         return when (itf.terminalCount) {
             1 -> itf.length
