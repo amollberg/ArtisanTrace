@@ -4,9 +4,7 @@ import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import kotlin.math.max
 
-class InterfaceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
-    private var itf = Interface(viewModel.mousePoint, 0.0, 20.0, 1)
-
+class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
     override fun mouseClicked(position: Vector2) {
         viewModel.interfaces.add(itf)
         itf = itf.clone()
