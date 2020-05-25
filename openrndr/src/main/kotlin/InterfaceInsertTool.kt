@@ -5,7 +5,7 @@ import org.openrndr.math.Vector2
 import kotlin.math.max
 
 class InterfaceInsertTool(viewModel: ViewModel) : BaseTool(viewModel) {
-    private var itf = Interface(viewModel.mousePoint, 0.0, 20.0, 1)
+    private var itf = interfaceLikeNearest(viewModel.mousePoint)
 
     override fun mouseClicked(position: Vector2) {
         val (trace, seg) = getNearestSegment(position) ?: return
@@ -61,5 +61,11 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseTool(viewModel) {
             }.minBy { (trace, segment, kneePosition) ->
                 (kneePosition - position).length
             }?.let { (trace, segment, _) -> Pair(trace, segment) }
+    }
+
+    private fun interfaceLikeNearest(position: Vector2): Interface {
+        val (trace, nearestSegment) = getNearestSegment(position) ?:
+                                      return Interface(position, 0.0, 20.0, 1)
+        return nearestSegment.getStart().hostInterface.clone()
     }
 }
