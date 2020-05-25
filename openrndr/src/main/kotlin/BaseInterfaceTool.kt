@@ -20,20 +20,13 @@ open class BaseInterfaceTool(viewModel: ViewModel) : BaseTool(viewModel) {
         }
     }
 
-    protected fun getNearestSegment(position: Vector2):
-            Pair<Trace, TraceSegment>? {
-        return viewModel.traces.flatMap { trace ->
-                trace.segments.map { segment ->
-                    Triple(trace, segment, segment.getKnee())
-                }
-            }.minBy { (trace, segment, kneePosition) ->
-                (kneePosition - position).length
-            }?.let { (trace, segment, _) -> Pair(trace, segment) }
+    private fun getNearestInterface(position: Vector2): Interface? {
+        return viewModel.interfaces.minBy { (it.center - position).length }
     }
 
     private fun interfaceLikeNearest(position: Vector2): Interface {
-        val (trace, nearestSegment) = getNearestSegment(position) ?:
-                                      return Interface(position, 0.0, 20.0, 1)
-        return nearestSegment.getStart().hostInterface.clone()
+        val nearestItf = getNearestInterface(position) ?:
+                         return Interface(position, 0.0, 20.0, 1)
+        return nearestItf.clone()
     }
 }

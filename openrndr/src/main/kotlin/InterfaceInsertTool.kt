@@ -36,4 +36,16 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
         newSecondSegment.draw(drawer)
         itf.draw(drawer)
     }
+
+    private fun getNearestSegment(position: Vector2):
+            Pair<Trace, TraceSegment>? {
+        return viewModel.traces.flatMap { trace ->
+            trace.segments.map { segment ->
+                Triple(trace, segment, segment.getKnee())
+            }
+        }.minBy { (trace, segment, kneePosition) ->
+            (kneePosition - position).length
+        }?.let { (trace, segment, _) -> Pair(trace, segment) }
+    }
+
 }
