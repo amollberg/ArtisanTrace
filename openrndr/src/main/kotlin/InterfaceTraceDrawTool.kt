@@ -8,7 +8,7 @@ import kotlin.math.max
 class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
     private val trace = Trace()
     private var previousTerminals: Terminals? = null
-    private val terminalSelector = MouseHoverTerminalSelector(viewModel)
+    internal val terminalSelector = MouseHoverTerminalSelector(viewModel)
     private val angle = Angle.OBTUSE
     private var hasPlacedStart = false
 
@@ -21,6 +21,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
 
             // Update interface properties from clicked interface
             itf = interfaceLikeNearest(position)
+                .withTerminalCount(terminalSelector.desiredLeads)
         }
         else {
             // Place an interface and connect the trace to it

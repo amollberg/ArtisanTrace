@@ -40,6 +40,17 @@ class Interface(
         return listOf(center - vec * (length / 2), center + vec * (length / 2))
     }
 
+    fun withTerminalCount(newCount: Int): Interface {
+        val itf = clone()
+        itf.length = when (newCount) {
+            // Distance covered by 3 terminals
+            1 -> length * newCount / (terminalCount - 1)
+            else -> length * (newCount - 1) / (terminalCount - 1)
+        }
+        itf.terminalCount = newCount
+        return itf
+    }
+
     fun clone(): Interface {
         return Interface(center, angle, length, terminalCount)
     }
