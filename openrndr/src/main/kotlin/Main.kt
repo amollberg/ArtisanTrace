@@ -11,17 +11,26 @@ class ViewModel {
     var traces : MutableList<Trace> = mutableListOf()
     var activeTool : BaseTool = EmptyTool(this)
 
+    var areInterfacesVisible = true
+
     fun keyUp(key : KeyEvent) {
         when (key.name) {
             "q" -> { changeTool(EmptyTool(this)) }
             "w" -> { changeTool(TraceDrawTool(this)) }
             "e" -> { changeTool(InterfaceDrawTool(this)) }
+            "x" -> { toggleInterfaceVisibility() }
         }
+    }
+
+    private fun toggleInterfaceVisibility() {
+        areInterfacesVisible = !areInterfacesVisible
     }
 
     fun draw(drawer: Drawer) {
         traces.forEach { it -> it.draw(drawer) }
-        interfaces.forEach { it -> it.draw(drawer) }
+        if (areInterfacesVisible) {
+            interfaces.forEach { it -> it.draw(drawer) }
+        }
         activeTool.draw(drawer)
     }
 
