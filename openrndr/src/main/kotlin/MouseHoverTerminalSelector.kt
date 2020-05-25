@@ -1,19 +1,17 @@
-import org.openrndr.MouseEvent
 import org.openrndr.draw.Drawer
-import org.openrndr.shape.Circle
-import kotlin.math.max
-import kotlin.math.min
 
 /** On hover, select a contiguous range of terminals near the mouse */
 class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
     var desiredLeads: Int = 1
+    var reverseTerminalOrder = false
 
     fun getTerminals(): Terminals? {
         val itf = getInterface() ?: return null
         val nearestIndices = itf.getTerminals().range.sortedBy {
             (itf.getTerminalPosition(it) - viewModel.mousePoint).length
         }.take(desiredLeads)
-        return Terminals(itf, rangeOfList(nearestIndices))
+        return Terminals(itf, reversedIf(reverseTerminalOrder,
+                                        toProgression(nearestIndices)))
     }
 
     fun draw(drawer: Drawer) {
@@ -32,12 +30,15 @@ class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
     }
 }
 
-fun rangeOfList(l: List<Int>): IntRange {
+fun toProgression(l: List<Int>): IntProgression {
     return if (l.isNotEmpty()) {
         l.min()!! until (l.max()!! + 1)
     }
     else {
         IntRange.EMPTY
     }
-
 }
+
+fun reversedIf(condition: Boolean, progression: IntProgression) =
+    if (condition) progression.reversed()
+    else progression

@@ -37,6 +37,11 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
             )
             terminalSelector.desiredLeads = leads
         }
+        else {
+            // Change the match order of the destination terminals
+            terminalSelector.reverseTerminalOrder =
+                !terminalSelector.reverseTerminalOrder
+        }
     }
 
 

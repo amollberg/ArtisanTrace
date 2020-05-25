@@ -30,8 +30,8 @@ class MouseHoverTerminalSelectorTest {
 
     @Test
     fun rangeOfList() {
-        assertEquals(0 until 10, rangeOfList(listOf(0, 1, 9, 7)))
-        assertEquals(4 until 5, rangeOfList(listOf(4)))
-        assertEquals(IntRange.EMPTY, rangeOfList(listOf()))
+        assertEquals(0 until 10, toProgression(listOf(0, 1, 9, 7)))
+        assertEquals(4 until 5, toProgression(listOf(4)))
+        assertEquals(IntRange.EMPTY, toProgression(listOf()))
     }
 }
