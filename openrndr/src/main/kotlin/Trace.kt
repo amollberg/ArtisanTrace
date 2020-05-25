@@ -5,9 +5,7 @@ import org.openrndr.shape.SegmentJoin
 import org.openrndr.shape.contours
 import kotlin.math.tan
 
-
-class Trace(var segments: MutableList<TraceSegment> =
-                mutableListOf<TraceSegment>()) {
+class Trace(var segments: MutableList<TraceSegment> = mutableListOf()) {
 
     constructor(points: Iterable<TraceSegment>) :
             this(points.toMutableList())
