@@ -7,7 +7,6 @@ import kotlin.math.min
 
 class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val trace = Trace()
-    private var previousPoint : Vector2? = null
     private var previousTerminals : Terminals? = null
     private val terminalSelector = MouseHoverTerminalSelector(viewModel)
     private val angle = Angle.OBTUSE

@@ -20,6 +20,7 @@ class ViewModel {
             "e" -> { changeTool(InterfaceDrawTool(this)) }
             "x" -> { toggleInterfaceVisibility() }
             "d" -> { changeTool(InterfaceInsertTool(this)) }
+            "r" -> { changeTool(InterfaceTraceDrawTool(this)) }
         }
     }
 

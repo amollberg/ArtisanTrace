@@ -6,7 +6,6 @@ import kotlin.math.max
 open class BaseInterfaceTool(viewModel: ViewModel) : BaseTool(viewModel) {
     protected var itf = interfaceLikeNearest(viewModel.mousePoint)
 
-    // Copy-pasted from InterfaceDrawTool.mouseScrolled
     override fun mouseScrolled(mouse: MouseEvent) {
         if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
             itf.length += 4 * mouse.rotation.y
@@ -24,7 +23,7 @@ open class BaseInterfaceTool(viewModel: ViewModel) : BaseTool(viewModel) {
         return viewModel.interfaces.minBy { (it.center - position).length }
     }
 
-    private fun interfaceLikeNearest(position: Vector2): Interface {
+    protected fun interfaceLikeNearest(position: Vector2): Interface {
         val nearestItf = getNearestInterface(position) ?:
                          return Interface(position, 0.0, 20.0, 1)
         return nearestItf.clone()
