@@ -10,6 +10,12 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Circle
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.json.JsonException
+import java.io.File
+
+val json = Json(JsonConfiguration.Stable.copy())
 
 @Serializable
 class ViewModel {
@@ -25,6 +31,18 @@ class ViewModel {
 
     var areInterfacesVisible = true
 
+    companion object {
+        fun loadFromFile(): ViewModel? {
+            val file = File("sketch.cts")
+            if (!file.isFile) return null
+            return try {
+                json.parse(ViewModel.serializer(), file.readText())
+            }
+            catch (e: JsonException) { null }
+            catch (e: SerializationException) { null }
+        }
+    }
+
     fun keyUp(key : KeyEvent) {
         updateModifiers(key)
         when (key.name) {
@@ -35,7 +53,13 @@ class ViewModel {
             "d" -> { changeTool(InterfaceInsertTool(this)) }
             "r" -> { changeTool(InterfaceTraceDrawTool(this)) }
             "t" -> { changeTool(InterfaceMoveTool(this)) }
+            "s" -> { saveToFile() }
         }
+    }
+
+    private fun saveToFile() {
+        File("sketch.cts").writeText(
+            json.stringify(ViewModel.serializer(),this))
     }
 
     private fun toggleInterfaceVisibility() {
@@ -71,7 +95,7 @@ fun main() = application {
     }
 
     program {
-        var viewModel = ViewModel()
+        var viewModel = modelFromFileOrDefault(ViewModel())
 
         mouse.moved.listen {
             viewModel.mousePoint = it.position
@@ -96,3 +120,6 @@ fun main() = application {
         }
     }
 }
+
+fun modelFromFileOrDefault(defaultModel: ViewModel) =
+    ViewModel.loadFromFile() ?: defaultModel
