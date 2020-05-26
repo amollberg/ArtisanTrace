@@ -1,11 +1,15 @@
+@file:UseSerializers(Vector2Serializer::class)
+
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.LineSegment
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlinx.serialization.*
 
-class Interface(
+@Serializable
+data class Interface(
     var center: Vector2,
     var angle: Double,
     var length: Double,

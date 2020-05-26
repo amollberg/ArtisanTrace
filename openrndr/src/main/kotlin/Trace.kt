@@ -4,7 +4,9 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.SegmentJoin
 import org.openrndr.shape.contours
 import kotlin.math.tan
+import kotlinx.serialization.*
 
+@Serializable
 class Trace(var segments: MutableList<TraceSegment> = mutableListOf()) {
 
     constructor(points: Iterable<TraceSegment>) :

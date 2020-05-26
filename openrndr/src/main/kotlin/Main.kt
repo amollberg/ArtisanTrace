@@ -1,3 +1,8 @@
+@file:UseSerializers(Vector2Serializer::class)
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.Transient
+import kotlinx.serialization.UseSerializers
 import org.openrndr.KeyEvent
 import org.openrndr.KeyEventType
 import org.openrndr.application
@@ -6,12 +11,16 @@ import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Circle
 
+@Serializable
 class ViewModel {
     var interfaces: MutableList<Interface> = mutableListOf()
+    @Transient
     var mousePoint = Vector2(-1.0, -1.0)
     var traces : MutableList<Trace> = mutableListOf()
+    @Transient
     var activeTool : BaseTool = EmptyTool(this)
     // Map KEY_CODE to whether the key is held or not
+    @Transient
     var modifierKeysHeld = HashMap<Int, Boolean>()
 
     var areInterfacesVisible = true
