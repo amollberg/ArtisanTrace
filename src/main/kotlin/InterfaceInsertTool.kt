@@ -21,7 +21,7 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
 
     override fun draw(drawer: Drawer) {
         val position = viewModel.mousePoint
-        val (trace, seg) = getNearestSegment(position) ?: return
+        val (_, seg) = getNearestSegment(position) ?: return
         itf.center = viewModel.mousePoint
         val newFirstSegment =
             TraceSegment(seg.getStart(), itf.getTerminals(), seg.angle)
@@ -39,7 +39,7 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
             trace.segments.map { segment ->
                 Triple(trace, segment, segment.getKnee())
             }
-        }.minBy { (trace, segment, kneePosition) ->
+        }.minBy { (_, _, kneePosition) ->
             (kneePosition - position).length
         }?.let { (trace, segment, _) -> Pair(trace, segment) }
     }

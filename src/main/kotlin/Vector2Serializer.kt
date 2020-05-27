@@ -6,8 +6,8 @@ object Vector2Serializer : KSerializer<Vector2> {
     override val descriptor: SerialDescriptor =
         PrimitiveDescriptor("Vector2", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, obj: Vector2) {
-        encoder.encodeString("${obj.x}:${obj.y}")
+    override fun serialize(encoder: Encoder, value: Vector2) {
+        encoder.encodeString("${value.x}:${value.y}")
     }
 
     override fun deserialize(decoder: Decoder): Vector2 {

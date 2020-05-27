@@ -5,8 +5,8 @@ object IntProgressionSerializer : KSerializer<IntProgression> {
     override val descriptor: SerialDescriptor =
         PrimitiveDescriptor("IntProgression", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, obj: IntProgression) {
-        encoder.encodeString("${obj.first}:${obj.last}:${obj.step}")
+    override fun serialize(encoder: Encoder, value: IntProgression) {
+        encoder.encodeString("${value.first}:${value.last}:${value.step}")
     }
 
     override fun deserialize(decoder: Decoder): IntProgression {
