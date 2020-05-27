@@ -23,6 +23,8 @@ internal class TraceSegmentTest {
     }
 
     private fun terminalsAt(x: Double, y: Double) =
-        Terminals(Interface(Vector2(x, y), 0.0, 1.0, 1),
-            0..0)
+        Terminals(
+            Interface(Vector2(x, y), 0.0, 1.0, 1),
+            0..0
+        )
 }

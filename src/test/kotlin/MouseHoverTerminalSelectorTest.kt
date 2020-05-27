@@ -1,4 +1,4 @@
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
 
@@ -15,17 +15,20 @@ class MouseHoverTerminalSelectorTest {
         view.mousePoint = Vector2(x = 0.0)
         assertEquals(
             Terminals(itf, 0..2),
-            selection.getTerminals())
+            selection.getTerminals()
+        )
 
         view.mousePoint = Vector2(x = 15.5)
         assertEquals(
             Terminals(itf, 1..3),
-            selection.getTerminals())
+            selection.getTerminals()
+        )
 
         selection.desiredLeads = 1
         assertEquals(
             Terminals(itf, 2..2),
-            selection.getTerminals())
+            selection.getTerminals()
+        )
     }
 
     @Test

@@ -19,13 +19,19 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
             hasPlacedStart = true
 
             // Update interface properties from clicked interface
-            itf = interfaceLikeNearest(position)
-                .withTerminalCount(terminalSelector.desiredLeads)
+            itf = interfaceLikeNearest(position).withTerminalCount(
+                terminalSelector.desiredLeads
+            )
         }
         else {
             // Place an interface and connect the trace to it
-            trace.add(TraceSegment(
-                previousTerminals!!, itf.getTerminals(), angle))
+            trace.add(
+                TraceSegment(
+                    previousTerminals!!,
+                    itf.getTerminals(),
+                    angle
+                )
+            )
             previousTerminals = itf.getTerminals()
             viewModel.interfaces.add(itf)
             itf = itf.clone()
@@ -57,13 +63,15 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
         }
         else {
             // Restrict the new interface position if shift is held
-            if (viewModel.modifierKeysHeld
-                .getOrDefault(KEY_LEFT_SHIFT, false) ) {
+            if (viewModel.modifierKeysHeld.getOrDefault(
+                    KEY_LEFT_SHIFT,
+                    false
+                )
+            ) {
                 itf.center = projectOrthogonal(itf.center, previousTerminals!!)
             }
 
-            val s = TraceSegment(
-                previousTerminals!!, itf.getTerminals(), angle)
+            val s = TraceSegment(previousTerminals!!, itf.getTerminals(), angle)
             itf.draw(drawer)
             trace.withSegment(s).draw(drawer)
         }

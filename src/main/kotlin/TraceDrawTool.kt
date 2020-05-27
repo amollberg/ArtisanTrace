@@ -2,25 +2,25 @@ import org.openrndr.MouseEvent
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import org.openrndr.math.clamp
-import kotlin.math.max
-import kotlin.math.min
 
 class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val trace = Trace()
-    private var previousTerminals : Terminals? = null
+    private var previousTerminals: Terminals? = null
     private val terminalSelector = MouseHoverTerminalSelector(viewModel)
     private val angle = Angle.OBTUSE
     private var hasPlacedStart = false
 
-    override fun mouseClicked(position : Vector2) {
+    override fun mouseClicked(position: Vector2) {
         val clickedTerminals = terminalSelector.getTerminals() ?: return
         if (!hasPlacedStart) {
             // Note: previousTerminals is assigned at the end of this function
             hasPlacedStart = true
-        }
-        else {
-            trace.add(TraceSegment(
-                previousTerminals!!, clickedTerminals, angle))
+        } else {
+            trace.add(
+                TraceSegment(
+                    previousTerminals!!, clickedTerminals, angle
+                )
+            )
         }
         previousTerminals = clickedTerminals
     }
@@ -35,8 +35,7 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
                 terminalSelector.getInterface()?.terminalCount ?: leads
             )
             terminalSelector.desiredLeads = leads
-        }
-        else {
+        } else {
             // Change the match order of the destination terminals
             terminalSelector.reverseTerminalOrder =
                 !terminalSelector.reverseTerminalOrder
@@ -44,14 +43,14 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
 
-    override fun draw(drawer : Drawer) {
+    override fun draw(drawer: Drawer) {
         terminalSelector.draw(drawer)
 
         if (hasPlacedStart) {
             val selectedEndTerminals =
                 terminalSelector.getTerminals() ?: return
-            val s = TraceSegment(
-                previousTerminals!!, selectedEndTerminals, angle)
+            val s =
+                TraceSegment(previousTerminals!!, selectedEndTerminals, angle)
             trace.withSegment(s).draw(drawer)
         }
     }

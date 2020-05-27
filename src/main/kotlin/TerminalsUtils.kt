@@ -31,4 +31,5 @@ fun getCenter(terminals: Terminals): Vector2 {
 
 private fun positionOf(terminals: Terminals, index: Int) =
     terminals.hostInterface.getTerminalPosition(
-        terminals.range.elementAt(index))
+        terminals.range.elementAt(index)
+    )

@@ -8,13 +8,16 @@ internal class TraceTest {
     fun snapTo45() {
         assertEquals(
             Vector2(0.0, 100.0),
-            snapTo45(Vector2.ZERO, Vector2(3.0, 100.0)))
+            snapTo45(Vector2.ZERO, Vector2(3.0, 100.0))
+        )
     }
 
     @Test
     fun invertMatrix22() {
-        var a = Matrix22(1.0, 3.14,
-                         -5.3, 0.0)
+        var a = Matrix22(
+            1.0, 3.14,
+            -5.3, 0.0
+        )
         assertEquals(Matrix22.IDENTITY, a.times(a.invert()))
     }
 

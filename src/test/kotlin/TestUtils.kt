@@ -20,6 +20,8 @@ fun assertNotEquals(a: ViewModel, b: ViewModel) =
     assertNotEquals(toList(a), toList(b))
 
 private fun toList(viewModel: ViewModel) =
-    listOf(viewModel.interfaces, viewModel.mousePoint, viewModel.traces,
+    listOf(
+        viewModel.interfaces, viewModel.mousePoint, viewModel.traces,
         viewModel.modifierKeysHeld, viewModel.areInterfacesVisible,
-        viewModel.activeTool.javaClass)
+        viewModel.activeTool.javaClass
+    )

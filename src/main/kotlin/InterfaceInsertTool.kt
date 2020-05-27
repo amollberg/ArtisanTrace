@@ -1,8 +1,5 @@
-import org.openrndr.KeyModifier
-import org.openrndr.MouseEvent
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
-import kotlin.math.max
 
 class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
 
@@ -24,8 +21,7 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
 
     override fun draw(drawer: Drawer) {
         val position = viewModel.mousePoint
-        val (trace, seg) = getNearestSegment(position) ?:
-                           return
+        val (trace, seg) = getNearestSegment(position) ?: return
         itf.center = viewModel.mousePoint
         val newFirstSegment =
             TraceSegment(seg.getStart(), itf.getTerminals(), seg.angle)

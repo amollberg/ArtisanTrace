@@ -1,5 +1,5 @@
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 import org.openrndr.KeyModifier
 import org.openrndr.MouseButton
 import org.openrndr.MouseEvent
@@ -36,7 +36,8 @@ class ViewModelTest {
         var serializedOnce = ViewModel.deserialize(original.serialize())!!
         assertEquals(
             modifyViewModel(original),
-            modifyViewModel(serializedOnce))
+            modifyViewModel(serializedOnce)
+        )
     }
 
     @Test
@@ -48,9 +49,17 @@ class ViewModelTest {
         var original = ViewModel()
 
         original.changeTool(InterfaceDrawTool(original))
-        original.activeTool.mouseScrolled(MouseEvent(
-            Vector2.ZERO, Vector2(0.0, 3.0), Vector2.ZERO,
-            MouseEventType.SCROLLED, MouseButton.NONE, setOf(KeyModifier.ALT), false))
+        original.activeTool.mouseScrolled(
+            MouseEvent(
+                Vector2.ZERO,
+                Vector2(0.0, 3.0),
+                Vector2.ZERO,
+                MouseEventType.SCROLLED,
+                MouseButton.NONE,
+                setOf(KeyModifier.ALT),
+                false
+            )
+        )
         original.activeTool.mouseClicked(Vector2(47.0, 11.0))
         original.activeTool.mouseClicked(Vector2(300.0, 11.0))
 
@@ -61,9 +70,17 @@ class ViewModelTest {
 
     private fun modifyViewModel(original: ViewModel): ViewModel {
         original.changeTool(InterfaceTraceDrawTool(original))
-        original.activeTool.mouseScrolled(MouseEvent(
-            Vector2.ZERO, Vector2(0.0, 3.0), Vector2.ZERO,
-            MouseEventType.SCROLLED, MouseButton.NONE, setOf(), false))
+        original.activeTool.mouseScrolled(
+            MouseEvent(
+                Vector2.ZERO,
+                Vector2(0.0, 3.0),
+                Vector2.ZERO,
+                MouseEventType.SCROLLED,
+                MouseButton.NONE,
+                setOf(),
+                false
+            )
+        )
         original.activeTool.mouseClicked(Vector2(47.0, 11.0))
         original.activeTool.mouseClicked(Vector2(100.0, 111.0))
 

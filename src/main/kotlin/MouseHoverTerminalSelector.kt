@@ -10,8 +10,12 @@ class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
         val nearestIndices = itf.getTerminals().range.sortedBy {
             (itf.getTerminalPosition(it) - viewModel.mousePoint).length
         }.take(desiredLeads)
-        return Terminals(itf, reversedIf(reverseTerminalOrder,
-                                        toProgression(nearestIndices)))
+        return Terminals(
+            itf, reversedIf(
+                reverseTerminalOrder,
+                toProgression(nearestIndices)
+            )
+        )
     }
 
     fun draw(drawer: Drawer) {
@@ -33,8 +37,7 @@ class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
 fun toProgression(l: List<Int>): IntProgression {
     return if (l.isNotEmpty()) {
         l.min()!! until (l.max()!! + 1) step 1
-    }
-    else {
+    } else {
         IntRange.EMPTY
     }
 }

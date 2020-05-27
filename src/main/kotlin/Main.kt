@@ -1,18 +1,18 @@
 @file:UseSerializers(Vector2Serializer::class)
+
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.json.JsonException
 import org.openrndr.KeyEvent
 import org.openrndr.KeyEventType
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
-import org.openrndr.shape.Circle
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.json.JsonException
 import java.io.File
 
 val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
@@ -20,11 +20,14 @@ val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
 @Serializable
 class ViewModel {
     var interfaces: MutableList<Interface> = mutableListOf()
+
     @Transient
     var mousePoint = Vector2(-1.0, -1.0)
-    var traces : MutableList<Trace> = mutableListOf()
+    var traces: MutableList<Trace> = mutableListOf()
+
     @Transient
-    var activeTool : BaseTool = EmptyTool(this)
+    var activeTool: BaseTool = EmptyTool(this)
+
     // Map KEY_CODE to whether the key is held or not
     @Transient
     var modifierKeysHeld = HashMap<Int, Boolean>()
@@ -41,17 +44,21 @@ class ViewModel {
         internal fun deserialize(string: String): ViewModel? {
             return try {
                 postProcessDeserialized(
-                    json.parse(ViewModel.serializer(), string))
+                    json.parse(ViewModel.serializer(), string)
+                )
+            } catch (e: JsonException) {
+                null
+            } catch (e: SerializationException) {
+                null
             }
-            catch (e: JsonException) { null }
-            catch (e: SerializationException) { null }
 
         }
 
         private fun postProcessDeserialized(viewModel: ViewModel): ViewModel {
             viewModel.traces.forEach {
                 it.segments.forEach {
-                    it.start = replaceInterfaceUsingViewModel(it.start, viewModel)
+                    it.start =
+                        replaceInterfaceUsingViewModel(it.start, viewModel)
                     it.end = replaceInterfaceUsingViewModel(it.end, viewModel)
                 }
             }
@@ -62,7 +69,8 @@ class ViewModel {
          *  from the view model interface list.
          */
         private fun replaceInterfaceUsingViewModel(
-            terminals: Terminals, viewModel: ViewModel): Terminals {
+            terminals: Terminals, viewModel: ViewModel
+        ): Terminals {
             val id = terminals.hostInterface.id
             return Terminals(viewModel.interfaces.first {
                 it.id == id
@@ -70,17 +78,33 @@ class ViewModel {
         }
     }
 
-    fun keyUp(key : KeyEvent) {
+    fun keyUp(key: KeyEvent) {
         updateModifiers(key)
         when (key.name) {
-            "q" -> { changeTool(EmptyTool(this)) }
-            "w" -> { changeTool(TraceDrawTool(this)) }
-            "e" -> { changeTool(InterfaceDrawTool(this)) }
-            "x" -> { toggleInterfaceVisibility() }
-            "d" -> { changeTool(InterfaceInsertTool(this)) }
-            "r" -> { changeTool(InterfaceTraceDrawTool(this)) }
-            "t" -> { changeTool(InterfaceMoveTool(this)) }
-            "s" -> { saveToFile() }
+            "q" -> {
+                changeTool(EmptyTool(this))
+            }
+            "w" -> {
+                changeTool(TraceDrawTool(this))
+            }
+            "e" -> {
+                changeTool(InterfaceDrawTool(this))
+            }
+            "x" -> {
+                toggleInterfaceVisibility()
+            }
+            "d" -> {
+                changeTool(InterfaceInsertTool(this))
+            }
+            "r" -> {
+                changeTool(InterfaceTraceDrawTool(this))
+            }
+            "t" -> {
+                changeTool(InterfaceMoveTool(this))
+            }
+            "s" -> {
+                saveToFile()
+            }
         }
     }
 
@@ -90,7 +114,7 @@ class ViewModel {
     }
 
     internal fun serialize(): String {
-        return json.stringify(ViewModel.serializer(),this)
+        return json.stringify(ViewModel.serializer(), this)
     }
 
     private fun toggleInterfaceVisibility() {
@@ -109,7 +133,7 @@ class ViewModel {
         activeTool.draw(drawer)
     }
 
-    internal fun changeTool(newTool : BaseTool) {
+    internal fun changeTool(newTool: BaseTool) {
         activeTool.exit()
         activeTool = newTool
     }
@@ -124,17 +148,15 @@ class ViewModel {
 
     /** Return all interfaces that are not connected to a trace */
     private fun onlyUnconnectedInterfaces(): Set<Interface> {
-        return interfaces.toSet() -
-                traces.flatMap {
-                    it.segments.map {
-                        it.getStart().hostInterface
-                    }
-                }.toSet() -
-                traces.flatMap {
-                    it.segments.map {
-                        it.getEnd().hostInterface
-                    }
-                }.toSet()
+        return interfaces.toSet() - traces.flatMap {
+            it.segments.map {
+                it.getStart().hostInterface
+            }
+        }.toSet() - traces.flatMap {
+            it.segments.map {
+                it.getEnd().hostInterface
+            }
+        }.toSet()
     }
 }
 

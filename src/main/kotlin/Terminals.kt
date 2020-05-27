@@ -1,5 +1,7 @@
 @file:UseSerializers(IntProgressionSerializer::class)
-import kotlinx.serialization.*
+
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 
 @Serializable
 data class Terminals(val hostInterface: Interface, var range: IntProgression) {

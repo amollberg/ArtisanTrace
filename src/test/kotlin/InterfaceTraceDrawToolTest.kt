@@ -1,5 +1,5 @@
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
 
 class InterfaceTraceDrawToolTest {
@@ -36,7 +36,8 @@ class InterfaceTraceDrawToolTest {
 
         assertEquals(
             terminalDistance(startItf),
-            terminalDistance(createdInterface), 1e-10)
+            terminalDistance(createdInterface), 1e-10
+        )
     }
 
     @Test
@@ -52,7 +53,8 @@ class InterfaceTraceDrawToolTest {
         val expectedY = terminals.hostInterface.getTerminalPosition(1).y
         assertEquals(
             Vector2(expectedX, expectedY),
-            projectOrthogonal(inputPosition, terminals))
+            projectOrthogonal(inputPosition, terminals)
+        )
     }
 
     @Test
@@ -67,17 +69,18 @@ class InterfaceTraceDrawToolTest {
         // terminal 1 and 2
         val expectedY =
             (terminals.hostInterface.getTerminalPosition(1).y +
-             terminals.hostInterface.getTerminalPosition(2).y) / 2.0
+                    terminals.hostInterface.getTerminalPosition(2).y) / 2.0
         assertEquals(
             Vector2(expectedX, expectedY),
-            projectOrthogonal(inputPosition, terminals))
+            projectOrthogonal(inputPosition, terminals)
+        )
     }
 
     fun terminalDistance(itf: Interface): Double {
         return when (itf.terminalCount) {
             1 -> itf.length
             else -> (itf.getTerminalPosition(0) -
-                     itf.getTerminalPosition(1)).length
+                    itf.getTerminalPosition(1)).length
         }
     }
 }

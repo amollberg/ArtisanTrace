@@ -9,12 +9,10 @@ open class BaseInterfaceTool(viewModel: ViewModel) : BaseTool(viewModel) {
     override fun mouseScrolled(mouse: MouseEvent) {
         if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
             itf.length += 4 * mouse.rotation.y
-        }
-        else if (mouse.modifiers.contains(KeyModifier.ALT)) {
+        } else if (mouse.modifiers.contains(KeyModifier.ALT)) {
             itf.terminalCount += mouse.rotation.y.toInt()
             itf.terminalCount = max(1, itf.terminalCount)
-        }
-        else {
+        } else {
             itf.angle -= mouse.rotation.y * 45 % 360
         }
     }
@@ -24,8 +22,12 @@ open class BaseInterfaceTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
     protected fun interfaceLikeNearest(position: Vector2): Interface {
-        val nearestItf = getNearestInterface(position) ?:
-                         return Interface(position, 0.0, 20.0, 1)
+        val nearestItf = getNearestInterface(position) ?: return Interface(
+            position,
+            0.0,
+            20.0,
+            1
+        )
         return nearestItf.clone()
     }
 }

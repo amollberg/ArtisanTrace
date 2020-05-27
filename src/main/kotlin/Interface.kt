@@ -1,13 +1,14 @@
 @file:UseSerializers(Vector2Serializer::class)
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.LineSegment
+import org.openrndr.shape.ShapeContour
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlinx.serialization.*
-import org.openrndr.shape.ShapeContour
 
 @Serializable
 data class Interface(
@@ -16,7 +17,8 @@ data class Interface(
     var length: Double,
     var terminalCount: Int,
     // Only used for serialization
-    internal var id: Int = -1) {
+    internal var id: Int = -1
+) {
 
     fun draw(drawer: Drawer) {
         val (end1, end2) = getEnds()
@@ -24,7 +26,8 @@ data class Interface(
         drawer.lineSegment(line)
         drawer.circles(
             (0 until terminalCount).map { getTerminalPosition(it) },
-            4.0)
+            4.0
+        )
     }
 
     fun getTerminals(): Terminals {
@@ -39,7 +42,8 @@ data class Interface(
             1 -> center
             else ->
                 equidistantPositionsForcedNumber(
-                        line.contour, terminalCount)[terminalIndex]
+                    line.contour, terminalCount
+                )[terminalIndex]
         }
     }
 
@@ -65,7 +69,8 @@ data class Interface(
 }
 
 internal fun equidistantPositionsForcedNumber(
-        contour: ShapeContour, count: Int): List<Vector2> {
+    contour: ShapeContour, count: Int
+): List<Vector2> {
     return if (contour.length == 0.0) {
         // Use same positions for all points
         List(count, { contour.segments.first().start })

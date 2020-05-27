@@ -13,12 +13,10 @@ class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
     override fun mouseScrolled(mouse: MouseEvent) {
         if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
             itf.length += 4 * mouse.rotation.y
-        }
-        else if (mouse.modifiers.contains(KeyModifier.ALT)) {
+        } else if (mouse.modifiers.contains(KeyModifier.ALT)) {
             itf.terminalCount += mouse.rotation.y.toInt()
             itf.terminalCount = max(1, itf.terminalCount)
-        }
-        else {
+        } else {
             itf.angle -= mouse.rotation.y * 45 % 360
         }
     }
