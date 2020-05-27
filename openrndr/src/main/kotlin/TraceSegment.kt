@@ -10,7 +10,7 @@ import kotlinx.serialization.*
  *  corner.
  */
 @Serializable
-class TraceSegment(
+data class TraceSegment(
     internal var start: Terminals,
     internal var end: Terminals,
     val angle: Angle) {

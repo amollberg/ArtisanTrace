@@ -7,7 +7,7 @@ import kotlin.math.tan
 import kotlinx.serialization.*
 
 @Serializable
-class Trace(var segments: MutableList<TraceSegment> = mutableListOf()) {
+data class Trace(var segments: MutableList<TraceSegment> = mutableListOf()) {
 
     constructor(points: Iterable<TraceSegment>) :
             this(points.toMutableList())

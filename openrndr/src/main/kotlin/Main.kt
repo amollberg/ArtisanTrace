@@ -35,12 +35,17 @@ class ViewModel {
         fun loadFromFile(): ViewModel? {
             val file = File("sketch.cts")
             if (!file.isFile) return null
+            return deserialize(file.readText())
+        }
+
+        internal fun deserialize(string: String): ViewModel? {
             return try {
                 postProcessDeserialized(
-                    json.parse(ViewModel.serializer(), file.readText()))
+                    json.parse(ViewModel.serializer(), string))
             }
             catch (e: JsonException) { null }
             catch (e: SerializationException) { null }
+
         }
 
         private fun postProcessDeserialized(viewModel: ViewModel): ViewModel {
@@ -81,8 +86,11 @@ class ViewModel {
 
     private fun saveToFile() {
         interfaces.forEachIndexed { i, itf -> itf.id = i }
-        File("sketch.cts").writeText(
-            json.stringify(ViewModel.serializer(),this))
+        File("sketch.cts").writeText(serialize())
+    }
+
+    internal fun serialize(): String {
+        return json.stringify(ViewModel.serializer(),this)
     }
 
     private fun toggleInterfaceVisibility() {
@@ -97,7 +105,7 @@ class ViewModel {
         activeTool.draw(drawer)
     }
 
-    private fun changeTool(newTool : BaseTool) {
+    internal fun changeTool(newTool : BaseTool) {
         activeTool.exit()
         activeTool = newTool
     }

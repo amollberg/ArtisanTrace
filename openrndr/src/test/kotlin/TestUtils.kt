@@ -11,3 +11,15 @@ fun assertEquals(a: List<Vector2>, b: List<Vector2>) {
         assertEquals(a, b)
     }
 }
+
+fun assertEquals(a: ViewModel, b: ViewModel) =
+    assertEquals(toList(a), toList(b))
+
+
+fun assertNotEquals(a: ViewModel, b: ViewModel) =
+    assertNotEquals(toList(a), toList(b))
+
+private fun toList(viewModel: ViewModel) =
+    listOf(viewModel.interfaces, viewModel.mousePoint, viewModel.traces,
+        viewModel.modifierKeysHeld, viewModel.areInterfacesVisible,
+        viewModel.activeTool.javaClass)
