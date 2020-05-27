@@ -29,7 +29,7 @@ class ViewModel {
     @Transient
     var modifierKeysHeld = HashMap<Int, Boolean>()
 
-    var areInterfacesVisible = true
+    var areInterfacesVisible = false
 
     companion object {
         fun loadFromFile(): ViewModel? {
@@ -99,9 +99,13 @@ class ViewModel {
 
     fun draw(drawer: Drawer) {
         traces.forEach { it -> it.draw(drawer) }
+
         if (areInterfacesVisible) {
-            interfaces.forEach { it -> it.draw(drawer) }
-        }
+            interfaces
+        } else {
+            onlyUnconnectedInterfaces()
+        }.forEach { it -> it.draw(drawer) }
+
         activeTool.draw(drawer)
     }
 
@@ -116,6 +120,21 @@ class ViewModel {
 
     private fun updateModifiers(key: KeyEvent) {
         modifierKeysHeld[key.key] = key.type == KeyEventType.KEY_DOWN
+    }
+
+    /** Return all interfaces that are not connected to a trace */
+    private fun onlyUnconnectedInterfaces(): Set<Interface> {
+        return interfaces.toSet() -
+                traces.flatMap {
+                    it.segments.map {
+                        it.getStart().hostInterface
+                    }
+                }.toSet() -
+                traces.flatMap {
+                    it.segments.map {
+                        it.getEnd().hostInterface
+                    }
+                }.toSet()
     }
 }
 
