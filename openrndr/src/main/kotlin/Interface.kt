@@ -13,7 +13,9 @@ data class Interface(
     var center: Vector2,
     var angle: Double,
     var length: Double,
-    var terminalCount: Int) {
+    var terminalCount: Int,
+    // Only used for serialization
+    internal var id: Int = -1) {
 
     fun draw(drawer: Drawer) {
         val (end1, end2) = getEnds()

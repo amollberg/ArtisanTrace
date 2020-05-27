@@ -11,8 +11,8 @@ import kotlinx.serialization.*
  */
 @Serializable
 class TraceSegment(
-    private var start: Terminals,
-    private var end: Terminals,
+    internal var start: Terminals,
+    internal var end: Terminals,
     val angle: Angle) {
     lateinit private var knee: Vector2
 

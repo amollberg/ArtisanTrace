@@ -36,10 +36,32 @@ class ViewModel {
             val file = File("sketch.cts")
             if (!file.isFile) return null
             return try {
-                json.parse(ViewModel.serializer(), file.readText())
+                postProcessDeserialized(
+                    json.parse(ViewModel.serializer(), file.readText()))
             }
             catch (e: JsonException) { null }
             catch (e: SerializationException) { null }
+        }
+
+        private fun postProcessDeserialized(viewModel: ViewModel): ViewModel {
+            viewModel.traces.forEach {
+                it.segments.forEach {
+                    it.start = replaceInterfaceUsingViewModel(it.start, viewModel)
+                    it.end = replaceInterfaceUsingViewModel(it.end, viewModel)
+                }
+            }
+            return viewModel
+        }
+
+        /** Use the ID to replace the interface with the correct instance
+         *  from the view model interface list.
+         */
+        private fun replaceInterfaceUsingViewModel(
+            terminals: Terminals, viewModel: ViewModel): Terminals {
+            val id = terminals.hostInterface.id
+            return Terminals(viewModel.interfaces.first {
+                it.id == id
+            }, terminals.range)
         }
     }
 
@@ -58,6 +80,7 @@ class ViewModel {
     }
 
     private fun saveToFile() {
+        interfaces.forEachIndexed { i, itf -> itf.id = i }
         File("sketch.cts").writeText(
             json.stringify(ViewModel.serializer(),this))
     }
