@@ -1,5 +1,14 @@
+*.iws
+.gradle
+.idea/**/contentModel.xml
+.idea/**/dictionaries
+.idea/**/gradle.xml
+.idea/**/libraries
+.idea/**/modules.xml
+.idea/**/shelf
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/workspace.xml
 application.log
 build
 out
-.idea
-.gradle
