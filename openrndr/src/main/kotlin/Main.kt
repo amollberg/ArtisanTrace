@@ -15,7 +15,7 @@ import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
 import java.io.File
 
-val json = Json(JsonConfiguration.Stable.copy())
+val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
 
 @Serializable
 class ViewModel {
