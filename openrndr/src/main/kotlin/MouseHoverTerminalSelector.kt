@@ -32,7 +32,7 @@ class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
 
 fun toProgression(l: List<Int>): IntProgression {
     return if (l.isNotEmpty()) {
-        l.min()!! until (l.max()!! + 1)
+        l.min()!! until (l.max()!! + 1) step 1
     }
     else {
         IntRange.EMPTY
