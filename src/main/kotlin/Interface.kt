@@ -7,6 +7,7 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlinx.serialization.*
+import org.openrndr.shape.ShapeContour
 
 @Serializable
 data class Interface(
@@ -36,8 +37,9 @@ data class Interface(
         val line = LineSegment(end1, end2)
         return when (terminalCount) {
             1 -> center
-            else -> line.contour
-                .equidistantPositions(terminalCount)[terminalIndex]
+            else ->
+                equidistantPositionsForcedNumber(
+                        line.contour, terminalCount)[terminalIndex]
         }
     }
 
@@ -59,5 +61,15 @@ data class Interface(
 
     fun clone(): Interface {
         return Interface(center, angle, length, terminalCount)
+    }
+}
+
+internal fun equidistantPositionsForcedNumber(
+        contour: ShapeContour, count: Int): List<Vector2> {
+    return if (contour.length == 0.0) {
+        // Use same positions for all points
+        List(count, { contour.segments.first().start })
+    } else {
+        contour.equidistantPositions(count)
     }
 }

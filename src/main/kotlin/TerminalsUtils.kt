@@ -9,6 +9,9 @@ fun projectOrthogonal(position: Vector2, terminals: Terminals):
     val center = getCenter(terminals)
     val (end1, end2) = terminals.hostInterface.getEnds()
     val terminalLine = end2 - end1
+    if (terminalLine.length == 0.0) {
+        return position
+    }
     val rel = position - center
     val onLine = center + terminalLine *
             (rel.dot(terminalLine) / terminalLine.squaredLength)
