@@ -1,15 +1,18 @@
+@file:UseSerializers(Vector2Serializer::class)
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.SegmentJoin
 import org.openrndr.shape.contours
 import kotlin.math.*
+import kotlinx.serialization.*
 
 /** A segment of a trace composed of two straight lines with a 45 or 90 degree
  *  corner.
  */
-class TraceSegment(
-    private var start: Terminals,
-    private var end: Terminals,
+@Serializable
+data class TraceSegment(
+    internal var start: Terminals,
+    internal var end: Terminals,
     val angle: Angle) {
     lateinit private var knee: Vector2
 

@@ -97,6 +97,8 @@ plugins {
     kotlin("jvm") version("1.3.72")
     id("com.github.johnrengelman.shadow") version ("5.2.0")
     id("org.beryx.runtime") version ("1.8.1")
+    // Must be the same version as kotlin JVM!
+    kotlin("plugin.serialization") version "1.3.72"
 }
 
 repositories {
@@ -105,6 +107,8 @@ repositories {
         mavenLocal()
     }
     maven(url = "https://dl.bintray.com/openrndr/openrndr")
+    // kotlinx.serialization artifacts are published to JCenter
+    jcenter()
 }
 
 fun DependencyHandler.orx(module: String): Any {
@@ -141,6 +145,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core","1.3.6")
     implementation("io.github.microutils", "kotlin-logging","1.7.9")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0") // JVM dependency
 
     when(applicationLogging) {
         Logging.NONE -> {
