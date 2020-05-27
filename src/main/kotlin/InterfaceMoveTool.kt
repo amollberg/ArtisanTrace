@@ -1,3 +1,4 @@
+import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
 import org.openrndr.draw.Drawer
@@ -41,7 +42,16 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
         interfaceSelector.draw(drawer)
 
         val itf = selectedItf ?: return
-        itf.center = viewModel.mousePoint - mouseOffset
+        // Note: A temporary variable is created here because itf.center needs to be untouched
+        // while projectOrthogonal is called below
+        var newCenter = viewModel.mousePoint - mouseOffset
+        // Restrict the new interface position if shift is held
+        if (viewModel.modifierKeysHeld
+                .getOrDefault(KEY_LEFT_SHIFT, false) ) {
+            newCenter = projectOrthogonal(newCenter, itf.getTerminals())
+        }
+        itf.center = newCenter
+
         itf.draw(drawer)
     }
 }
