@@ -102,8 +102,8 @@ class ViewModel(internal var model: Model) {
                     .relativize(droppedFile.toPath()).toFile()
             var submodel = Model.loadFromFile(fileOpened)
             if (submodel != null) {
-                model.components.add(
-                    Component(submodel, Transform(translation = position))
+                model.sketchComponents.add(
+                    SketchComponent(submodel, Transform(translation = position))
                 )
             }
         } else {

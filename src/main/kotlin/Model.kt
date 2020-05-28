@@ -21,7 +21,7 @@ val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
 class Model {
     var interfaces: MutableList<Interface> = mutableListOf()
     var traces: MutableList<Trace> = mutableListOf()
-    var components: MutableList<Component> = mutableListOf()
+    var sketchComponents: MutableList<SketchComponent> = mutableListOf()
     var svgComponents: MutableList<SvgComponent> = mutableListOf()
 
     @Transient
@@ -56,7 +56,7 @@ class Model {
                     it.end = replaceInterfaceUsingModel(it.end, model)
                 }
             }
-            model.components.forEach {
+            model.sketchComponents.forEach {
                 it.model = replaceComponentModel(it.model, model)
             }
             model.svgComponents.forEach {
@@ -86,7 +86,7 @@ class Model {
             val path = model.backingFile.toPath().toAbsolutePath().parent
                 .resolve(componentModel.backingFile.toPath()).toFile()
             return loadFromFile(path) ?: throw SerializationException(
-                "Component from file '$path' could not be loaded"
+                "Sketch component from file '$path' could not be loaded"
             )
         }
 
@@ -102,7 +102,7 @@ class Model {
 
     fun saveToFile() {
         interfaces.forEachIndexed { i, itf -> itf.id = i }
-        components.forEach { it.model.saveToFile() }
+        sketchComponents.forEach { it.model.saveToFile() }
 
         backingFile.writeText(serialize())
     }
@@ -113,7 +113,7 @@ class Model {
 
     fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
         svgComponents.forEach { it.draw(drawer) }
-        components.forEach { it.draw(drawer, areInterfacesVisible) }
+        sketchComponents.forEach { it.draw(drawer, areInterfacesVisible) }
         traces.forEach { it.draw(drawer) }
         if (areInterfacesVisible) {
             interfaces
@@ -140,7 +140,7 @@ data class Svg(var composition: Composition? = null, val backingFile: File)
 
 @Serializable
 class SvgComponent(
-    @Serializable(with = ComponentSvgPropertySerializer::class)
+    @Serializable(with = SvgReferenceSerializer::class)
     var svg: Svg,
     var t: Transform
 ) {
@@ -159,25 +159,25 @@ fun transformedSvg(transform: Matrix44, composition: Composition) =
     })
 
 @Serializable
-class Component(
-    @Serializable(with = ComponentModelPropertySerializer::class)
+class SketchComponent(
+    @Serializable(with = SketchReferenceSerializer::class)
     var model: Model,
     var t: Transform
 ) {
     fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
         // drawer.isolated creates a receiver object which shadows the "this"
         // object
-        val submodel = this
+        val sketchComponent = this
         drawer.isolated {
             t.apply(drawer)
-            submodel.model.draw(drawer, areInterfacesVisible)
+            sketchComponent.model.draw(drawer, areInterfacesVisible)
         }
     }
 }
 
-object ComponentModelPropertySerializer : KSerializer<Model> {
+object SketchReferenceSerializer : KSerializer<Model> {
     override val descriptor: SerialDescriptor =
-        PrimitiveDescriptor("ComponentModel", PrimitiveKind.STRING)
+        PrimitiveDescriptor("SketchComponent", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Model {
         val backingFile = File(decoder.decodeString())
@@ -191,9 +191,9 @@ object ComponentModelPropertySerializer : KSerializer<Model> {
     }
 }
 
-class ComponentSvgPropertySerializer : KSerializer<Svg> {
+class SvgReferenceSerializer : KSerializer<Svg> {
     override val descriptor: SerialDescriptor =
-        PrimitiveDescriptor("ComponentSvg", PrimitiveKind.STRING)
+        PrimitiveDescriptor("SvgComponent", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Svg {
         val backingFile = File(decoder.decodeString())
