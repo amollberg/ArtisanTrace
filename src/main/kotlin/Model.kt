@@ -8,6 +8,8 @@ import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.math.Vector2
 import org.openrndr.math.transforms.transform
+import org.openrndr.shape.Composition
+import org.openrndr.svg.loadSVG
 import java.io.File
 
 val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
@@ -17,6 +19,7 @@ class Model {
     var interfaces: MutableList<Interface> = mutableListOf()
     var traces: MutableList<Trace> = mutableListOf()
     var components: MutableList<Component> = mutableListOf()
+    var svgComponents: MutableList<SvgComponent> = mutableListOf()
 
     @Transient
     var backingFile = File("default.ats")
@@ -53,6 +56,9 @@ class Model {
             model.components.forEach {
                 it.model = replaceComponentModel(it.model, model)
             }
+            model.svgComponents.forEach {
+                it.svg = replaceComponentSvg(it.svg, model)
+            }
             return model
         }
 
@@ -79,6 +85,15 @@ class Model {
             return loadFromFile(path) ?: throw SerializationException(
                 "Component from file '$path' could not be loaded"
             )
+        }
+
+        private fun replaceComponentSvg(
+            componentSvg: Svg,
+            model: Model
+        ): Svg {
+            val path = model.backingFile.toPath().toAbsolutePath().parent
+                .resolve(componentSvg.backingFile.toPath()).toFile()
+            return Svg(loadSVG(path.path), path)
         }
     }
 
@@ -117,6 +132,17 @@ class Model {
     }
 }
 
+data class Svg(var composition: Composition? = null, val backingFile: File)
+
+@Serializable
+class SvgComponent(
+    @Serializable(with = ComponentSvgPropertySerializer::class)
+    var svg: Svg,
+    var t: Transform
+) {
+
+}
+
 @Serializable
 class Component(
     @Serializable(with = ComponentModelPropertySerializer::class)
@@ -146,6 +172,20 @@ object ComponentModelPropertySerializer : KSerializer<Model> {
     }
 
     override fun serialize(encoder: Encoder, value: Model) {
+        encoder.encodeString(value.backingFile.path)
+    }
+}
+
+class ComponentSvgPropertySerializer : KSerializer<Svg> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveDescriptor("ComponentSvg", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Svg {
+        val backingFile = File(decoder.decodeString())
+        return Svg(null, backingFile)
+    }
+
+    override fun serialize(encoder: Encoder, value: Svg) {
         encoder.encodeString(value.backingFile.path)
     }
 }
