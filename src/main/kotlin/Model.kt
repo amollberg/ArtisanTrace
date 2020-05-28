@@ -1,5 +1,6 @@
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
@@ -12,11 +13,18 @@ class Model {
     var interfaces: MutableList<Interface> = mutableListOf()
     var traces: MutableList<Trace> = mutableListOf()
 
+    @Transient
+    var backingFile = File("default.ats")
+
     companion object {
-        fun loadFromFile(): Model? {
-            val file = File("default.ats")
-            if (!file.isFile) return null
-            return deserialize(file.readText())
+        fun loadFromFile(file: File): Model? {
+            if (!file.isFile) {
+                println("$file does not exist")
+                return null
+            }
+            var model = deserialize(file.readText()) ?: return null
+            model.backingFile = file
+            return model
         }
 
         internal fun deserialize(string: String): Model? {
@@ -55,7 +63,7 @@ class Model {
 
     fun saveToFile() {
         interfaces.forEachIndexed { i, itf -> itf.id = i }
-        File("default.ats").writeText(serialize())
+        backingFile.writeText(serialize())
     }
 
     internal fun serialize(): String {

@@ -8,7 +8,7 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 
-class ViewModel(internal val model: Model) {
+class ViewModel(internal var model: Model) {
     var mousePoint = Vector2(-1.0, -1.0)
     var activeTool: BaseTool = EmptyTool(this)
 
@@ -123,4 +123,4 @@ fun main() = application {
 }
 
 fun modelFromFileOrDefault(defaultModel: Model) =
-    Model.loadFromFile() ?: defaultModel
+    Model.loadFromFile(Model().backingFile) ?: defaultModel
