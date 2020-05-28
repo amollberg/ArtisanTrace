@@ -14,7 +14,7 @@ class Model {
 
     companion object {
         fun loadFromFile(): Model? {
-            val file = File("sketch.cts")
+            val file = File("default.ats")
             if (!file.isFile) return null
             return deserialize(file.readText())
         }
@@ -55,7 +55,7 @@ class Model {
 
     fun saveToFile() {
         interfaces.forEachIndexed { i, itf -> itf.id = i }
-        File("sketch.cts").writeText(serialize())
+        File("default.ats").writeText(serialize())
     }
 
     internal fun serialize(): String {
