@@ -1,9 +1,13 @@
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.Transient
+@file:UseSerializers(Vector2Serializer::class)
+
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
+import org.openrndr.draw.Drawer
+import org.openrndr.draw.isolated
+import org.openrndr.math.Vector2
+import org.openrndr.math.transforms.transform
 import java.io.File
 
 val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
@@ -12,6 +16,7 @@ val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
 class Model {
     var interfaces: MutableList<Interface> = mutableListOf()
     var traces: MutableList<Trace> = mutableListOf()
+    var components: MutableList<Component> = mutableListOf()
 
     @Transient
     var backingFile = File("default.ats")
@@ -63,10 +68,81 @@ class Model {
 
     fun saveToFile() {
         interfaces.forEachIndexed { i, itf -> itf.id = i }
+        components.forEach { it.model.saveToFile() }
+
         backingFile.writeText(serialize())
     }
 
     internal fun serialize(): String {
         return json.stringify(serializer(), this)
+    }
+
+    fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
+        components.forEach { it.draw(drawer, areInterfacesVisible) }
+        traces.forEach { it.draw(drawer) }
+        if (areInterfacesVisible) {
+            interfaces
+        } else {
+            onlyUnconnectedInterfaces()
+        }.forEach { it.draw(drawer) }
+    }
+
+    /** Return all interfaces that are not connected to a trace */
+    private fun onlyUnconnectedInterfaces(): Set<Interface> {
+        return interfaces.toSet() - traces.flatMap {
+            it.segments.map {
+                it.getStart().hostInterface
+            }
+        }.toSet() - traces.flatMap {
+            it.segments.map {
+                it.getEnd().hostInterface
+            }
+        }.toSet()
+    }
+}
+
+@Serializable
+class Component(
+    @Serializable(with = ComponentModelPropertySerializer::class)
+    val model: Model,
+    var t: Transform
+) {
+    fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
+        // drawer.isolated creates a receiver object which shadows the "this"
+        // object
+        val submodel = this
+        drawer.isolated {
+            t.apply(drawer)
+            submodel.model.draw(drawer, areInterfacesVisible)
+        }
+    }
+}
+
+object ComponentModelPropertySerializer : KSerializer<Model> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveDescriptor("ComponentModel", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Model {
+        val backingFile = File(decoder.decodeString())
+        return Model.loadFromFile(backingFile)!!
+    }
+
+    override fun serialize(encoder: Encoder, value: Model) {
+        encoder.encodeString(value.backingFile.path)
+    }
+}
+
+@Serializable
+class Transform(
+    var scale: Double = 1.0,
+    var rotation: Double = 0.0,
+    var translation: Vector2 = Vector2.ZERO
+) {
+    fun apply(drawer: Drawer) {
+        drawer.view *= transform {
+            translate(translation)
+            rotate(degrees = rotation)
+            scale(scale)
+        }
     }
 }

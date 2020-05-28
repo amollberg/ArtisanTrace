@@ -1,10 +1,4 @@
-@file:UseSerializers(Vector2Serializer::class)
-
-import kotlinx.serialization.UseSerializers
-import org.openrndr.DropEvent
-import org.openrndr.KeyEvent
-import org.openrndr.KeyEventType
-import org.openrndr.application
+import org.openrndr.*
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
@@ -53,14 +47,7 @@ class ViewModel(internal var model: Model) {
     }
 
     fun draw(drawer: Drawer) {
-        model.traces.forEach { it.draw(drawer) }
-
-        if (areInterfacesVisible) {
-            model.interfaces
-        } else {
-            onlyUnconnectedInterfaces()
-        }.forEach { it -> it.draw(drawer) }
-
+        model.draw(drawer, areInterfacesVisible)
         activeTool.draw(drawer)
     }
 
@@ -73,30 +60,31 @@ class ViewModel(internal var model: Model) {
         updateModifiers(key)
     }
 
-    fun fileDrop(it: DropEvent, fileOpenedClosure: (loadedFile: File) -> Unit) {
-        val fileOpened = it.files.first()
-        var replacingModel = Model.loadFromFile(fileOpened)
-        if (replacingModel != null) {
-            model = replacingModel
+    fun fileDrop(
+        drop: DropEvent,
+        fileOpenedClosure: (loadedFile: File) -> Unit
+    ) {
+        val fileOpened = drop.files.first()
+        if (modifierKeysHeld.getOrDefault(KEY_LEFT_SHIFT, false)) {
+            // Add the model from the file as a subcomponent
+            var submodel = Model.loadFromFile(fileOpened)
+            if (submodel != null) {
+                model.components.add(
+                    Component(submodel, Transform(translation = drop.position))
+                )
+            }
+        } else {
+            // Replace the top level model
+            var replacingModel = Model.loadFromFile(fileOpened)
+            if (replacingModel != null) {
+                model = replacingModel
+            }
+            fileOpenedClosure(fileOpened)
         }
-        fileOpenedClosure(fileOpened)
     }
 
     private fun updateModifiers(key: KeyEvent) {
         modifierKeysHeld[key.key] = key.type == KeyEventType.KEY_DOWN
-    }
-
-    /** Return all interfaces that are not connected to a trace */
-    private fun onlyUnconnectedInterfaces(): Set<Interface> {
-        return model.interfaces.toSet() - model.traces.flatMap {
-            it.segments.map {
-                it.getStart().hostInterface
-            }
-        }.toSet() - model.traces.flatMap {
-            it.segments.map {
-                it.getEnd().hostInterface
-            }
-        }.toSet()
     }
 }
 
