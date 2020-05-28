@@ -5,35 +5,35 @@ import org.openrndr.MouseButton
 import org.openrndr.MouseEvent
 import org.openrndr.MouseEventType
 import org.openrndr.math.Vector2
+import java.io.File
 
 class ViewModelTest {
 
     @Test
     fun deserializeSerialized() {
         val original = createModel()
-        assertEquals(original, Model.deserialize(original.serialize())!!)
+        assertEquals(original, deserialize(original.serialize()))
     }
 
     @Test
     fun deserializeTwice() {
         val original = createModel()
-        val serializedOnce = Model.deserialize(original.serialize())!!
-        val serializedTwice =
-            Model.deserialize(serializedOnce.serialize())!!
+        val serializedOnce = deserialize(original.serialize())
+        val serializedTwice = deserialize(serializedOnce.serialize())
         assertEquals(original, serializedTwice)
     }
 
     @Test
     fun serializeTwice() {
         val original = createModel()
-        val serializedOnce = Model.deserialize(original.serialize())!!
+        val serializedOnce = deserialize(original.serialize())
         assertEquals(original.serialize(), serializedOnce.serialize())
     }
 
     @Test
     fun modifyAfterDeserialization() {
         var original = createModel()
-        var serializedOnce = Model.deserialize(original.serialize())!!
+        var serializedOnce = deserialize(original.serialize())
         assertEquals(
             modifyModel(original),
             modifyModel(serializedOnce)
@@ -89,4 +89,7 @@ class ViewModelTest {
         viewModel.changeTool(EmptyTool(viewModel))
         return original
     }
+
+    private fun deserialize(value: String): Model =
+        Model.deserialize(value, File("dontcare"))!!
 }

@@ -64,9 +64,12 @@ class ViewModel(internal var model: Model) {
         drop: DropEvent,
         fileOpenedClosure: (loadedFile: File) -> Unit
     ) {
-        val fileOpened = drop.files.first()
+
         if (modifierKeysHeld.getOrDefault(KEY_LEFT_SHIFT, false)) {
             // Add the model from the file as a subcomponent
+            val fileOpened =
+                model.backingFile.toPath().toAbsolutePath().parent
+                    .relativize(drop.files.first().toPath()).toFile()
             var submodel = Model.loadFromFile(fileOpened)
             if (submodel != null) {
                 model.components.add(
@@ -75,6 +78,7 @@ class ViewModel(internal var model: Model) {
             }
         } else {
             // Replace the top level model
+            val fileOpened = drop.files.first().absoluteFile
             var replacingModel = Model.loadFromFile(fileOpened)
             if (replacingModel != null) {
                 model = replacingModel

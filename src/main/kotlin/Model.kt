@@ -27,14 +27,15 @@ class Model {
                 println("$file does not exist")
                 return null
             }
-            var model = deserialize(file.readText()) ?: return null
-            model.backingFile = file
+            var model = deserialize(file.readText(), file) ?: return null
             return model
         }
 
-        internal fun deserialize(string: String): Model? {
+        internal fun deserialize(string: String, backingFile: File): Model? {
             return try {
-                postProcessDeserialized(json.parse(serializer(), string))
+                val model = json.parse(serializer(), string)
+                model.backingFile = backingFile
+                postProcessDeserialized(model)
             } catch (e: JsonException) {
                 null
             } catch (e: SerializationException) {
@@ -48,6 +49,9 @@ class Model {
                     it.start = replaceInterfaceUsingModel(it.start, model)
                     it.end = replaceInterfaceUsingModel(it.end, model)
                 }
+            }
+            model.components.forEach {
+                it.model = replaceComponentModel(it.model, model)
             }
             return model
         }
@@ -63,6 +67,18 @@ class Model {
             return Terminals(model.interfaces.first {
                 it.id == id
             }, terminals.range)
+        }
+
+        /** Use the backingFile to load the model with the correct content */
+        private fun replaceComponentModel(
+            componentModel: Model,
+            model: Model
+        ): Model {
+            val path = model.backingFile.toPath().toAbsolutePath().parent
+                .resolve(componentModel.backingFile.toPath()).toFile()
+            return loadFromFile(path) ?: throw SerializationException(
+                "Component from file '$path' could not be loaded"
+            )
         }
     }
 
@@ -104,7 +120,7 @@ class Model {
 @Serializable
 class Component(
     @Serializable(with = ComponentModelPropertySerializer::class)
-    val model: Model,
+    var model: Model,
     var t: Transform
 ) {
     fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
@@ -124,7 +140,9 @@ object ComponentModelPropertySerializer : KSerializer<Model> {
 
     override fun deserialize(decoder: Decoder): Model {
         val backingFile = File(decoder.decodeString())
-        return Model.loadFromFile(backingFile)!!
+        val model = Model()
+        model.backingFile = backingFile
+        return model
     }
 
     override fun serialize(encoder: Encoder, value: Model) {
