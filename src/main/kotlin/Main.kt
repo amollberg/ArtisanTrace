@@ -1,6 +1,7 @@
 @file:UseSerializers(Vector2Serializer::class)
 
 import kotlinx.serialization.UseSerializers
+import org.openrndr.DropEvent
 import org.openrndr.KeyEvent
 import org.openrndr.KeyEventType
 import org.openrndr.application
@@ -71,6 +72,13 @@ class ViewModel(internal var model: Model) {
         updateModifiers(key)
     }
 
+    fun fileDrop(it: DropEvent) {
+        var replacingModel = Model.loadFromFile(it.files.first())
+        if (replacingModel != null) {
+            model = replacingModel
+        }
+    }
+
     private fun updateModifiers(key: KeyEvent) {
         modifierKeysHeld[key.key] = key.type == KeyEventType.KEY_DOWN
     }
@@ -98,6 +106,9 @@ fun main() = application {
     program {
         var viewModel = ViewModel(modelFromFileOrDefault(Model()))
 
+        window.drop.listen {
+            viewModel.fileDrop(it)
+        }
         mouse.moved.listen {
             viewModel.mousePoint = it.position
         }
