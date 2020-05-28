@@ -1,16 +1,19 @@
 import org.openrndr.*
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
+import org.openrndr.events.Event
 import org.openrndr.math.Vector2
+import org.openrndr.svg.loadSVG
 import java.io.File
 
 class ViewModel(internal var model: Model) {
     var mousePoint = Vector2(-1.0, -1.0)
     var activeTool: BaseTool = EmptyTool(this)
+    var areInterfacesVisible = false
+    val modelLoaded = Event<File>("model-loaded")
 
     // Map KEY_CODE to whether the key is held or not
     var modifierKeysHeld = HashMap<Int, Boolean>()
-    var areInterfacesVisible = false
 
     fun keyUp(key: KeyEvent) {
         updateModifiers(key)
@@ -60,11 +63,7 @@ class ViewModel(internal var model: Model) {
         updateModifiers(key)
     }
 
-    fun fileDrop(
-        drop: DropEvent,
-        fileOpenedClosure: (loadedFile: File) -> Unit
-    ) {
-
+    fun fileDrop(drop: DropEvent) {
         if (modifierKeysHeld.getOrDefault(KEY_LEFT_SHIFT, false)) {
             // Add the model from the file as a subcomponent
             val fileOpened =
@@ -82,8 +81,8 @@ class ViewModel(internal var model: Model) {
             var replacingModel = Model.loadFromFile(fileOpened)
             if (replacingModel != null) {
                 model = replacingModel
+                modelLoaded.trigger(fileOpened)
             }
-            fileOpenedClosure(fileOpened)
         }
     }
 
@@ -99,14 +98,14 @@ fun main() = application {
     }
 
     program {
+        window.title = "ArtisanTrace"
         var viewModel = ViewModel(modelFromFileOrDefault(Model()))
 
-        window.title = "ArtisanTrace"
-
+        viewModel.modelLoaded.listen { loadedFile ->
+            window.title = "${loadedFile.name} - ArtisanTrace"
+        }
         window.drop.listen {
-            viewModel.fileDrop(it) { loadedFile ->
-                window.title = "ArtisanTrace - ${loadedFile.name}"
-            }
+            viewModel.fileDrop(it)
         }
         mouse.moved.listen {
             viewModel.mousePoint = it.position
