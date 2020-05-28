@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
 import kotlin.math.PI
@@ -21,6 +22,33 @@ internal class InterfaceTest {
                 )
             ),
             itf.getEnds()
+        )
+    }
+
+    @Test
+    fun withTerminalCount() {
+        assertEquals(
+            20.0,
+            Interface(Vector2.ZERO, 0.0, 20.0, 1)
+                .withTerminalCount(1).length
+        )
+
+        assertEquals(
+            4.0,
+            Interface(Vector2.ZERO, 0.0, 6.0, 4)
+                .withTerminalCount(3).length
+        )
+
+        assertEquals(
+            1.0,
+            Interface(Vector2.ZERO, 0.0, 3.0, 4)
+                .withTerminalCount(1).length
+        )
+
+        assertEquals(
+            1.0,
+            Interface(Vector2.ZERO, 0.0, 3.0, 4)
+                .withTerminalCount(2).length
         )
     }
 }

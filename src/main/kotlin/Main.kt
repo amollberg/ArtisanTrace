@@ -1,14 +1,10 @@
-@file:UseSerializers(Vector2Serializer::class)
-
-import kotlinx.serialization.UseSerializers
-import org.openrndr.KeyEvent
-import org.openrndr.KeyEventType
-import org.openrndr.application
+import org.openrndr.*
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
+import java.io.File
 
-class ViewModel(internal val model: Model) {
+class ViewModel(internal var model: Model) {
     var mousePoint = Vector2(-1.0, -1.0)
     var activeTool: BaseTool = EmptyTool(this)
 
@@ -51,14 +47,7 @@ class ViewModel(internal val model: Model) {
     }
 
     fun draw(drawer: Drawer) {
-        model.traces.forEach { it -> it.draw(drawer) }
-
-        if (areInterfacesVisible) {
-            model.interfaces
-        } else {
-            onlyUnconnectedInterfaces()
-        }.forEach { it -> it.draw(drawer) }
-
+        model.draw(drawer, areInterfacesVisible)
         activeTool.draw(drawer)
     }
 
@@ -71,21 +60,35 @@ class ViewModel(internal val model: Model) {
         updateModifiers(key)
     }
 
-    private fun updateModifiers(key: KeyEvent) {
-        modifierKeysHeld[key.key] = key.type == KeyEventType.KEY_DOWN
+    fun fileDrop(
+        drop: DropEvent,
+        fileOpenedClosure: (loadedFile: File) -> Unit
+    ) {
+
+        if (modifierKeysHeld.getOrDefault(KEY_LEFT_SHIFT, false)) {
+            // Add the model from the file as a subcomponent
+            val fileOpened =
+                model.backingFile.toPath().toAbsolutePath().parent
+                    .relativize(drop.files.first().toPath()).toFile()
+            var submodel = Model.loadFromFile(fileOpened)
+            if (submodel != null) {
+                model.components.add(
+                    Component(submodel, Transform(translation = drop.position))
+                )
+            }
+        } else {
+            // Replace the top level model
+            val fileOpened = drop.files.first().absoluteFile
+            var replacingModel = Model.loadFromFile(fileOpened)
+            if (replacingModel != null) {
+                model = replacingModel
+            }
+            fileOpenedClosure(fileOpened)
+        }
     }
 
-    /** Return all interfaces that are not connected to a trace */
-    private fun onlyUnconnectedInterfaces(): Set<Interface> {
-        return model.interfaces.toSet() - model.traces.flatMap {
-            it.segments.map {
-                it.getStart().hostInterface
-            }
-        }.toSet() - model.traces.flatMap {
-            it.segments.map {
-                it.getEnd().hostInterface
-            }
-        }.toSet()
+    private fun updateModifiers(key: KeyEvent) {
+        modifierKeysHeld[key.key] = key.type == KeyEventType.KEY_DOWN
     }
 }
 
@@ -98,6 +101,13 @@ fun main() = application {
     program {
         var viewModel = ViewModel(modelFromFileOrDefault(Model()))
 
+        window.title = "ArtisanTrace"
+
+        window.drop.listen {
+            viewModel.fileDrop(it) { loadedFile ->
+                window.title = "ArtisanTrace - ${loadedFile.name}"
+            }
+        }
         mouse.moved.listen {
             viewModel.mousePoint = it.position
         }
@@ -123,4 +133,4 @@ fun main() = application {
 }
 
 fun modelFromFileOrDefault(defaultModel: Model) =
-    Model.loadFromFile() ?: defaultModel
+    Model.loadFromFile(Model().backingFile) ?: defaultModel

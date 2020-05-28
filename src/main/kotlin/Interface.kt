@@ -55,12 +55,18 @@ data class Interface(
     fun withTerminalCount(newCount: Int): Interface {
         val itf = clone()
         itf.length = when (newCount) {
-            // Distance covered by 3 terminals
-            1 -> length * newCount / (terminalCount - 1)
-            else -> length * (newCount - 1) / (terminalCount - 1)
+            1 -> terminalStride()
+            else -> (newCount - 1) * terminalStride()
         }
         itf.terminalCount = newCount
         return itf
+    }
+
+    internal fun terminalStride(): Double {
+        return when (terminalCount) {
+            1 -> length
+            else -> length / (terminalCount - 1)
+        }
     }
 
     fun clone(): Interface {
