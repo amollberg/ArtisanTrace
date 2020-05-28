@@ -6,9 +6,12 @@ import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
+import org.openrndr.math.Matrix44
 import org.openrndr.math.Vector2
 import org.openrndr.math.transforms.transform
 import org.openrndr.shape.Composition
+import org.openrndr.shape.ShapeNode
+import org.openrndr.shape.map
 import org.openrndr.svg.loadSVG
 import java.io.File
 
@@ -109,6 +112,7 @@ class Model {
     }
 
     fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
+        svgComponents.forEach { it.draw(drawer) }
         components.forEach { it.draw(drawer, areInterfacesVisible) }
         traces.forEach { it.draw(drawer) }
         if (areInterfacesVisible) {
@@ -140,8 +144,19 @@ class SvgComponent(
     var svg: Svg,
     var t: Transform
 ) {
-
+    fun draw(drawer: Drawer) {
+        drawer.composition(transformedSvg(t.asMatrix(), svg.composition!!))
+    }
 }
+
+fun transformedSvg(transform: Matrix44, composition: Composition) =
+    Composition(composition.root.map {
+        if (it is ShapeNode) {
+            it.copy(shape = it.shape.transform(transform))
+        } else {
+            it
+        }
+    })
 
 @Serializable
 class Component(
@@ -197,10 +212,12 @@ class Transform(
     var translation: Vector2 = Vector2.ZERO
 ) {
     fun apply(drawer: Drawer) {
-        drawer.view *= transform {
-            translate(translation)
-            rotate(degrees = rotation)
-            scale(scale)
-        }
+        drawer.view *= asMatrix()
+    }
+
+    fun asMatrix() = transform {
+        translate(translation)
+        rotate(degrees = rotation)
+        scale(scale)
     }
 }
