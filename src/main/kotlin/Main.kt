@@ -42,6 +42,9 @@ class ViewModel(internal var model: Model) {
             "s" -> {
                 model.saveToFile()
             }
+            "y" -> {
+                changeTool(ComponentMoveTool(this))
+            }
         }
     }
 

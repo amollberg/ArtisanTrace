@@ -1,17 +1,10 @@
-@file:UseSerializers(Vector2Serializer::class)
-
-import kotlinx.serialization.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
 import org.openrndr.draw.Drawer
-import org.openrndr.draw.isolated
-import org.openrndr.math.Matrix44
-import org.openrndr.math.Vector2
-import org.openrndr.math.transforms.transform
-import org.openrndr.shape.Composition
-import org.openrndr.shape.ShapeNode
-import org.openrndr.shape.map
 import org.openrndr.svg.loadSVG
 import java.io.File
 
@@ -100,6 +93,8 @@ class Model {
         }
     }
 
+    val components: List<Component> get() = sketchComponents + svgComponents
+
     fun saveToFile() {
         interfaces.forEachIndexed { i, itf -> itf.id = i }
         sketchComponents.forEach { it.model.saveToFile() }
@@ -136,88 +131,3 @@ class Model {
     }
 }
 
-data class Svg(var composition: Composition? = null, val backingFile: File)
-
-@Serializable
-class SvgComponent(
-    @Serializable(with = SvgReferenceSerializer::class)
-    var svg: Svg,
-    var t: Transform
-) {
-    fun draw(drawer: Drawer) {
-        drawer.composition(transformedSvg(t.asMatrix(), svg.composition!!))
-    }
-}
-
-fun transformedSvg(transform: Matrix44, composition: Composition) =
-    Composition(composition.root.map {
-        if (it is ShapeNode) {
-            it.copy(shape = it.shape.transform(transform))
-        } else {
-            it
-        }
-    })
-
-@Serializable
-class SketchComponent(
-    @Serializable(with = SketchReferenceSerializer::class)
-    var model: Model,
-    var t: Transform
-) {
-    fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
-        // drawer.isolated creates a receiver object which shadows the "this"
-        // object
-        val sketchComponent = this
-        drawer.isolated {
-            t.apply(drawer)
-            sketchComponent.model.draw(drawer, areInterfacesVisible)
-        }
-    }
-}
-
-object SketchReferenceSerializer : KSerializer<Model> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveDescriptor("SketchComponent", PrimitiveKind.STRING)
-
-    override fun deserialize(decoder: Decoder): Model {
-        val backingFile = File(decoder.decodeString())
-        val model = Model()
-        model.backingFile = backingFile
-        return model
-    }
-
-    override fun serialize(encoder: Encoder, value: Model) {
-        encoder.encodeString(value.backingFile.path)
-    }
-}
-
-class SvgReferenceSerializer : KSerializer<Svg> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveDescriptor("SvgComponent", PrimitiveKind.STRING)
-
-    override fun deserialize(decoder: Decoder): Svg {
-        val backingFile = File(decoder.decodeString())
-        return Svg(null, backingFile)
-    }
-
-    override fun serialize(encoder: Encoder, value: Svg) {
-        encoder.encodeString(value.backingFile.path)
-    }
-}
-
-@Serializable
-class Transform(
-    var scale: Double = 1.0,
-    var rotation: Double = 0.0,
-    var translation: Vector2 = Vector2.ZERO
-) {
-    fun apply(drawer: Drawer) {
-        drawer.view *= asMatrix()
-    }
-
-    fun asMatrix() = transform {
-        translate(translation)
-        rotate(degrees = rotation)
-        scale(scale)
-    }
-}

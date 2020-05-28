@@ -29,23 +29,12 @@ data class TraceSegment(
     fun getKnee() = knee
     fun getEnd() = end
 
+    fun getKnees() = splitIntoSingleLeads().map { it.getKnee() }
+
     fun draw(drawer: Drawer) {
         if (start.count() > 1) {
             // Divide segment into one per lead
-            start.range.zip(end.range).forEach { (startTerminal, endTerminal) ->
-                TraceSegment(
-                    Terminals(
-                        start.hostInterface,
-                        startTerminal..startTerminal
-                    ),
-                    Terminals(
-                        end.hostInterface,
-                        endTerminal..endTerminal
-                    ),
-                    angle
-                )
-                    .draw(drawer)
-            }
+            splitIntoSingleLeads().forEach { it.draw(drawer) }
         } else {
             val cs = contours {
                 moveTo(firstStartPosition())
@@ -108,6 +97,21 @@ data class TraceSegment(
 
     fun firstEndPosition() =
         end.hostInterface.getTerminalPosition(end.range.first)
+
+    private fun splitIntoSingleLeads(): List<TraceSegment> =
+        start.range.zip(end.range).map { (startTerminal, endTerminal) ->
+            TraceSegment(
+                Terminals(
+                    start.hostInterface,
+                    startTerminal..startTerminal
+                ),
+                Terminals(
+                    end.hostInterface,
+                    endTerminal..endTerminal
+                ),
+                angle
+            )
+        }
 }
 
 /** Return the counter-clockwise angle from positive x-axis to xy in degrees,
