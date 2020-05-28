@@ -6,15 +6,15 @@ class InterfaceTraceDrawToolTest {
 
     @Test
     fun correctNumberOfTerminals() {
-        var view = ViewModel()
+        var view = ViewModel(Model())
         var startItf = Interface(Vector2(x = 10.0), 0.0, 10.0, 4)
-        view.interfaces = mutableListOf(startItf)
+        view.model.interfaces = mutableListOf(startItf)
         val tool = InterfaceTraceDrawTool(view)
         tool.terminalSelector.desiredLeads = 3
 
         tool.mouseClicked(startItf.center)
         tool.mouseClicked(Vector2(34.0, 56.0))
-        val createdInterface = view.interfaces[1]
+        val createdInterface = view.model.interfaces[1]
         assertEquals(4, startItf.terminalCount)
         assertEquals(3, createdInterface.terminalCount)
     }
@@ -24,15 +24,15 @@ class InterfaceTraceDrawToolTest {
         val originalCount = 4
         val cloneCount = 3
 
-        var view = ViewModel()
+        var view = ViewModel(Model())
         var startItf = Interface(Vector2(x = 10.0), 0.0, 10.0, originalCount)
-        view.interfaces = mutableListOf(startItf)
+        view.model.interfaces = mutableListOf(startItf)
         val tool = InterfaceTraceDrawTool(view)
         tool.terminalSelector.desiredLeads = cloneCount
 
         tool.mouseClicked(startItf.center)
         tool.mouseClicked(Vector2(34.0, 56.0))
-        val createdInterface = view.interfaces[1]
+        val createdInterface = view.model.interfaces[1]
 
         assertEquals(
             terminalDistance(startItf),

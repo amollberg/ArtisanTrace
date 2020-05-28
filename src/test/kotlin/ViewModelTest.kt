@@ -10,43 +10,43 @@ class ViewModelTest {
 
     @Test
     fun deserializeSerialized() {
-        val original = createViewModel()
-        assertEquals(original, ViewModel.deserialize(original.serialize())!!)
+        val original = createModel()
+        assertEquals(original, Model.deserialize(original.serialize())!!)
     }
 
     @Test
     fun deserializeTwice() {
-        val original = createViewModel()
-        val serializedOnce = ViewModel.deserialize(original.serialize())!!
+        val original = createModel()
+        val serializedOnce = Model.deserialize(original.serialize())!!
         val serializedTwice =
-            ViewModel.deserialize(serializedOnce.serialize())!!
+            Model.deserialize(serializedOnce.serialize())!!
         assertEquals(original, serializedTwice)
     }
 
     @Test
     fun serializeTwice() {
-        val original = createViewModel()
-        val serializedOnce = ViewModel.deserialize(original.serialize())!!
+        val original = createModel()
+        val serializedOnce = Model.deserialize(original.serialize())!!
         assertEquals(original.serialize(), serializedOnce.serialize())
     }
 
     @Test
     fun modifyAfterDeserialization() {
-        var original = createViewModel()
-        var serializedOnce = ViewModel.deserialize(original.serialize())!!
+        var original = createModel()
+        var serializedOnce = Model.deserialize(original.serialize())!!
         assertEquals(
-            modifyViewModel(original),
-            modifyViewModel(serializedOnce)
+            modifyModel(original),
+            modifyModel(serializedOnce)
         )
     }
 
     @Test
     fun internalSanityCheckModifiedViewModel() {
-        assertNotEquals(createViewModel(), modifyViewModel(createViewModel()))
+        assertNotEquals(createModel(), modifyModel(createModel()))
     }
 
-    private fun createViewModel(): ViewModel {
-        var original = ViewModel()
+    private fun createModel(): Model {
+        var original = ViewModel(Model())
 
         original.changeTool(InterfaceDrawTool(original))
         original.activeTool.mouseScrolled(
@@ -63,14 +63,15 @@ class ViewModelTest {
         original.activeTool.mouseClicked(Vector2(47.0, 11.0))
         original.activeTool.mouseClicked(Vector2(300.0, 11.0))
 
-        // Restore to default tool before any serialization
+        // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
-        return original
+        return original.model
     }
 
-    private fun modifyViewModel(original: ViewModel): ViewModel {
-        original.changeTool(InterfaceTraceDrawTool(original))
-        original.activeTool.mouseScrolled(
+    private fun modifyModel(original: Model): Model {
+        var viewModel = ViewModel(original)
+        viewModel.changeTool(InterfaceTraceDrawTool(viewModel))
+        viewModel.activeTool.mouseScrolled(
             MouseEvent(
                 Vector2.ZERO,
                 Vector2(0.0, 3.0),
@@ -81,10 +82,11 @@ class ViewModelTest {
                 false
             )
         )
-        original.activeTool.mouseClicked(Vector2(47.0, 11.0))
-        original.activeTool.mouseClicked(Vector2(100.0, 111.0))
+        viewModel.activeTool.mouseClicked(Vector2(47.0, 11.0))
+        viewModel.activeTool.mouseClicked(Vector2(100.0, 111.0))
 
-        original.changeTool(EmptyTool(original))
+        // Exit the active tool to commit any pending changes
+        viewModel.changeTool(EmptyTool(viewModel))
         return original
     }
 }

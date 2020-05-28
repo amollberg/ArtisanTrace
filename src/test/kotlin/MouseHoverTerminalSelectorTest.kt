@@ -6,9 +6,9 @@ class MouseHoverTerminalSelectorTest {
 
     @Test
     fun getTerminals() {
-        var view = ViewModel()
+        var view = ViewModel(Model())
         var itf = Interface(Vector2(x = 15.0), 0.0, 10.0, 4)
-        view.interfaces = mutableListOf(itf)
+        view.model.interfaces = mutableListOf(itf)
         var selection = MouseHoverTerminalSelector(view)
         selection.desiredLeads = 3
 

@@ -18,7 +18,9 @@ open class BaseInterfaceTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
     private fun getNearestInterface(position: Vector2): Interface? {
-        return viewModel.interfaces.minBy { (it.center - position).length }
+        return viewModel.model.interfaces.minBy {
+            (it.center - position).length
+        }
     }
 
     protected fun interfaceLikeNearest(position: Vector2): Interface {

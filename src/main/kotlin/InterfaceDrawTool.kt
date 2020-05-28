@@ -6,7 +6,7 @@ import kotlin.math.max
 
 class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
     override fun mouseClicked(position: Vector2) {
-        viewModel.interfaces.add(itf)
+        viewModel.model.interfaces.add(itf)
         itf = itf.clone()
     }
 

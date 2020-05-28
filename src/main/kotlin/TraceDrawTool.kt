@@ -56,6 +56,6 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
     override fun exit() {
-        viewModel.traces.add(trace)
+        viewModel.model.traces.add(trace)
     }
 }

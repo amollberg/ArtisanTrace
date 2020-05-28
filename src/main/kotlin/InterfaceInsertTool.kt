@@ -15,7 +15,7 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
             else listOf(it)
         }.toMutableList()
 
-        viewModel.interfaces.add(itf)
+        viewModel.model.interfaces.add(itf)
         itf = itf.clone()
     }
 
@@ -35,7 +35,7 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
 
     private fun getNearestSegment(position: Vector2):
             Pair<Trace, TraceSegment>? {
-        return viewModel.traces.flatMap { trace ->
+        return viewModel.model.traces.flatMap { trace ->
             trace.segments.map { segment ->
                 Triple(trace, segment, segment.getKnee())
             }

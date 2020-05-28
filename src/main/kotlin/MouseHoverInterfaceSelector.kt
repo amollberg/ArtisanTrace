@@ -11,7 +11,7 @@ class MouseHoverInterfaceSelector(private val viewModel: ViewModel) {
 
     fun getInterface(): Interface? {
         // Get the interface nearest to the mouse
-        return viewModel.interfaces.minBy {
+        return viewModel.model.interfaces.minBy {
             (it.center - viewModel.mousePoint).length
         }
     }

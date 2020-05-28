@@ -33,7 +33,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
                 )
             )
             previousTerminals = itf.getTerminals()
-            viewModel.interfaces.add(itf)
+            viewModel.model.interfaces.add(itf)
             itf = itf.clone()
         }
     }
@@ -78,6 +78,6 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
     }
 
     override fun exit() {
-        viewModel.traces.add(trace)
+        viewModel.model.traces.add(trace)
     }
 }
