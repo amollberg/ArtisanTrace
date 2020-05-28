@@ -52,7 +52,7 @@ class ViewModel(internal var model: Model) {
     }
 
     fun draw(drawer: Drawer) {
-        model.traces.forEach { it -> it.draw(drawer) }
+        model.traces.forEach { it.draw(drawer) }
 
         if (areInterfacesVisible) {
             model.interfaces
