@@ -8,6 +8,7 @@ import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
+import java.io.File
 
 class ViewModel(internal var model: Model) {
     var mousePoint = Vector2(-1.0, -1.0)
@@ -72,11 +73,13 @@ class ViewModel(internal var model: Model) {
         updateModifiers(key)
     }
 
-    fun fileDrop(it: DropEvent) {
-        var replacingModel = Model.loadFromFile(it.files.first())
+    fun fileDrop(it: DropEvent, fileOpenedClosure: (loadedFile: File) -> Unit) {
+        val fileOpened = it.files.first()
+        var replacingModel = Model.loadFromFile(fileOpened)
         if (replacingModel != null) {
             model = replacingModel
         }
+        fileOpenedClosure(fileOpened)
     }
 
     private fun updateModifiers(key: KeyEvent) {
@@ -106,8 +109,12 @@ fun main() = application {
     program {
         var viewModel = ViewModel(modelFromFileOrDefault(Model()))
 
+        window.title = "ArtisanTrace"
+
         window.drop.listen {
-            viewModel.fileDrop(it)
+            viewModel.fileDrop(it) { loadedFile ->
+                window.title = "ArtisanTrace - ${loadedFile.name}"
+            }
         }
         mouse.moved.listen {
             viewModel.mousePoint = it.position
