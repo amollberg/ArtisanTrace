@@ -13,6 +13,13 @@ data class System(
 ) {
     companion object {
         fun root() = System(null)
+
+        /** Return the transformation from source to target */
+        fun transformFromTo(source: System, target: System): Matrix33 {
+            val sourceToAbs = source.absoluteTransform()
+            val targetToAbs = target.absoluteTransform()
+            return inversed(targetToAbs) * sourceToAbs
+        }
     }
 
     fun absoluteTransform(): Matrix33 {
@@ -40,11 +47,8 @@ data class System(
         if (system == this) {
             return three.xy
         }
-        val sourceToAbs = system.absoluteTransform()
-        val targetToAbs = absoluteTransform()
-        val sourceToTarget = inversed(targetToAbs) * sourceToAbs
-        val sourceThree = three
-        val targetThree = sourceToTarget * sourceThree
+        val sourceToTarget = transformFromTo(system, this)
+        val targetThree = sourceToTarget * three
         return targetThree.xy
     }
 
