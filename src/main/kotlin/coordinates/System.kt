@@ -1,10 +1,15 @@
+@file:UseSerializers(Vector2Serializer::class)
 package coordinates
 
 import Matrix22
+import Vector2Serializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import org.openrndr.math.Matrix33
 import org.openrndr.math.Vector2
 import org.openrndr.math.Vector3
 
+@Serializable
 data class System(
     private val reference: System?,
     /** In reference coordinate system */

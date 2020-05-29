@@ -1,4 +1,6 @@
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Matrix33
 import org.openrndr.math.Vector2
@@ -25,6 +27,7 @@ data class Trace(var segments: MutableList<TraceSegment> = mutableListOf()) {
     fun withSegment(segment: TraceSegment) = Trace(segments + segment)
 }
 
+@Serializable
 class Matrix22(
     val c0r0: Double = 0.0, val c1r0: Double = 0.0,
     val c0r1: Double = 0.0, val c1r1: Double = 0.0
@@ -41,6 +44,7 @@ class Matrix22(
         c0r1.toDouble(), c1r1.toDouble()
     )
 
+    @Serializable(with = Matrix33Serializer::class)
     private var m = Matrix33(
         c0r0, c1r0, 0.0,
         c0r1, c1r1, 0.0,
