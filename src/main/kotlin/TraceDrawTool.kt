@@ -1,6 +1,5 @@
+import coordinates.Coordinate
 import org.openrndr.MouseEvent
-import org.openrndr.draw.Drawer
-import org.openrndr.math.Vector2
 import org.openrndr.math.clamp
 
 class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
@@ -10,7 +9,7 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val angle = Angle.OBTUSE
     private var hasPlacedStart = false
 
-    override fun mouseClicked(position: Vector2) {
+    override fun mouseClicked(position: Coordinate) {
         val clickedTerminals = terminalSelector.getTerminals() ?: return
         if (!hasPlacedStart) {
             // Note: previousTerminals is assigned at the end of this function
@@ -42,7 +41,7 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
         }
     }
 
-    override fun draw(drawer: Drawer) {
+    override fun draw(drawer: OrientedDrawer) {
         terminalSelector.draw(drawer)
 
         if (hasPlacedStart) {

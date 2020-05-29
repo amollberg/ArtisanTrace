@@ -1,17 +1,18 @@
+import coordinates.System
+import coordinates.System.Companion.root
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
-import org.openrndr.draw.Drawer
 import org.openrndr.svg.loadSVG
 import java.io.File
 
 val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
 
 @Serializable
-class Model {
+class Model(@Transient val system: System = root()) {
     var interfaces: MutableList<Interface> = mutableListOf()
     var traces: MutableList<Trace> = mutableListOf()
     var sketchComponents: MutableList<SketchComponent> = mutableListOf()
@@ -106,7 +107,7 @@ class Model {
         return json.stringify(serializer(), this)
     }
 
-    fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
+    fun draw(drawer: OrientedDrawer, areInterfacesVisible: Boolean) {
         svgComponents.forEach { it.draw(drawer) }
         sketchComponents.forEach { it.draw(drawer, areInterfacesVisible) }
         traces.forEach { it.draw(drawer) }
@@ -128,6 +129,10 @@ class Model {
                 it.getEnd().hostInterface
             }
         }.toSet()
+    }
+
+    fun setReference(reference: System) {
+        system.reference = reference
     }
 }
 

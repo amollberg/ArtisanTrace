@@ -1,7 +1,6 @@
+import coordinates.Coordinate
 import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.MouseEvent
-import org.openrndr.draw.Drawer
-import org.openrndr.math.Vector2
 import org.openrndr.math.clamp
 
 class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
@@ -11,7 +10,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
     private val angle = Angle.OBTUSE
     private var hasPlacedStart = false
 
-    override fun mouseClicked(position: Vector2) {
+    override fun mouseClicked(position: Coordinate) {
         if (!hasPlacedStart) {
             // Attach to existing interface to begin with
             val clickedTerminals = terminalSelector.getTerminals() ?: return
@@ -53,7 +52,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
         }
     }
 
-    override fun draw(drawer: Drawer) {
+    override fun draw(drawer: OrientedDrawer) {
         itf.center = viewModel.mousePoint
 
         if (!hasPlacedStart) {

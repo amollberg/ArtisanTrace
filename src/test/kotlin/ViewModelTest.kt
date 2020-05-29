@@ -1,3 +1,4 @@
+import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.openrndr.KeyModifier
@@ -46,7 +47,7 @@ class ViewModelTest {
     }
 
     private fun createModel(): Model {
-        var original = ViewModel(Model())
+        var original = ViewModel(Model(root()))
 
         original.changeTool(InterfaceDrawTool(original))
         original.activeTool.mouseScrolled(
@@ -60,8 +61,8 @@ class ViewModelTest {
                 false
             )
         )
-        original.activeTool.mouseClicked(Vector2(47.0, 11.0))
-        original.activeTool.mouseClicked(Vector2(300.0, 11.0))
+        original.activeTool.mouseClicked(at(original, 47.0, 11.0))
+        original.activeTool.mouseClicked(at(original, 300.0, 11.0))
 
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
@@ -82,13 +83,16 @@ class ViewModelTest {
                 false
             )
         )
-        viewModel.activeTool.mouseClicked(Vector2(47.0, 11.0))
-        viewModel.activeTool.mouseClicked(Vector2(100.0, 111.0))
+        viewModel.activeTool.mouseClicked(at(viewModel, 47.0, 11.0))
+        viewModel.activeTool.mouseClicked(at(viewModel, 100.0, 111.0))
 
         // Exit the active tool to commit any pending changes
         viewModel.changeTool(EmptyTool(viewModel))
         return original
     }
+
+    private fun at(viewModel: ViewModel, x: Double, y: Double) =
+        viewModel.root.coord(Vector2(x, y))
 
     private fun deserialize(value: String): Model =
         Model.deserialize(value, File("dontcare"))!!

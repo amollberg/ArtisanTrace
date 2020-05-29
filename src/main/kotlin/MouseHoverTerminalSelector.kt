@@ -1,5 +1,3 @@
-import org.openrndr.draw.Drawer
-
 /** On hover, select a contiguous range of terminals near the mouse */
 class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
     var desiredLeads: Int = 1
@@ -8,7 +6,8 @@ class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
     fun getTerminals(): Terminals? {
         val itf = getInterface() ?: return null
         val nearestIndices = itf.getTerminals().range.sortedBy {
-            (itf.getTerminalPosition(it) - viewModel.mousePoint).length
+            (itf.getTerminalPosition(it) - viewModel.mousePoint)
+                .lengthIn(viewModel.root)
         }.take(desiredLeads)
         return Terminals(
             itf, reversedIf(
@@ -18,18 +17,21 @@ class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
         )
     }
 
-    fun draw(drawer: Drawer) {
+    fun draw(drawer: OrientedDrawer) {
         val terminals = getTerminals() ?: return
         val selectedInterface = terminals.hostInterface
         terminals.range.forEach { i ->
-            drawer.circle(selectedInterface.getTerminalPosition(i), 6.0)
+            drawer.drawer.circle(
+                selectedInterface.getTerminalPosition(i).xyIn(drawer.system),
+                6.0
+            )
         }
     }
 
     fun getInterface(): Interface? {
         // Get the interface nearest to the mouse
         return viewModel.model.interfaces.minBy {
-            (it.center - viewModel.mousePoint).length
+            (it.center - viewModel.mousePoint).lengthIn(viewModel.root)
         }
     }
 }

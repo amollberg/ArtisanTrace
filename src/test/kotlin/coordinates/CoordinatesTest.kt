@@ -40,7 +40,7 @@ class CoordinatesTest {
         var changing = root.createSystem(xy)
         val c = changing.coord(Vector2(1.0, 2.0))
         assertEquals(Vector2(11.0, 22.0), c.relativeTo(root).xy())
-        changing.setOrigin(Vector2(30.0, 40.0))
+        changing.originCoord = root.coord(Vector2(30.0, 40.0))
         assertEquals(Vector2(31.0, 42.0), c.relativeTo(root).xy())
     }
 

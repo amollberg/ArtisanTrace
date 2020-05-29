@@ -1,6 +1,6 @@
+import coordinates.Coordinate
 import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
-import org.openrndr.math.Vector2
 import kotlin.math.max
 
 open class BaseInterfaceTool(viewModel: ViewModel) : BaseTool(viewModel) {
@@ -17,13 +17,13 @@ open class BaseInterfaceTool(viewModel: ViewModel) : BaseTool(viewModel) {
         }
     }
 
-    private fun getNearestInterface(position: Vector2): Interface? {
+    private fun getNearestInterface(position: Coordinate): Interface? {
         return viewModel.model.interfaces.minBy {
-            (it.center - position).length
+            (it.center - position).lengthIn(position.system)
         }
     }
 
-    protected fun interfaceLikeNearest(position: Vector2): Interface {
+    protected fun interfaceLikeNearest(position: Coordinate): Interface {
         val nearestItf = getNearestInterface(position) ?: return Interface(
             position,
             0.0,

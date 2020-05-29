@@ -1,9 +1,8 @@
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import org.openrndr.draw.Drawer
 import org.openrndr.math.Matrix33
 import org.openrndr.math.Vector2
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.tan
 
 @Serializable
@@ -19,9 +18,8 @@ data class Trace(var segments: MutableList<TraceSegment> = mutableListOf()) {
         segments.add(segment)
     }
 
-    fun draw(drawer: Drawer) {
+    fun draw(drawer: OrientedDrawer) {
         segments.forEach { it.draw(drawer) }
-
     }
 
     fun withSegment(segment: TraceSegment) = Trace(segments + segment)
@@ -34,6 +32,11 @@ class Matrix22(
 ) {
     companion object {
         val IDENTITY = Matrix22(c0r0 = 1.0, c1r1 = 1.0)
+
+        fun rotation(angleRadians: Double) = Matrix22(
+            c0r0 = cos(angleRadians), c1r0 = -sin(angleRadians),
+            c0r1 = sin(angleRadians), c1r1 = cos(angleRadians)
+        )
     }
 
     constructor(
@@ -44,21 +47,21 @@ class Matrix22(
         c0r1.toDouble(), c1r1.toDouble()
     )
 
-    @Serializable(with = Matrix33Serializer::class)
-    private var m = Matrix33(
-        c0r0, c1r0, 0.0,
-        c0r1, c1r1, 0.0,
-        0.0, 0.0, 1.0
+    constructor(m: Matrix33) : this(
+        m.c0r0, m.c1r0,
+        m.c0r1, m.c1r1
     )
+
+    private val m
+        get() = Matrix33(
+            c0r0, c1r0, 0.0,
+            c0r1, c1r1, 0.0,
+            0.0, 0.0, 1.0
+        )
 
     operator fun times(v: Vector2) = (m * v.xy0).xy
 
-    operator fun times(o: Matrix22): Matrix22 {
-        var product3 = (m * o.m)
-        var product = Matrix22.IDENTITY
-        product.m = product3
-        return product
-    }
+    operator fun times(o: Matrix22) = Matrix22(m * o.m)
 
     fun invert(): Matrix22 {
         val det = c0r0 * c1r1 - c0r1 * c1r0
@@ -73,6 +76,13 @@ class Matrix22(
             -deti * c0r1, deti * c0r0
         )
     }
+
+    val columnMajor get() = listOf(listOf(c0r0, c0r1), listOf(c1r0, c1r1))
+
+    override operator fun equals(other: Any?) =
+        (other is Matrix22) && (columnMajor == other.columnMajor)
+
+    operator fun times(d: Double) = Matrix22(m * d)
 }
 
 fun fold(v: Vector2, foldMatrix: Matrix22): Vector2 {

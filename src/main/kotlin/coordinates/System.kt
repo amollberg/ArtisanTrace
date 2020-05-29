@@ -11,10 +11,10 @@ import org.openrndr.math.Vector3
 
 @Serializable
 data class System(
-    private val reference: System?,
+    var reference: System?,
     /** In reference coordinate system */
     private var origin: Vector2 = Vector2.ZERO,
-    private var axes: Matrix22 = Matrix22.IDENTITY
+    var axes: Matrix22 = Matrix22.IDENTITY
 ) {
     companion object {
         fun root() = System(null)
@@ -27,11 +27,15 @@ data class System(
         }
     }
 
-    fun absoluteTransform(): Matrix33 {
-        if (reference == null) {
-            return Matrix33.IDENTITY
+    var originCoord
+        get() = coord(Vector2.ZERO)
+        set(coordinate: Coordinate) {
+            origin = coordinate.xyIn(reference ?: this)
         }
-        return reference.absoluteTransform() * transformToReference()
+
+    fun absoluteTransform(): Matrix33 {
+        val ref = reference ?: return Matrix33.IDENTITY
+        return ref.absoluteTransform() * transformToReference()
     }
 
     fun coord(xy: Vector2) = Coordinate(xy, this)
@@ -39,8 +43,9 @@ data class System(
     fun length(xy: Vector2) =
         Length(xy, this)
 
-    fun createSystem(origin: Vector2, axes: Matrix22 = Matrix22.IDENTITY) =
-        System(this, origin, axes)
+    fun createSystem(
+        origin: Vector2 = Vector2.ZERO, axes: Matrix22 = Matrix22.IDENTITY
+    ) = System(this, origin, axes)
 
     fun get(coordinate: Coordinate) =
         Coordinate(internalGet(coordinate.three(), coordinate.system), this)
@@ -55,14 +60,6 @@ data class System(
         val sourceToTarget = transformFromTo(system, this)
         val targetThree = sourceToTarget * three
         return targetThree.xy
-    }
-
-    fun setOrigin(newOrigin: Vector2) {
-        origin = newOrigin
-    }
-
-    fun setAxes(newAxes: Matrix22) {
-        axes = newAxes
     }
 
     private fun transformToReference() =
