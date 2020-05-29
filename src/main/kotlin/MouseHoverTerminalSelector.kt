@@ -10,10 +10,7 @@ class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
                 .lengthIn(viewModel.root)
         }.take(desiredLeads)
         return Terminals(
-            itf, reversedIf(
-                reverseTerminalOrder,
-                toProgression(nearestIndices)
-            )
+            itf, reversedIf(reverseTerminalOrder, toProgression(nearestIndices))
         )
     }
 
