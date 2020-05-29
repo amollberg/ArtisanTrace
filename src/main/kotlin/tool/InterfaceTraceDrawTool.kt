@@ -3,7 +3,8 @@ import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.MouseEvent
 import org.openrndr.math.clamp
 
-class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
+class InterfaceTraceDrawTool(viewModel: ViewModel) :
+    BaseInterfaceTool(viewModel) {
     private val trace = Trace()
     private var previousTerminals: Terminals? = null
     internal val terminalSelector = MouseHoverTerminalSelector(viewModel)
