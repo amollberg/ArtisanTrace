@@ -16,7 +16,10 @@ class CoordinatesTest {
     @Test
     fun mirroredY() {
         val c = v.coord(Vector2(10.0, 30.0))
-        assertEquals(Vector2(10.0 + 50.0, 20.0 + 30.0), c.relativeTo(root).xy())
+        assertEquals(
+            Vector2(10.0 + 50.0, 20.0 + 30.0),
+            c.relativeTo(root).xy()
+        )
         assertEquals(Vector2(10.0, 30.0), c.relativeTo(v).xy())
         assertEquals(Vector2(10.0, -30.0), c.relativeTo(w).xy())
     }

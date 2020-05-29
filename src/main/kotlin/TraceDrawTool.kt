@@ -42,7 +42,6 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
         }
     }
 
-
     override fun draw(drawer: Drawer) {
         terminalSelector.draw(drawer)
 

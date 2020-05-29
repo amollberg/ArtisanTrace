@@ -22,8 +22,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
             itf = interfaceLikeNearest(position).withTerminalCount(
                 terminalSelector.desiredLeads
             )
-        }
-        else {
+        } else {
             // Place an interface and connect the trace to it
             trace.add(
                 TraceSegment(
@@ -48,8 +47,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
                 terminalSelector.getInterface()?.terminalCount ?: leads
             )
             terminalSelector.desiredLeads = leads
-        }
-        else {
+        } else {
             // Behave like any other interface tool
             super.mouseScrolled(mouse)
         }
@@ -60,8 +58,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
 
         if (!hasPlacedStart) {
             terminalSelector.draw(drawer)
-        }
-        else {
+        } else {
             // Restrict the new interface position if shift is held
             if (viewModel.modifierKeysHeld.getOrDefault(
                     KEY_LEFT_SHIFT,

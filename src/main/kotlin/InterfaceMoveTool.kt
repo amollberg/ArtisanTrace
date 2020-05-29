@@ -18,8 +18,7 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
                 hasSelectedItf = true
                 mouseOffset = viewModel.mousePoint - selectedItf!!.center
             }
-        }
-        else {
+        } else {
             // Place the selected interface
             // (already done in draw())
             hasSelectedItf = false
@@ -32,8 +31,7 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
 
         if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
             itf.length += 4 * mouse.rotation.y
-        }
-        else {
+        } else {
             itf.angle -= mouse.rotation.y * 45 % 360
         }
     }

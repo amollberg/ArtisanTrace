@@ -43,5 +43,4 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
             (kneePosition - position).length
         }?.let { (trace, segment, _) -> Pair(trace, segment) }
     }
-
 }
