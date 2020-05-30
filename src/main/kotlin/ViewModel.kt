@@ -1,5 +1,7 @@
 import coordinates.Coordinate
 import coordinates.Oriented
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JsonException
 import org.openrndr.DropEvent
 import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyEvent
@@ -16,6 +18,9 @@ class ViewModel(internal var model: Model) {
     var activeTool: BaseTool = EmptyTool(this)
     var areInterfacesVisible = false
     val modelLoaded = Event<File>("model-loaded")
+
+    // For unit testing and debugging
+    var muteSerializationExceptions = true
 
     // Map KEY_CODE to whether the key is held or not
     var modifierKeysHeld = HashMap<Int, Boolean>()
@@ -117,7 +122,18 @@ class ViewModel(internal var model: Model) {
                 model.backingFile.toPath().toAbsolutePath().parent
                     .relativize(droppedFile.toPath()).toFile()
             var submodel =
-                Model.loadFromFile(fileOpened)
+                if (muteSerializationExceptions) {
+                    try {
+                        Model.loadFromFile(fileOpened)
+                    } catch (e: JsonException) {
+                        null
+                    } catch (e: SerializationException) {
+                        null
+                    }
+                } else {
+                    Model.loadFromFile(fileOpened)
+                }
+
             if (submodel != null) {
                 model.sketchComponents.add(
                     SketchComponent(

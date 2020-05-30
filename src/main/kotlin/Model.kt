@@ -5,7 +5,6 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.json.JsonException
 import org.openrndr.svg.loadSVG
 import java.io.File
 
@@ -32,15 +31,9 @@ class Model(@Transient val system: System = root()) {
         }
 
         internal fun deserialize(string: String, backingFile: File): Model? {
-            return try {
-                val model = json.parse(serializer(), string)
-                model.backingFile = backingFile
-                postProcessDeserialized(model)
-            } catch (e: JsonException) {
-                null
-            } catch (e: SerializationException) {
-                null
-            }
+            val model = json.parse(serializer(), string)
+            model.backingFile = backingFile
+            return postProcessDeserialized(model)
         }
 
         private fun postProcessDeserialized(model: Model): Model {

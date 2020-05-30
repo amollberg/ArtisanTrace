@@ -46,18 +46,25 @@ class ViewModelTest {
 
     @Test
     fun correctCoordinateSystemHierarchy() {
-        var viewModel = ViewModel(createModel())
+        var viewModel = createViewModel()
         checkAllStoredCoordinates(viewModel)
 
         (0..2).forEach { i ->
             println("Iteration $i")
-            viewModel = ViewModel(deserialize(viewModel.model.serialize()))
+            viewModel =
+                createViewModel(deserialize(viewModel.model.serialize()))
             checkAllStoredCoordinates(viewModel)
         }
     }
 
+    private fun createViewModel(model: Model = createModel()): ViewModel {
+        val viewModel = ViewModel(model)
+        viewModel.muteSerializationExceptions = false
+        return viewModel
+    }
+
     private fun createModel(): Model {
-        var original = ViewModel(Model(root()))
+        var original = createViewModel(Model(root()))
 
         original.changeTool(InterfaceDrawTool(original))
         original.activeTool.mouseScrolled(
@@ -71,8 +78,10 @@ class ViewModelTest {
                 false
             )
         )
-        original.activeTool.mouseClicked(at(original, 47.0, 11.0))
-        original.activeTool.mouseClicked(at(original, 300.0, 11.0))
+        original.activeTool.mouseClicked(
+            at(original, ORIGINAL_INTERFACE1_CENTER)
+        )
+        original.activeTool.mouseClicked(at(original, INTERFACE2_CENTER))
 
         original.fileDrop(
             DropEvent(
@@ -83,10 +92,22 @@ class ViewModelTest {
 
         original.fileDrop(
             DropEvent(
-                Vector2(231.0, 54.0),
+                ORIGINAL_COMP1_ORIGIN,
                 listOf(File("src/test/resources/IC1.ats").absoluteFile)
             )
         )
+
+        original.fileDrop(
+            DropEvent(
+                COMP2_ORIGIN,
+                listOf(File("src/test/resources/IC1.ats").absoluteFile)
+            )
+        )
+
+        // Draw a trace between the components
+        original.changeTool(TraceDrawTool(original))
+        original.activeTool.mouseClicked(at(original, ORIGINAL_COMP1_ORIGIN))
+        original.activeTool.mouseClicked(at(original, COMP2_ORIGIN))
 
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
@@ -94,7 +115,8 @@ class ViewModelTest {
     }
 
     private fun modifyModel(original: Model): Model {
-        var viewModel = ViewModel(original)
+        var viewModel = createViewModel(original)
+        // Move one of the interfaces
         viewModel.changeTool(InterfaceTraceDrawTool(viewModel))
         viewModel.activeTool.mouseScrolled(
             MouseEvent(
@@ -118,6 +140,7 @@ class ViewModelTest {
 
 private fun checkAllStoredCoordinates(model: Model) {
     val viewModel = ViewModel(model)
+    viewModel.muteSerializationExceptions = false
     checkDescendant(viewModel.model, viewModel.root, "top-level model")
 }
 
