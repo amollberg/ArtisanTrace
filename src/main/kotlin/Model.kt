@@ -55,7 +55,7 @@ class Model(@Transient val system: System = root()) {
                 replaceComponentReferenceSystem(it, model)
             }
             model.svgComponents.forEach {
-                it.svg = replaceComponentSvg(it.svg, model)
+                it.svg = loadFromBackingFile(it.svg)
                 replaceComponentReferenceSystem(it, model)
             }
             return model
@@ -79,20 +79,19 @@ class Model(@Transient val system: System = root()) {
             componentModel: Model,
             model: Model
         ): Model {
-            val path = model.backingFile.toPath().toAbsolutePath().parent
-                .resolve(componentModel.backingFile.toPath()).toFile()
+            val workingDir = model.backingFile.toPath().toAbsolutePath().parent
+            val path =
+                workingDir.resolve(componentModel.backingFile.toPath()).toFile()
             return loadFromFile(path) ?: throw SerializationException(
                 "Sketch component from file '$path' could not be loaded"
             )
         }
 
-        private fun replaceComponentSvg(
-            componentSvg: Svg,
-            model: Model
-        ): Svg {
-            val path = model.backingFile.toPath().toAbsolutePath().parent
-                .resolve(componentSvg.backingFile.toPath()).toFile()
-            return Svg(loadSVG(path.path), path)
+        private fun loadFromBackingFile(componentSvg: Svg): Svg {
+            return Svg(
+                loadSVG(componentSvg.backingFile.path),
+                componentSvg.backingFile
+            )
         }
 
         private fun replaceComponentReferenceSystem(

@@ -68,6 +68,13 @@ class ViewModelTest {
             )
         )
 
+        original.fileDrop(
+            DropEvent(
+                Vector2(231.0, 54.0),
+                listOf(File("src/test/resources/IC1.ats").absoluteFile)
+            )
+        )
+
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
         return original.model
