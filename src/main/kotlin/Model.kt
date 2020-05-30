@@ -52,9 +52,11 @@ class Model(@Transient val system: System = root()) {
             }
             model.sketchComponents.forEach {
                 it.model = replaceComponentModel(it.model, model)
+                replaceComponentReferenceSystem(it, model)
             }
             model.svgComponents.forEach {
                 it.svg = replaceComponentSvg(it.svg, model)
+                replaceComponentReferenceSystem(it, model)
             }
             return model
         }
@@ -91,6 +93,15 @@ class Model(@Transient val system: System = root()) {
             val path = model.backingFile.toPath().toAbsolutePath().parent
                 .resolve(componentSvg.backingFile.toPath()).toFile()
             return Svg(loadSVG(path.path), path)
+        }
+
+        private fun replaceComponentReferenceSystem(
+            component: Component,
+            model: Model
+        ) {
+            if (component.system.reference!!.reference == null) {
+                component.system.reference = model.system
+            }
         }
     }
 
