@@ -19,7 +19,7 @@ fun main() = application {
             viewModel.fileDrop(it)
         }
         mouse.moved.listen {
-            viewModel.mousePoint.set(it.position)
+            viewModel.mousePoint = viewModel.root.coord(it.position)
         }
         mouse.clicked.listen {
             viewModel.activeTool.mouseClicked(
