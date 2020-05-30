@@ -37,6 +37,20 @@ class Model(@Transient val system: System = root()) {
         }
 
         private fun postProcessDeserialized(model: Model): Model {
+            // Note: Sketch components must be loaded before traces in order
+            // to have all interfaces in components loaded before being
+            // dereferenced by the trace terminals
+            model.sketchComponents.forEach {
+                it.model = replaceComponentModel(it.model, model)
+                // Connect the model system with the component system
+                it.model.setReference(it.system)
+                // Connect the component system to the top-level model root
+                replaceComponentReferenceSystem(it, model)
+            }
+            // Re-index interfaces to the combined model
+            model.getInterfacesRecursively().forEachIndexed { i, itf ->
+                itf.id = i
+            }
             model.traces.forEach { trace ->
                 trace.segments.forEach {
                     it.start = replaceInterfaceUsingModel(it.start, model)
@@ -45,13 +59,6 @@ class Model(@Transient val system: System = root()) {
             }
             model.interfaces.forEach {
                 it.center = model.system.coord(it.center.xy())
-            }
-            model.sketchComponents.forEach {
-                it.model = replaceComponentModel(it.model, model)
-                // Connect the model system with the component system
-                it.model.setReference(it.system)
-                // Connect the component system to the top-level model root
-                replaceComponentReferenceSystem(it, model)
             }
             model.svgComponents.forEach {
                 it.svg = loadFromBackingFile(it.svg)
@@ -67,7 +74,8 @@ class Model(@Transient val system: System = root()) {
             terminals: Terminals,
             model: Model
         ) = Terminals(
-            model.interfaces.first { it.id == terminals.hostInterface.id },
+            model.getInterfacesRecursively()
+                .first { it.id == terminals.hostInterface.id },
             terminals.range
         )
 
@@ -103,12 +111,11 @@ class Model(@Transient val system: System = root()) {
     val components: List<Component> get() = sketchComponents + svgComponents
 
     fun saveToFile() {
-        interfaces.forEachIndexed { i, itf -> itf.id = i }
-
         backingFile.writeText(serialize())
     }
 
     internal fun serialize(): String {
+        getInterfacesRecursively().forEachIndexed { i, itf -> itf.id = i }
         return json.stringify(serializer(), this)
     }
 
@@ -139,6 +146,11 @@ class Model(@Transient val system: System = root()) {
     fun setReference(reference: System) {
         system.reference = reference
     }
+
+    fun getInterfacesRecursively(): List<Interface> =
+        interfaces + sketchComponents.flatMap {
+            it.model.getInterfacesRecursively()
+        }
 }
 
 fun assertIsRootSystem(system: System) {
