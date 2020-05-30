@@ -1,13 +1,11 @@
-@file:UseSerializers(Vector2Serializer::class)
-
-import kotlinx.serialization.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
 import org.openrndr.draw.Drawer
-import org.openrndr.draw.isolated
-import org.openrndr.math.Vector2
-import org.openrndr.math.transforms.transform
+import org.openrndr.svg.loadSVG
 import java.io.File
 
 val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
@@ -16,7 +14,8 @@ val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
 class Model {
     var interfaces: MutableList<Interface> = mutableListOf()
     var traces: MutableList<Trace> = mutableListOf()
-    var components: MutableList<Component> = mutableListOf()
+    var sketchComponents: MutableList<SketchComponent> = mutableListOf()
+    var svgComponents: MutableList<SvgComponent> = mutableListOf()
 
     @Transient
     var backingFile = File("default.ats")
@@ -50,8 +49,11 @@ class Model {
                     it.end = replaceInterfaceUsingModel(it.end, model)
                 }
             }
-            model.components.forEach {
+            model.sketchComponents.forEach {
                 it.model = replaceComponentModel(it.model, model)
+            }
+            model.svgComponents.forEach {
+                it.svg = replaceComponentSvg(it.svg, model)
             }
             return model
         }
@@ -77,14 +79,25 @@ class Model {
             val path = model.backingFile.toPath().toAbsolutePath().parent
                 .resolve(componentModel.backingFile.toPath()).toFile()
             return loadFromFile(path) ?: throw SerializationException(
-                "Component from file '$path' could not be loaded"
+                "Sketch component from file '$path' could not be loaded"
             )
+        }
+
+        private fun replaceComponentSvg(
+            componentSvg: Svg,
+            model: Model
+        ): Svg {
+            val path = model.backingFile.toPath().toAbsolutePath().parent
+                .resolve(componentSvg.backingFile.toPath()).toFile()
+            return Svg(loadSVG(path.path), path)
         }
     }
 
+    val components: List<Component> get() = sketchComponents + svgComponents
+
     fun saveToFile() {
         interfaces.forEachIndexed { i, itf -> itf.id = i }
-        components.forEach { it.model.saveToFile() }
+        sketchComponents.forEach { it.model.saveToFile() }
 
         backingFile.writeText(serialize())
     }
@@ -94,7 +107,8 @@ class Model {
     }
 
     fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
-        components.forEach { it.draw(drawer, areInterfacesVisible) }
+        svgComponents.forEach { it.draw(drawer) }
+        sketchComponents.forEach { it.draw(drawer, areInterfacesVisible) }
         traces.forEach { it.draw(drawer) }
         if (areInterfacesVisible) {
             interfaces
@@ -117,50 +131,3 @@ class Model {
     }
 }
 
-@Serializable
-class Component(
-    @Serializable(with = ComponentModelPropertySerializer::class)
-    var model: Model,
-    var t: Transform
-) {
-    fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
-        // drawer.isolated creates a receiver object which shadows the "this"
-        // object
-        val submodel = this
-        drawer.isolated {
-            t.apply(drawer)
-            submodel.model.draw(drawer, areInterfacesVisible)
-        }
-    }
-}
-
-object ComponentModelPropertySerializer : KSerializer<Model> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveDescriptor("ComponentModel", PrimitiveKind.STRING)
-
-    override fun deserialize(decoder: Decoder): Model {
-        val backingFile = File(decoder.decodeString())
-        val model = Model()
-        model.backingFile = backingFile
-        return model
-    }
-
-    override fun serialize(encoder: Encoder, value: Model) {
-        encoder.encodeString(value.backingFile.path)
-    }
-}
-
-@Serializable
-class Transform(
-    var scale: Double = 1.0,
-    var rotation: Double = 0.0,
-    var translation: Vector2 = Vector2.ZERO
-) {
-    fun apply(drawer: Drawer) {
-        drawer.view *= transform {
-            translate(translation)
-            rotate(degrees = rotation)
-            scale(scale)
-        }
-    }
-}

@@ -1,16 +1,19 @@
 import org.openrndr.*
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
+import org.openrndr.events.Event
 import org.openrndr.math.Vector2
+import org.openrndr.svg.loadSVG
 import java.io.File
 
 class ViewModel(internal var model: Model) {
     var mousePoint = Vector2(-1.0, -1.0)
     var activeTool: BaseTool = EmptyTool(this)
+    var areInterfacesVisible = false
+    val modelLoaded = Event<File>("model-loaded")
 
     // Map KEY_CODE to whether the key is held or not
     var modifierKeysHeld = HashMap<Int, Boolean>()
-    var areInterfacesVisible = false
 
     fun keyUp(key: KeyEvent) {
         updateModifiers(key)
@@ -39,6 +42,9 @@ class ViewModel(internal var model: Model) {
             "s" -> {
                 model.saveToFile()
             }
+            "y" -> {
+                changeTool(ComponentMoveTool(this))
+            }
         }
     }
 
@@ -60,35 +66,58 @@ class ViewModel(internal var model: Model) {
         updateModifiers(key)
     }
 
-    fun fileDrop(
-        drop: DropEvent,
-        fileOpenedClosure: (loadedFile: File) -> Unit
-    ) {
+    private fun updateModifiers(key: KeyEvent) {
+        modifierKeysHeld[key.key] = key.type == KeyEventType.KEY_DOWN
+    }
 
+    fun fileDrop(drop: DropEvent) {
+        drop.files.forEach { droppedFile ->
+            when (droppedFile.extension) {
+                "svg" -> handleDroppedSvgFile(droppedFile, drop.position)
+                else ->
+                    // Treat as a sketch file containing a model
+                    handleDroppedSketchFile(droppedFile, drop.position)
+            }
+        }
+    }
+
+    private fun handleDroppedSvgFile(droppedFile: File, position: Vector2) {
+        // Add the svg from the file as a subcomponent
+        val fileOpened =
+            model.backingFile.toPath().toAbsolutePath().parent
+                .relativize(droppedFile.toPath())
+                .toFile()
+        if (fileOpened.isFile) {
+            model.svgComponents.add(
+                SvgComponent(
+                    Svg(loadSVG(fileOpened.path), fileOpened),
+                    Transform(translation = position)
+                )
+            )
+        }
+    }
+
+    private fun handleDroppedSketchFile(droppedFile: File, position: Vector2) {
         if (modifierKeysHeld.getOrDefault(KEY_LEFT_SHIFT, false)) {
             // Add the model from the file as a subcomponent
             val fileOpened =
                 model.backingFile.toPath().toAbsolutePath().parent
-                    .relativize(drop.files.first().toPath()).toFile()
+                    .relativize(droppedFile.toPath()).toFile()
             var submodel = Model.loadFromFile(fileOpened)
             if (submodel != null) {
-                model.components.add(
-                    Component(submodel, Transform(translation = drop.position))
+                model.sketchComponents.add(
+                    SketchComponent(submodel, Transform(translation = position))
                 )
             }
         } else {
             // Replace the top level model
-            val fileOpened = drop.files.first().absoluteFile
+            val fileOpened = droppedFile.absoluteFile
             var replacingModel = Model.loadFromFile(fileOpened)
             if (replacingModel != null) {
                 model = replacingModel
+                modelLoaded.trigger(fileOpened)
             }
-            fileOpenedClosure(fileOpened)
         }
-    }
-
-    private fun updateModifiers(key: KeyEvent) {
-        modifierKeysHeld[key.key] = key.type == KeyEventType.KEY_DOWN
     }
 }
 
@@ -99,14 +128,14 @@ fun main() = application {
     }
 
     program {
+        window.title = "ArtisanTrace"
         var viewModel = ViewModel(modelFromFileOrDefault(Model()))
 
-        window.title = "ArtisanTrace"
-
+        viewModel.modelLoaded.listen { loadedFile ->
+            window.title = "${loadedFile.name} - ArtisanTrace"
+        }
         window.drop.listen {
-            viewModel.fileDrop(it) { loadedFile ->
-                window.title = "ArtisanTrace - ${loadedFile.name}"
-            }
+            viewModel.fileDrop(it)
         }
         mouse.moved.listen {
             viewModel.mousePoint = it.position
