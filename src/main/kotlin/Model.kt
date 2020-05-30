@@ -50,6 +50,9 @@ class Model(@Transient val system: System = root()) {
                     it.end = replaceInterfaceUsingModel(it.end, model)
                 }
             }
+            model.interfaces.forEach {
+                it.center = model.system.coord(it.center.xy())
+            }
             model.sketchComponents.forEach {
                 it.model = replaceComponentModel(it.model, model)
                 // Connect the model system with the component system
@@ -70,12 +73,10 @@ class Model(@Transient val system: System = root()) {
         private fun replaceInterfaceUsingModel(
             terminals: Terminals,
             model: Model
-        ): Terminals {
-            val id = terminals.hostInterface.id
-            return Terminals(model.interfaces.first {
-                it.id == id
-            }, terminals.range)
-        }
+        ) = Terminals(
+            model.interfaces.first { it.id == terminals.hostInterface.id },
+            terminals.range
+        )
 
         /** Use the backingFile to load the model with the correct content */
         private fun replaceComponentModel(
