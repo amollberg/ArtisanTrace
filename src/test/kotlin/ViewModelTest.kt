@@ -8,6 +8,15 @@ import java.io.File
 
 class ViewModelTest {
 
+    companion object {
+        val ORIGINAL_INTERFACE1_CENTER = Vector2(47.0, 11.0)
+        val INTERFACE2_CENTER = Vector2(300.0, 11.0)
+        val MOVED_INTERFACE1_CENTER = Vector2(100.0, 111.0)
+
+        val ORIGINAL_COMP1_ORIGIN = Vector2(70.0, 200.0)
+        val COMP2_ORIGIN = Vector2(200.0, 100.0)
+    }
+
     @Test
     fun deserializeSerialized() {
         val original = createModel()
@@ -27,6 +36,13 @@ class ViewModelTest {
         val original = createModel()
         val serializedOnce = deserialize(original.serialize())
         assertEquals(original.serialize(), serializedOnce.serialize())
+    }
+
+    @Test
+    fun modifyBeforeSerialization() {
+        var original = modifyModel(createModel())
+        var serializedOnce = deserialize(original.serialize())
+        assertEquals(original, serializedOnce)
     }
 
     @Test
@@ -129,8 +145,17 @@ class ViewModelTest {
                 false
             )
         )
-        viewModel.activeTool.mouseClicked(at(viewModel, 47.0, 11.0))
-        viewModel.activeTool.mouseClicked(at(viewModel, 100.0, 111.0))
+        viewModel.activeTool.mouseClicked(
+            at(viewModel, ORIGINAL_INTERFACE1_CENTER)
+        )
+        viewModel.activeTool.mouseClicked(
+            at(viewModel, MOVED_INTERFACE1_CENTER)
+        )
+
+        // Move one of the components
+        viewModel.changeTool(ComponentMoveTool(viewModel))
+        viewModel.activeTool.mouseClicked(at(viewModel, ORIGINAL_COMP1_ORIGIN))
+        viewModel.activeTool.mouseClicked(at(viewModel, ORIGINAL_COMP1_ORIGIN))
 
         // Exit the active tool to commit any pending changes
         viewModel.changeTool(EmptyTool(viewModel))
@@ -232,6 +257,9 @@ private fun isDescendant(system: System, rootSystem: System): Boolean {
 
 private fun at(viewModel: ViewModel, x: Double, y: Double) =
     viewModel.root.coord(Vector2(x, y))
+
+private fun at(viewModel: ViewModel, xy: Vector2) =
+    viewModel.root.coord(xy)
 
 private fun deserialize(value: String): Model =
     Model.deserialize(value, File("dontcare"))!!
