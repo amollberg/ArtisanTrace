@@ -52,6 +52,9 @@ class Model(@Transient val system: System = root()) {
             }
             model.sketchComponents.forEach {
                 it.model = replaceComponentModel(it.model, model)
+                // Connect the model system with the component system
+                it.model.setReference(it.system)
+                // Connect the component system to the top-level model root
                 replaceComponentReferenceSystem(it, model)
             }
             model.svgComponents.forEach {
