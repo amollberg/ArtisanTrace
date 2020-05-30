@@ -98,9 +98,8 @@ class Model(@Transient val system: System = root()) {
             component: Component,
             model: Model
         ) {
-            if (component.system.reference!!.reference == null) {
-                component.system.reference = model.system
-            }
+            component.system.reference?.let { assertIsRootSystem(it) }
+            component.system.reference = model.system
         }
     }
 
@@ -108,7 +107,6 @@ class Model(@Transient val system: System = root()) {
 
     fun saveToFile() {
         interfaces.forEachIndexed { i, itf -> itf.id = i }
-        sketchComponents.forEach { it.model.saveToFile() }
 
         backingFile.writeText(serialize())
     }
@@ -146,3 +144,8 @@ class Model(@Transient val system: System = root()) {
     }
 }
 
+fun assertIsRootSystem(system: System) {
+    if (system.reference != null) throw IllegalArgumentException(
+        "System ${system} should have reference 'null'"
+    )
+}
