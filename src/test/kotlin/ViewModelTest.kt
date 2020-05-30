@@ -1,10 +1,7 @@
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.openrndr.KeyModifier
-import org.openrndr.MouseButton
-import org.openrndr.MouseEvent
-import org.openrndr.MouseEventType
+import org.openrndr.*
 import org.openrndr.math.Vector2
 import java.io.File
 
@@ -63,6 +60,13 @@ class ViewModelTest {
         )
         original.activeTool.mouseClicked(at(original, 47.0, 11.0))
         original.activeTool.mouseClicked(at(original, 300.0, 11.0))
+
+        original.fileDrop(
+            DropEvent(
+                Vector2(123.0, 45.0),
+                listOf(File("src/test/resources/IC1.svg").absoluteFile)
+            )
+        )
 
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
