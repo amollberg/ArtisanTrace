@@ -44,8 +44,8 @@ class Model(@Transient val system: System = root()) {
         }
 
         private fun postProcessDeserialized(model: Model): Model {
-            model.traces.forEach {
-                it.segments.forEach {
+            model.traces.forEach { trace ->
+                trace.segments.forEach {
                     it.start = replaceInterfaceUsingModel(it.start, model)
                     it.end = replaceInterfaceUsingModel(it.end, model)
                 }
