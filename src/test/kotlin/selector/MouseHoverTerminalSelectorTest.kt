@@ -1,24 +1,22 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.openrndr.math.Vector2
 
-class MouseHoverTerminalSelectorTest {
+class MouseHoverTerminalSelectorTest : WithImplicitView() {
 
     @Test
     fun getTerminals() {
-        var view = ViewModel(Model())
-        var itf = Interface(Vector2(x = 15.0), 0.0, 10.0, 4)
+        var itf = Interface(at(x = 15.0), 0.0, 10.0, 4)
         view.model.interfaces = mutableListOf(itf)
         var selection = MouseHoverTerminalSelector(view)
         selection.desiredLeads = 3
 
-        view.mousePoint = Vector2(x = 0.0)
+        view.mousePoint = at(x = 0.0)
         assertEquals(
             Terminals(itf, 0..2),
             selection.getTerminals()
         )
 
-        view.mousePoint = Vector2(x = 15.5)
+        view.mousePoint = at(x = 15.5)
         assertEquals(
             Terminals(itf, 1..3),
             selection.getTerminals()

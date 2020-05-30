@@ -1,8 +1,9 @@
 @file:UseSerializers(Vector2Serializer::class)
 
+import coordinates.Coordinate
+import coordinates.Length
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.SegmentJoin
 import org.openrndr.shape.contours
@@ -10,8 +11,8 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 
-/** A segment of a trace composed of two straight lines with a 45 or 90 degree
- *  corner.
+/** A segment of a trace composed of two straight lines with a 45 degree
+ * corner (the knee).
  */
 @Serializable
 data class TraceSegment(
@@ -19,42 +20,12 @@ data class TraceSegment(
     internal var end: Terminals,
     val angle: Angle
 ) {
-    lateinit private var knee: Vector2
-
-    init {
-        recalculate()
-    }
-
     fun getStart() = start
-    fun getKnee() = knee
     fun getEnd() = end
 
-    fun getKnees() = splitIntoSingleLeads().map { it.getKnee() }
-
-    fun draw(drawer: Drawer) {
-        if (start.count() > 1) {
-            // Divide segment into one per lead
-            splitIntoSingleLeads().forEach { it.draw(drawer) }
-        } else {
-            val cs = contours {
-                moveTo(firstStartPosition())
-                lineTo(getKnee())
-                lineTo(firstEndPosition())
-            }
-            if (cs.isNotEmpty()) {
-                val c = cs.first()
-                (0 until start.count()).forEach { i ->
-                    drawer.contour(
-                        c.offset(10.0 * i, SegmentJoin.MITER)
-                    )
-                }
-            }
-        }
-    }
-
-    private fun recalculate() {
+    fun getKnee(): Coordinate {
         var vec = firstEndPosition() - firstStartPosition()
-        val (x, y) = vec
+        val (x, y) = vec.xy()
         val kneepoints = listOf(
             Vector2(x - y, 0.0),
             Vector2(x, 0.0),
@@ -76,7 +47,7 @@ data class TraceSegment(
         fun angleOf(point: Vector2): Int {
             val origin = Vector2.ZERO
             val a1 = arg(origin - point)
-            val a2 = arg(vec - point)
+            val a2 = arg(vec.xy() - point)
             return abs((a1 - a2).toInt() % 360)
         }
 
@@ -88,8 +59,35 @@ data class TraceSegment(
                 Angle.OBTUSE -> a > 90
             }
         }.getOrElse(0, { Vector2.ZERO })
-        // TODO
-        knee = firstStartPosition() + relativeKnee
+
+        return firstStartPosition() + Length(relativeKnee, vec.system)
+    }
+
+    fun getKnees() = splitIntoSingleLeads().map { it.getKnee() }
+
+    fun draw(drawer: OrientedDrawer) {
+        if (start.count() > 1) {
+            // Divide segment into one per lead
+            splitIntoSingleLeads().forEach { it.draw(drawer) }
+        } else {
+            val cs = contours {
+                moveTo(firstStartPosition().xy(drawer))
+                lineTo(getKnee().xy(drawer))
+                lineTo(firstEndPosition().xy(drawer))
+            }
+            if (cs.isNotEmpty()) {
+                val c = cs.first()
+                (0 until start.count()).forEach { i ->
+                    drawer.drawer.contour(
+                        c.offset(10.0 * i, SegmentJoin.MITER)
+                    )
+                }
+            }
+        }
+    }
+
+    private fun recalculate() {
+
     }
 
     fun firstStartPosition() =

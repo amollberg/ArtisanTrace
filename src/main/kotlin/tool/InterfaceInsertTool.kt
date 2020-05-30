@@ -1,9 +1,9 @@
-import org.openrndr.draw.Drawer
-import org.openrndr.math.Vector2
+import coordinates.Coordinate
 
+/** Tool to chop up a trace segment and insert an interface in-between */
 class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
 
-    override fun mouseClicked(position: Vector2) {
+    override fun mouseClicked(position: Coordinate) {
         val (trace, seg) = getNearestSegment(position) ?: return
         val newFirstSegment =
             TraceSegment(seg.getStart(), itf.getTerminals(), seg.angle)
@@ -19,7 +19,7 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
         itf = itf.clone()
     }
 
-    override fun draw(drawer: Drawer) {
+    override fun draw(drawer: OrientedDrawer) {
         val position = viewModel.mousePoint
         val (_, seg) = getNearestSegment(position) ?: return
         itf.center = viewModel.mousePoint
@@ -33,15 +33,14 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
         itf.draw(drawer)
     }
 
-    private fun getNearestSegment(position: Vector2):
+    private fun getNearestSegment(position: Coordinate):
             Pair<Trace, TraceSegment>? {
         return viewModel.model.traces.flatMap { trace ->
             trace.segments.map { segment ->
                 Triple(trace, segment, segment.getKnee())
             }
         }.minBy { (_, _, kneePosition) ->
-            (kneePosition - position).length
+            (kneePosition - position).xyIn(position.system).length
         }?.let { (trace, segment, _) -> Pair(trace, segment) }
     }
-
 }

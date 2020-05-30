@@ -1,7 +1,6 @@
 import org.junit.jupiter.api.Test
-import org.openrndr.math.Vector2
 
-internal class TraceSegmentTest {
+internal class TraceSegmentTest : WithImplicitView() {
     @Test
     fun traceSegment1() {
         var s = TraceSegment(
@@ -9,7 +8,7 @@ internal class TraceSegmentTest {
             terminalsAt(20.0, 10.0),
             Angle.OBTUSE
         )
-        assertEquals(Vector2(10.0, 0.0), s.getKnee())
+        assertEquals(at(10.0, 0.0), s.getKnee())
     }
 
     @Test
@@ -19,12 +18,12 @@ internal class TraceSegmentTest {
             terminalsAt(110.0, 205.0),
             Angle.OBTUSE
         )
-        assertEquals(Vector2(10.0, 105.0), s.getKnee())
+        assertEquals(at(10.0, 105.0), s.getKnee())
     }
 
     private fun terminalsAt(x: Double, y: Double) =
         Terminals(
-            Interface(Vector2(x, y), 0.0, 1.0, 1),
+            Interface(at(x, y), 0.0, 1.0, 1),
             0..0
         )
 }

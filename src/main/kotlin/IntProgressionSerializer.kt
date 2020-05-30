@@ -1,4 +1,6 @@
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
 
 @Serializer(forClass = IntProgression::class)
 object IntProgressionSerializer : KSerializer<IntProgression> {
@@ -6,15 +8,15 @@ object IntProgressionSerializer : KSerializer<IntProgression> {
         PrimitiveDescriptor("IntProgression", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: IntProgression) {
-        encoder.encodeString("${value.first}:${value.last}:${value.step}")
-    }
-
-    override fun deserialize(decoder: Decoder): IntProgression {
-        val (first, last, step) = decoder.decodeString().split(":")
-        return IntProgression.fromClosedRange(
-            first.toInt(),
-            last.toInt(),
-            step.toInt()
+        encoder.encodeSerializableValue(
+            Int.serializer().list, listOf(value.first, value.last, value.step)
         )
     }
+
+    override fun deserialize(decoder: Decoder) =
+        decoder.decodeSerializableValue(
+            Int.serializer().list
+        ).let { (first, last, step) ->
+            IntProgression.fromClosedRange(first, last, step)
+        }
 }

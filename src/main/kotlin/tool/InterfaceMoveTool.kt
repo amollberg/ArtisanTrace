@@ -1,16 +1,17 @@
+import coordinates.Coordinate
+import coordinates.Length
 import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
-import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 
 class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     var selectedItf: Interface? = null
-    var mouseOffset = Vector2(0.0, 0.0)
+    var mouseOffset = Length(Vector2(0.0, 0.0), viewModel.root)
     internal val interfaceSelector = MouseHoverInterfaceSelector(viewModel)
     var hasSelectedItf = false
 
-    override fun mouseClicked(position: Vector2) {
+    override fun mouseClicked(position: Coordinate) {
         if (!hasSelectedItf) {
             // Select the nearest interface
             selectedItf = interfaceSelector.getInterface()
@@ -18,8 +19,7 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
                 hasSelectedItf = true
                 mouseOffset = viewModel.mousePoint - selectedItf!!.center
             }
-        }
-        else {
+        } else {
             // Place the selected interface
             // (already done in draw())
             hasSelectedItf = false
@@ -32,13 +32,12 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
 
         if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
             itf.length += 4 * mouse.rotation.y
-        }
-        else {
+        } else {
             itf.angle -= mouse.rotation.y * 45 % 360
         }
     }
 
-    override fun draw(drawer: Drawer) {
+    override fun draw(drawer: OrientedDrawer) {
         interfaceSelector.draw(drawer)
 
         val itf = selectedItf ?: return

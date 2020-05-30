@@ -1,9 +1,8 @@
+import coordinates.System
+import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.openrndr.KeyModifier
-import org.openrndr.MouseButton
-import org.openrndr.MouseEvent
-import org.openrndr.MouseEventType
+import org.openrndr.*
 import org.openrndr.math.Vector2
 import java.io.File
 
@@ -45,8 +44,20 @@ class ViewModelTest {
         assertNotEquals(createModel(), modifyModel(createModel()))
     }
 
+    @Test
+    fun correctCoordinateSystemHierarchy() {
+        var viewModel = ViewModel(createModel())
+        checkAllStoredCoordinates(viewModel)
+
+        (0..2).forEach { i ->
+            println("Iteration $i")
+            viewModel = ViewModel(deserialize(viewModel.model.serialize()))
+            checkAllStoredCoordinates(viewModel)
+        }
+    }
+
     private fun createModel(): Model {
-        var original = ViewModel(Model())
+        var original = ViewModel(Model(root()))
 
         original.changeTool(InterfaceDrawTool(original))
         original.activeTool.mouseScrolled(
@@ -60,8 +71,22 @@ class ViewModelTest {
                 false
             )
         )
-        original.activeTool.mouseClicked(Vector2(47.0, 11.0))
-        original.activeTool.mouseClicked(Vector2(300.0, 11.0))
+        original.activeTool.mouseClicked(at(original, 47.0, 11.0))
+        original.activeTool.mouseClicked(at(original, 300.0, 11.0))
+
+        original.fileDrop(
+            DropEvent(
+                Vector2(123.0, 45.0),
+                listOf(File("src/test/resources/IC1.svg").absoluteFile)
+            )
+        )
+
+        original.fileDrop(
+            DropEvent(
+                Vector2(231.0, 54.0),
+                listOf(File("src/test/resources/IC1.ats").absoluteFile)
+            )
+        )
 
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
@@ -82,14 +107,108 @@ class ViewModelTest {
                 false
             )
         )
-        viewModel.activeTool.mouseClicked(Vector2(47.0, 11.0))
-        viewModel.activeTool.mouseClicked(Vector2(100.0, 111.0))
+        viewModel.activeTool.mouseClicked(at(viewModel, 47.0, 11.0))
+        viewModel.activeTool.mouseClicked(at(viewModel, 100.0, 111.0))
 
         // Exit the active tool to commit any pending changes
         viewModel.changeTool(EmptyTool(viewModel))
         return original
     }
-
-    private fun deserialize(value: String): Model =
-        Model.deserialize(value, File("dontcare"))!!
 }
+
+private fun checkAllStoredCoordinates(model: Model) {
+    val viewModel = ViewModel(model)
+    checkDescendant(viewModel.model, viewModel.root, "top-level model")
+}
+
+private fun checkAllStoredCoordinates(viewModel: ViewModel) {
+    checkDescendant(viewModel.model, viewModel.root, "view model")
+}
+
+private fun checkDescendant(
+    model: Model, rootSystem: System, context: String
+) {
+    checkDescendant(model.system, rootSystem, "model system of $context")
+    model.traces.forEach { trace ->
+        trace.segments.forEach {
+            checkDescendant(
+                it.start.hostInterface,
+                rootSystem,
+                "trace start interface in model of $context"
+            )
+            checkDescendant(
+                it.getKnee(),
+                rootSystem,
+                "trace knee in model of $context"
+            )
+            checkDescendant(
+                it.end.hostInterface,
+                rootSystem,
+                "trace end interface in model of $context"
+            )
+        }
+    }
+    model.interfaces.forEach {
+        checkDescendant(it, rootSystem, "interface in model of $context")
+    }
+    model.svgComponents.forEach {
+        checkDescendant(
+            it.system,
+            rootSystem,
+            "svg component system in model of $context"
+        )
+    }
+    model.sketchComponents.forEach {
+        checkDescendant(
+            it.system,
+            rootSystem,
+            "sketch component system of model of $context"
+        )
+        checkDescendant(
+            it.model,
+            rootSystem,
+            "sketch component model system of model of $context"
+        )
+    }
+}
+
+private fun checkDescendant(
+    itf: Interface, rootSystem: System, context: String
+) {
+    checkDescendant(itf.center, rootSystem, "center of $context")
+}
+
+/** Check that the coordinate is a descendant from the root system */
+private fun checkDescendant(
+    coordinate: coordinates.Coordinate,
+    rootSystem: System,
+    context: String
+) {
+    assertTrue(
+        isDescendant(coordinate.system, rootSystem),
+        "Coordinate ($context) $coordinate is not a descendant of $rootSystem"
+    )
+}
+
+private fun checkDescendant(
+    system: System,
+    rootSystem: System,
+    context: String
+) {
+    assertTrue(
+        isDescendant(system, rootSystem),
+        "System ($context) $system is not a descendant of $rootSystem"
+    )
+}
+
+private fun isDescendant(system: System, rootSystem: System): Boolean {
+    if (system === rootSystem) return true
+    val reference = system.reference ?: return false
+    return isDescendant(reference, rootSystem)
+}
+
+private fun at(viewModel: ViewModel, x: Double, y: Double) =
+    viewModel.root.coord(Vector2(x, y))
+
+private fun deserialize(value: String): Model =
+    Model.deserialize(value, File("dontcare"))!!

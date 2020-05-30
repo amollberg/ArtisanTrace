@@ -1,6 +1,6 @@
+import coordinates.System
+import coordinates.System.Companion.root
 import kotlinx.serialization.*
-import org.openrndr.draw.Drawer
-import org.openrndr.draw.isolated
 import org.openrndr.shape.LineSegment
 import org.openrndr.shape.ShapeContour
 import java.io.File
@@ -9,37 +9,39 @@ import java.io.File
 class SketchComponent(
     @Serializable(with = SketchReferenceSerializer::class)
     var model: Model,
-    override var transform: Transform
+    override var system: System
 ) : Component {
-    fun draw(drawer: Drawer, areInterfacesVisible: Boolean) {
-        // drawer.isolated creates a receiver object which shadows the "this"
-        // object
-        val sketchComponent = this
-        drawer.isolated {
-            transform.apply(drawer)
-            sketchComponent.model.draw(drawer, areInterfacesVisible)
-        }
+
+    init {
+        model.setReference(system)
     }
 
-    override fun bounds(): ShapeContour {
+    fun draw(drawer: OrientedDrawer, areInterfacesVisible: Boolean) =
+        model.draw(drawer, areInterfacesVisible)
+
+    override fun bounds(inSystem: System): ShapeContour {
         val contours = model.svgComponents.map {
-            it.bounds()
+            it.bounds(inSystem)
         } + model.sketchComponents.map {
-            it.bounds()
+            it.bounds(inSystem)
         } + model.interfaces.map {
-            val (end1, end2) = it.getEnds()
+            val (end1, end2) = it.getEnds().map { it.xyIn(inSystem) }
             val line = LineSegment(end1, end2)
             line.contour
         } + model.traces.flatMap {
             it.segments.map {
                 val knees = it.getKnees()
-                val line = LineSegment(knees.first(), knees.last())
+                val line =
+                    LineSegment(
+                        knees.first().xyIn(inSystem),
+                        knees.last().xyIn(inSystem)
+                    )
                 line.contour
             }
         }
         return contours.reduce { acc, shapeContour ->
             acc.plus(shapeContour).bounds.shape.outline
-        }.transform(transform.asMatrix())
+        }
     }
 }
 
@@ -54,7 +56,7 @@ object SketchReferenceSerializer :
     override fun deserialize(decoder: Decoder): Model {
         val backingFile =
             File(decoder.decodeString())
-        val model = Model()
+        val model = Model(System(root()))
         model.backingFile = backingFile
         return model
     }

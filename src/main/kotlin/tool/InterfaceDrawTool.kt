@@ -1,11 +1,10 @@
+import coordinates.Coordinate
 import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
-import org.openrndr.draw.Drawer
-import org.openrndr.math.Vector2
 import kotlin.math.max
 
 class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
-    override fun mouseClicked(position: Vector2) {
+    override fun mouseClicked(position: Coordinate) {
         viewModel.model.interfaces.add(itf)
         itf = itf.clone()
     }
@@ -21,7 +20,7 @@ class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
         }
     }
 
-    override fun draw(drawer: Drawer) {
+    override fun draw(drawer: OrientedDrawer) {
         itf.center = viewModel.mousePoint
         itf.draw(drawer)
     }

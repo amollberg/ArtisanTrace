@@ -1,8 +1,7 @@
-@file:UseSerializers(Vector2Serializer::class)
-
+import coordinates.Coordinate
+import coordinates.System
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
-import org.openrndr.draw.Drawer
+import kotlinx.serialization.Transient
 import org.openrndr.math.Vector2
 import org.openrndr.shape.LineSegment
 import org.openrndr.shape.ShapeContour
@@ -12,20 +11,24 @@ import kotlin.math.sin
 
 @Serializable
 data class Interface(
-    var center: Vector2,
+    var center: Coordinate,
     var angle: Double,
     var length: Double,
     var terminalCount: Int,
     // Only used for serialization
     internal var id: Int = -1
 ) {
+    @Transient
+    private val system get() = center.system
 
-    fun draw(drawer: Drawer) {
-        val (end1, end2) = getEnds()
-        val line = LineSegment(end1, end2)
-        drawer.lineSegment(line)
-        drawer.circles(
-            (0 until terminalCount).map { getTerminalPosition(it) },
+    fun draw(drawer: OrientedDrawer) {
+        val (end1, end2) = getEnds().map { it.relativeTo(drawer.system) }
+        val line = LineSegment(end1.xy(), end2.xy())
+        drawer.drawer.lineSegment(line)
+        drawer.drawer.circles(
+            (0 until terminalCount).map {
+                getTerminalPosition(it).relativeTo(drawer.system).xy()
+            },
             4.0
         )
     }
@@ -34,23 +37,33 @@ data class Interface(
         return Terminals(this, 0 until terminalCount)
     }
 
-    fun getTerminalPosition(terminalIndex: Int): Vector2 {
+    fun getTerminalPosition(terminalIndex: Int): Coordinate {
         assert(terminalIndex < terminalCount)
         val (end1, end2) = getEnds()
-        val line = LineSegment(end1, end2)
+        val line = LineSegment(end1.xy(), end2.xy())
         return when (terminalCount) {
             1 -> center
             else ->
-                equidistantPositionsForcedNumber(
-                    line.contour, terminalCount
-                )[terminalIndex]
+                system.coord(
+                    equidistantPositionsForcedNumber(
+                        line.contour, terminalCount
+                    )[terminalIndex]
+                )
         }
     }
 
-    internal fun getEnds(): List<Vector2> {
-        val vec = Vector2(cos(angle * PI / 180), sin(angle * PI / 180))
-        return listOf(center - vec * (length / 2), center + vec * (length / 2))
+    internal fun getEnds(): List<Coordinate> {
+        val vec = system.length(
+            Vector2(cos(angle * PI / 180), sin(angle * PI / 180))
+        )
+        return listOf(
+            center - vec * (length / 2),
+            center + vec * (length / 2)
+        )
     }
+
+    fun lengthIn(system: System) =
+        getEnds().let { (end1, end2) -> (end1 - end2).lengthIn(system) }
 
     fun withTerminalCount(newCount: Int): Interface {
         val itf = clone()

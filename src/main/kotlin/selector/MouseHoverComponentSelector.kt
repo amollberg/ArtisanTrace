@@ -1,16 +1,16 @@
-import org.openrndr.draw.Drawer
 import org.openrndr.shape.Shape
 
 class MouseHoverComponentSelector(private val viewModel: ViewModel) {
 
-    fun draw(drawer: Drawer) {
+    fun draw(drawer: OrientedDrawer) {
         val component = getComponent() ?: return
-        drawer.shape(Shape(listOf(component.bounds())))
+        drawer.drawer.shape(Shape(listOf(component.bounds(drawer.system))))
     }
 
     fun getComponent(): Component? =
         // Get the interface under the mouse
         viewModel.model.components.firstOrNull {
-            it.bounds().contains(viewModel.mousePoint)
+            it.bounds(viewModel.mousePoint.system)
+                .contains(viewModel.mousePoint.xy())
         }
 }

@@ -1,17 +1,17 @@
+import coordinates.Coordinate
 import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.MouseEvent
-import org.openrndr.draw.Drawer
-import org.openrndr.math.Vector2
 import org.openrndr.math.clamp
 
-class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
+class InterfaceTraceDrawTool(viewModel: ViewModel) :
+    BaseInterfaceTool(viewModel) {
     private val trace = Trace()
     private var previousTerminals: Terminals? = null
     internal val terminalSelector = MouseHoverTerminalSelector(viewModel)
     private val angle = Angle.OBTUSE
     private var hasPlacedStart = false
 
-    override fun mouseClicked(position: Vector2) {
+    override fun mouseClicked(position: Coordinate) {
         if (!hasPlacedStart) {
             // Attach to existing interface to begin with
             val clickedTerminals = terminalSelector.getTerminals() ?: return
@@ -22,8 +22,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
             itf = interfaceLikeNearest(position).withTerminalCount(
                 terminalSelector.desiredLeads
             )
-        }
-        else {
+        } else {
             // Place an interface and connect the trace to it
             trace.add(
                 TraceSegment(
@@ -48,20 +47,18 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel
                 terminalSelector.getInterface()?.terminalCount ?: leads
             )
             terminalSelector.desiredLeads = leads
-        }
-        else {
+        } else {
             // Behave like any other interface tool
             super.mouseScrolled(mouse)
         }
     }
 
-    override fun draw(drawer: Drawer) {
+    override fun draw(drawer: OrientedDrawer) {
         itf.center = viewModel.mousePoint
 
         if (!hasPlacedStart) {
             terminalSelector.draw(drawer)
-        }
-        else {
+        } else {
             // Restrict the new interface position if shift is held
             if (viewModel.modifierKeysHeld.getOrDefault(
                     KEY_LEFT_SHIFT,

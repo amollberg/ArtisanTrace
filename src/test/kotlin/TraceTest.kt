@@ -13,15 +13,6 @@ internal class TraceTest {
     }
 
     @Test
-    fun invertMatrix22() {
-        var a = Matrix22(
-            1.0, 3.14,
-            -5.3, 0.0
-        )
-        assertEquals(Matrix22.IDENTITY, a.times(a.invert()))
-    }
-
-    @Test
     fun arg() {
         assertEquals(0.0, arg(Vector2(1.0, 0.0)))
         assertEquals(45.0, arg(Vector2(1.0, 1.0)))
