@@ -8,6 +8,15 @@ import java.io.File
 
 class ViewModelTest {
 
+    companion object {
+        val ORIGINAL_INTERFACE1_CENTER = Vector2(47.0, 11.0)
+        val INTERFACE2_CENTER = Vector2(300.0, 11.0)
+        val MOVED_INTERFACE1_CENTER = Vector2(100.0, 111.0)
+
+        val ORIGINAL_COMP1_ORIGIN = Vector2(70.0, 200.0)
+        val COMP2_ORIGIN = Vector2(200.0, 100.0)
+    }
+
     @Test
     fun deserializeSerialized() {
         val original = createModel()
@@ -30,6 +39,13 @@ class ViewModelTest {
     }
 
     @Test
+    fun modifyBeforeSerialization() {
+        var original = modifyModel(createModel())
+        var serializedOnce = deserialize(original.serialize())
+        assertEquals(original, serializedOnce)
+    }
+
+    @Test
     fun modifyAfterDeserialization() {
         var original = createModel()
         var serializedOnce = deserialize(original.serialize())
@@ -46,18 +62,25 @@ class ViewModelTest {
 
     @Test
     fun correctCoordinateSystemHierarchy() {
-        var viewModel = ViewModel(createModel())
+        var viewModel = createViewModel()
         checkAllStoredCoordinates(viewModel)
 
         (0..2).forEach { i ->
             println("Iteration $i")
-            viewModel = ViewModel(deserialize(viewModel.model.serialize()))
+            viewModel =
+                createViewModel(deserialize(viewModel.model.serialize()))
             checkAllStoredCoordinates(viewModel)
         }
     }
 
+    private fun createViewModel(model: Model = createModel()): ViewModel {
+        val viewModel = ViewModel(model)
+        viewModel.muteSerializationExceptions = false
+        return viewModel
+    }
+
     private fun createModel(): Model {
-        var original = ViewModel(Model(root()))
+        var original = createViewModel(Model(root()))
 
         original.changeTool(InterfaceDrawTool(original))
         original.activeTool.mouseScrolled(
@@ -71,8 +94,10 @@ class ViewModelTest {
                 false
             )
         )
-        original.activeTool.mouseClicked(at(original, 47.0, 11.0))
-        original.activeTool.mouseClicked(at(original, 300.0, 11.0))
+        original.activeTool.mouseClicked(
+            at(original, ORIGINAL_INTERFACE1_CENTER)
+        )
+        original.activeTool.mouseClicked(at(original, INTERFACE2_CENTER))
 
         original.fileDrop(
             DropEvent(
@@ -83,10 +108,22 @@ class ViewModelTest {
 
         original.fileDrop(
             DropEvent(
-                Vector2(231.0, 54.0),
+                ORIGINAL_COMP1_ORIGIN,
                 listOf(File("src/test/resources/IC1.ats").absoluteFile)
             )
         )
+
+        original.fileDrop(
+            DropEvent(
+                COMP2_ORIGIN,
+                listOf(File("src/test/resources/IC1.ats").absoluteFile)
+            )
+        )
+
+        // Draw a trace between the components
+        original.changeTool(TraceDrawTool(original))
+        original.activeTool.mouseClicked(at(original, ORIGINAL_COMP1_ORIGIN))
+        original.activeTool.mouseClicked(at(original, COMP2_ORIGIN))
 
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
@@ -94,7 +131,8 @@ class ViewModelTest {
     }
 
     private fun modifyModel(original: Model): Model {
-        var viewModel = ViewModel(original)
+        var viewModel = createViewModel(original)
+        // Move one of the interfaces
         viewModel.changeTool(InterfaceTraceDrawTool(viewModel))
         viewModel.activeTool.mouseScrolled(
             MouseEvent(
@@ -107,8 +145,17 @@ class ViewModelTest {
                 false
             )
         )
-        viewModel.activeTool.mouseClicked(at(viewModel, 47.0, 11.0))
-        viewModel.activeTool.mouseClicked(at(viewModel, 100.0, 111.0))
+        viewModel.activeTool.mouseClicked(
+            at(viewModel, ORIGINAL_INTERFACE1_CENTER)
+        )
+        viewModel.activeTool.mouseClicked(
+            at(viewModel, MOVED_INTERFACE1_CENTER)
+        )
+
+        // Move one of the components
+        viewModel.changeTool(ComponentMoveTool(viewModel))
+        viewModel.activeTool.mouseClicked(at(viewModel, ORIGINAL_COMP1_ORIGIN))
+        viewModel.activeTool.mouseClicked(at(viewModel, ORIGINAL_COMP1_ORIGIN))
 
         // Exit the active tool to commit any pending changes
         viewModel.changeTool(EmptyTool(viewModel))
@@ -118,6 +165,7 @@ class ViewModelTest {
 
 private fun checkAllStoredCoordinates(model: Model) {
     val viewModel = ViewModel(model)
+    viewModel.muteSerializationExceptions = false
     checkDescendant(viewModel.model, viewModel.root, "top-level model")
 }
 
@@ -209,6 +257,9 @@ private fun isDescendant(system: System, rootSystem: System): Boolean {
 
 private fun at(viewModel: ViewModel, x: Double, y: Double) =
     viewModel.root.coord(Vector2(x, y))
+
+private fun at(viewModel: ViewModel, xy: Vector2) =
+    viewModel.root.coord(xy)
 
 private fun deserialize(value: String): Model =
     Model.deserialize(value, File("dontcare"))!!
