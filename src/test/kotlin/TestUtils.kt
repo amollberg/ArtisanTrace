@@ -45,6 +45,18 @@ class TestUtils {
         fun assertNotEquals(a: Model, b: Model) =
             assertNotEquals(toList(a), toList(b))
 
+        fun createViewModel(model: Model = Model()): ViewModel {
+            val viewModel = ViewModel(model)
+            viewModel.muteSerializationExceptions = false
+            return viewModel
+        }
+
+        fun at(viewModel: ViewModel, x: Double, y: Double) =
+            viewModel.root.coord(Vector2(x, y))
+
+        fun at(viewModel: ViewModel, xy: Vector2) =
+            viewModel.root.coord(xy)
+
         fun scrollMouse(
             view: ViewModel,
             count: Int,

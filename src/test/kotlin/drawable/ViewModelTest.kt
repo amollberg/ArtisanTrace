@@ -1,5 +1,7 @@
 import TestUtils.Companion.assertEquals
 import TestUtils.Companion.assertNotEquals
+import TestUtils.Companion.at
+import TestUtils.Companion.createViewModel
 import TestUtils.Companion.scrollMouse
 import coordinates.System
 import coordinates.System.Companion.root
@@ -77,10 +79,8 @@ class ViewModelTest {
         }
     }
 
-    private fun createViewModel(model: Model = createModel()): ViewModel {
-        val viewModel = ViewModel(model)
-        viewModel.muteSerializationExceptions = false
-        return viewModel
+    private fun createViewModel(): ViewModel {
+        return createViewModel(createModel())
     }
 
     private fun createModel(): Model {
@@ -248,12 +248,6 @@ private fun isDescendant(system: System, rootSystem: System): Boolean {
     val reference = system.reference ?: return false
     return isDescendant(reference, rootSystem)
 }
-
-private fun at(viewModel: ViewModel, x: Double, y: Double) =
-    viewModel.root.coord(Vector2(x, y))
-
-private fun at(viewModel: ViewModel, xy: Vector2) =
-    viewModel.root.coord(xy)
 
 private fun deserialize(value: String): Model =
     Model.deserialize(value, File("dontcare"))!!
