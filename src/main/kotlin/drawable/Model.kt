@@ -118,6 +118,7 @@ class Model(@Transient val system: System = root()) {
 
     fun exportToSvg() {
         val cd = CompositionDrawer()
+        setStyle(cd, ViewModel.DEFAULT_STYLE)
         draw(
             OrientedDrawer(cd, system),
             interfacesToIgnore = getInterfacesRecursively().toSet()

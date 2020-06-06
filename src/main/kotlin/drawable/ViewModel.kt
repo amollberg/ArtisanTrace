@@ -27,6 +27,15 @@ class ViewModel(internal var model: Model) {
     // Map KEY_CODE to whether the key is held or not
     var modifierKeysHeld = HashMap<Int, Boolean>()
 
+    companion object {
+        val DEFAULT_STYLE = Style(
+            fill = ColorRGBa.WHITE,
+            stroke = ColorRGBa.PINK,
+            strokeWeight = 2.0,
+            background = ColorRGBa.BLACK
+        )
+    }
+
     fun keyUp(key: KeyEvent) {
         updateModifiers(key)
         when (key.name) {
@@ -196,6 +205,26 @@ fun isolatedStyle(
     drawer.fill = oldFill
     drawer.stroke = oldStroke
     drawer.strokeWeight = oldStrokeWeight
+}
+
+data class Style(
+    val fill: ColorRGBa?,
+    val stroke: ColorRGBa?,
+    val strokeWeight: Double,
+    val background: ColorRGBa
+)
+
+fun setStyle(drawer: Drawer, style: Style) {
+    drawer.fill = style.fill
+    drawer.stroke = style.stroke
+    drawer.strokeWeight = style.strokeWeight
+    drawer.clear(style.background)
+}
+
+fun setStyle(drawer: CompositionDrawer, style: Style) {
+    drawer.fill = style.fill
+    drawer.stroke = style.stroke
+    drawer.strokeWeight = style.strokeWeight
 }
 
 data class OrientedDrawer(
