@@ -2,7 +2,8 @@ import TestUtils.Companion.assertEquals
 import TestUtils.Companion.assertNotEquals
 import coordinates.System
 import coordinates.System.Companion.root
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.openrndr.*
 import org.openrndr.math.Vector2
