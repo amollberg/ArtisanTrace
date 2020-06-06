@@ -29,7 +29,7 @@ data class Interface(
             (0 until terminalCount).map {
                 getTerminalPosition(it).relativeTo(drawer.system).xy()
             },
-            4.0
+            1.5
         )
     }
 

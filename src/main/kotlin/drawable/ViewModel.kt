@@ -6,6 +6,7 @@ import org.openrndr.DropEvent
 import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyEvent
 import org.openrndr.KeyEventType
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
@@ -173,6 +174,28 @@ class ViewModel(internal var model: Model) {
             }
         }
     }
+}
+
+fun isolatedStyle(
+    drawer: CompositionDrawer,
+    fill: ColorRGBa? = drawer.fill,
+    stroke: ColorRGBa? = drawer.stroke,
+    strokeWeight: Double = drawer.strokeWeight,
+    action: (drawer: CompositionDrawer) -> Unit
+) {
+    val oldFill = drawer.fill
+    val oldStroke = drawer.stroke
+    val oldStrokeWeight = drawer.strokeWeight
+
+    drawer.fill = fill
+    drawer.stroke = stroke
+    drawer.strokeWeight = strokeWeight
+
+    action(drawer)
+
+    drawer.fill = oldFill
+    drawer.stroke = oldStroke
+    drawer.strokeWeight = oldStrokeWeight
 }
 
 data class OrientedDrawer(
