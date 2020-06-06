@@ -1,3 +1,5 @@
+import TestUtils.Companion.assertEquals
+import TestUtils.Companion.assertNotEquals
 import coordinates.System
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.*

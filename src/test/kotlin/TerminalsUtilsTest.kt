@@ -1,3 +1,4 @@
+import TestUtils.Companion.assertEquals
 import org.junit.jupiter.api.Test
 
 class TerminalsUtilsTest : WithImplicitView() {

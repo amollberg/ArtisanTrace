@@ -1,5 +1,6 @@
 import coordinates.Coordinate
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.openrndr.math.Vector2
 
 open class WithImplicitView {
@@ -12,31 +13,35 @@ open class WithImplicitView {
         Coordinate(Vector2(x, y), view.root)
 }
 
-fun assertEquals(a: Coordinate, b: Coordinate) {
-    assertEquals(a.system, b.system)
-    assertEquals(a.xy(), b.xy())
-}
+class TestUtils {
+    companion object {
+        fun assertEquals(a: Coordinate, b: Coordinate) {
+            assertEquals(a.system, b.system)
+            assertEquals(a.xy(), b.xy())
+        }
 
-fun assertEquals(a: Vector2, b: Vector2) {
-    assertEquals(a.x, b.x, "$a != $b (x-coord)\n")
-    assertEquals(a.y, b.y, "$a != $b (y-coord)\n")
-}
+        fun assertEquals(a: Vector2, b: Vector2) {
+            assertEquals(a.x, b.x, "$a != $b (x-coord)\n")
+            assertEquals(a.y, b.y, "$a != $b (y-coord)\n")
+        }
 
-fun assertEquals(a: Matrix22, b: Matrix22) {
-    assertEquals(a.columnMajor, b.columnMajor)
-}
+        fun assertEquals(a: Matrix22, b: Matrix22) {
+            assertEquals(a.columnMajor, b.columnMajor)
+        }
 
-fun assertEquals(a: List<Vector2>, b: List<Vector2>) {
-    a.zip(b).forEach { (a, b) ->
-        assertEquals(a, b)
+        fun assertEquals(a: List<Vector2>, b: List<Vector2>) {
+            a.zip(b).forEach { (a, b) ->
+                assertEquals(a, b)
+            }
+        }
+
+        fun assertEquals(a: Model, b: Model) =
+            assertEquals(toList(a), toList(b))
+
+        fun assertNotEquals(a: Model, b: Model) =
+            assertNotEquals(toList(a), toList(b))
+
+        private fun toList(model: Model) =
+            listOf(model.interfaces, model.traces)
     }
 }
-
-fun assertEquals(a: Model, b: Model) =
-    assertEquals(toList(a), toList(b))
-
-fun assertNotEquals(a: Model, b: Model) =
-    assertNotEquals(toList(a), toList(b))
-
-private fun toList(model: Model) =
-    listOf(model.interfaces, model.traces)

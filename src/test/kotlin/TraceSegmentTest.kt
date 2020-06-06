@@ -1,3 +1,4 @@
+import TestUtils.Companion.assertEquals
 import org.junit.jupiter.api.Test
 
 internal class TraceSegmentTest : WithImplicitView() {
