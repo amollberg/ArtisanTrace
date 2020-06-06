@@ -15,6 +15,11 @@ open class WithImplicitView {
 
     protected fun at(x: Double = 0.0, y: Double = 0.0) =
         Coordinate(Vector2(x, y), view.root)
+
+    protected fun clickMouse(position: Coordinate) {
+        view.mousePoint = position.relativeTo(view.root)
+        view.activeTool.mouseClicked(view.mousePoint)
+    }
 }
 
 class TestUtils {
@@ -73,6 +78,14 @@ class TestUtils {
                     false
                 )
             )
+        }
+
+        fun clickMouse(
+            view: ViewModel,
+            position: Coordinate
+        ) {
+            view.mousePoint = position.relativeTo(view.root)
+            view.activeTool.mouseClicked(view.mousePoint)
         }
 
         private fun toList(model: Model) =

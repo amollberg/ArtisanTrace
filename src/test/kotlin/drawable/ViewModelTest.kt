@@ -1,6 +1,7 @@
 import TestUtils.Companion.assertEquals
 import TestUtils.Companion.assertNotEquals
 import TestUtils.Companion.at
+import TestUtils.Companion.clickMouse
 import TestUtils.Companion.createViewModel
 import TestUtils.Companion.scrollMouse
 import coordinates.System
@@ -88,10 +89,8 @@ class ViewModelTest {
 
         original.changeTool(InterfaceDrawTool(original))
         scrollMouse(original, 3, setOf(KeyModifier.ALT))
-        original.activeTool.mouseClicked(
-            at(original, ORIGINAL_INTERFACE1_CENTER)
-        )
-        original.activeTool.mouseClicked(at(original, INTERFACE2_CENTER))
+        clickMouse(original, at(original, ORIGINAL_INTERFACE1_CENTER))
+        clickMouse(original, at(original, INTERFACE2_CENTER))
 
         original.fileDrop(
             DropEvent(
@@ -116,8 +115,8 @@ class ViewModelTest {
 
         // Draw a trace between the components
         original.changeTool(TraceDrawTool(original))
-        original.activeTool.mouseClicked(at(original, ORIGINAL_COMP1_ORIGIN))
-        original.activeTool.mouseClicked(at(original, COMP2_ORIGIN))
+        clickMouse(original, at(original, ORIGINAL_COMP1_ORIGIN))
+        clickMouse(original, at(original, COMP2_ORIGIN))
 
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
@@ -139,17 +138,13 @@ class ViewModelTest {
                 false
             )
         )
-        viewModel.activeTool.mouseClicked(
-            at(viewModel, ORIGINAL_INTERFACE1_CENTER)
-        )
-        viewModel.activeTool.mouseClicked(
-            at(viewModel, MOVED_INTERFACE1_CENTER)
-        )
+        clickMouse(viewModel, at(viewModel, ORIGINAL_INTERFACE1_CENTER))
+        clickMouse(viewModel, at(viewModel, MOVED_INTERFACE1_CENTER))
 
         // Move one of the components
         viewModel.changeTool(ComponentMoveTool(viewModel))
-        viewModel.activeTool.mouseClicked(at(viewModel, ORIGINAL_COMP1_ORIGIN))
-        viewModel.activeTool.mouseClicked(at(viewModel, ORIGINAL_COMP1_ORIGIN))
+        clickMouse(viewModel, at(viewModel, ORIGINAL_COMP1_ORIGIN))
+        clickMouse(viewModel, at(viewModel, ORIGINAL_COMP1_ORIGIN))
 
         // Exit the active tool to commit any pending changes
         viewModel.changeTool(EmptyTool(viewModel))
