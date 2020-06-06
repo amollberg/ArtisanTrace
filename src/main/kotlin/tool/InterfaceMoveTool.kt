@@ -34,8 +34,16 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
         if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
             itf.length += 4 * mouse.rotation.y
         } else if (mouse.modifiers.contains(KeyModifier.ALT)) {
-            itf.terminalCount += mouse.rotation.y.toInt()
-            itf.terminalCount = max(1, itf.terminalCount)
+            var count = itf.terminalCount
+            count += mouse.rotation.y.toInt()
+            count = max(1, count)
+
+            val highestOccupied =
+                (0 until itf.terminalCount).lastOrNull { i ->
+                    itf.getConnectedSegments(i, viewModel.model).isNotEmpty()
+                } ?: -1
+            count = max(highestOccupied + 1, count)
+            itf.terminalCount = count
         } else {
             itf.angle -= mouse.rotation.y * 45 % 360
         }
