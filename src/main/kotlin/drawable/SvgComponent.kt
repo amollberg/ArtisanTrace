@@ -18,7 +18,7 @@ class SvgComponent(
 ) : Component {
 
     fun draw(drawer: OrientedDrawer) {
-        drawer.drawer.composition(transformed(drawer.system))
+        drawer.drawer.root.children.add(transformed(drawer.system).root)
     }
 
     override fun bounds(inSystem: System) =

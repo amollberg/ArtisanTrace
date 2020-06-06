@@ -5,7 +5,9 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
+import org.openrndr.shape.CompositionDrawer
 import org.openrndr.svg.loadSVG
+import org.openrndr.svg.writeSVG
 import java.io.File
 
 val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
@@ -113,6 +115,17 @@ class Model(@Transient val system: System = root()) {
     fun saveToFile() {
         backingFile.writeText(serialize())
     }
+
+    fun exportToSvg() {
+        val cd = CompositionDrawer()
+        draw(
+            OrientedDrawer(cd, system),
+            interfacesToIgnore = getInterfacesRecursively().toSet()
+        )
+        svgFile.writeText(writeSVG(cd.composition))
+    }
+
+    private val svgFile: File get() = File(backingFile.path + ".svg")
 
     internal fun serialize(): String {
         getInterfacesRecursively().forEachIndexed { i, itf -> itf.id = i }

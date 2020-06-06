@@ -9,6 +9,7 @@ import org.openrndr.KeyEventType
 import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
+import org.openrndr.shape.CompositionDrawer
 import org.openrndr.svg.loadSVG
 import java.io.File
 
@@ -51,6 +52,7 @@ class ViewModel(internal var model: Model) {
             }
             "s" -> {
                 model.saveToFile()
+                model.exportToSvg()
             }
             "y" -> {
                 changeTool(ComponentMoveTool(this))
@@ -63,7 +65,7 @@ class ViewModel(internal var model: Model) {
     }
 
     fun draw(drawer: Drawer) {
-        val orientedDrawer = OrientedDrawer(drawer, root)
+        val orientedDrawer = OrientedDrawer(compositionDrawer(drawer), root)
 
         val interfacesToIgnore = if (!areInterfacesVisible) {
             model.connectedInterfaces()
@@ -73,6 +75,7 @@ class ViewModel(internal var model: Model) {
 
         model.draw(orientedDrawer, interfacesToIgnore)
         activeTool.draw(orientedDrawer)
+        drawer.composition(orientedDrawer.drawer.composition)
     }
 
     internal fun changeTool(newTool: BaseTool) {
@@ -173,6 +176,14 @@ class ViewModel(internal var model: Model) {
 }
 
 data class OrientedDrawer(
-    val drawer: Drawer,
+    val drawer: CompositionDrawer,
     override val system: coordinates.System
 ) : Oriented
+
+fun compositionDrawer(drawer: Drawer): CompositionDrawer {
+    val cd = CompositionDrawer()
+    cd.fill = drawer.fill
+    cd.stroke = drawer.stroke
+    cd.strokeWeight = drawer.strokeWeight
+    return cd
+}
