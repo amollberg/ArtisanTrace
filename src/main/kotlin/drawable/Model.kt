@@ -5,7 +5,9 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
+import org.openrndr.shape.CompositionDrawer
 import org.openrndr.svg.loadSVG
+import org.openrndr.svg.writeSVG
 import java.io.File
 
 val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
@@ -114,34 +116,45 @@ class Model(@Transient val system: System = root()) {
         backingFile.writeText(serialize())
     }
 
+    fun exportToSvg() {
+        val cd = CompositionDrawer()
+        setStyle(cd, ViewModel.DEFAULT_STYLE)
+        draw(
+            OrientedDrawer(cd, system),
+            interfacesToIgnore = getInterfacesRecursively().toSet()
+        )
+        svgFile.writeText(writeSVG(cd.composition))
+    }
+
+    private val svgFile: File get() = File(backingFile.path + ".svg")
+
     internal fun serialize(): String {
         getInterfacesRecursively().forEachIndexed { i, itf -> itf.id = i }
         return json.stringify(serializer(), this)
     }
 
-    fun draw(drawer: OrientedDrawer, areInterfacesVisible: Boolean) {
+    fun draw(
+        drawer: OrientedDrawer,
+        interfacesToIgnore: Set<Interface>
+    ) {
         svgComponents.forEach { it.draw(drawer) }
-        sketchComponents.forEach { it.draw(drawer, areInterfacesVisible) }
+        sketchComponents.forEach {
+            it.draw(drawer, interfacesToIgnore)
+        }
         traces.forEach { it.draw(drawer) }
-        if (areInterfacesVisible) {
-            interfaces
-        } else {
-            onlyUnconnectedInterfaces()
-        }.forEach { it.draw(drawer) }
+        (interfaces - interfacesToIgnore).forEach { it.draw(drawer) }
     }
 
-    /** Return all interfaces that are not connected to a trace */
-    private fun onlyUnconnectedInterfaces(): Set<Interface> {
-        return interfaces.toSet() - traces.flatMap {
+    /** Return all interfaces that are connected to a trace */
+    fun connectedInterfaces(): Set<Interface> =
+        getTracesRecursively().flatMap {
             it.segments.map {
-                it.getStart().hostInterface
+                setOf(
+                    it.getStart().hostInterface,
+                    it.getEnd().hostInterface
+                )
             }
-        }.toSet() - traces.flatMap {
-            it.segments.map {
-                it.getEnd().hostInterface
-            }
-        }.toSet()
-    }
+        }.fold(setOf()) { acc, itfSet -> acc.union(itfSet) }
 
     fun setReference(reference: System) {
         system.reference = reference
@@ -150,6 +163,11 @@ class Model(@Transient val system: System = root()) {
     fun getInterfacesRecursively(): List<Interface> =
         interfaces + sketchComponents.flatMap {
             it.model.getInterfacesRecursively()
+        }
+
+    fun getTracesRecursively(): List<Trace> =
+        traces + sketchComponents.flatMap {
+            it.model.getTracesRecursively()
         }
 }
 

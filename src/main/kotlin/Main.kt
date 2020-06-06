@@ -1,6 +1,5 @@
 import coordinates.System.Companion.root
 import org.openrndr.application
-import org.openrndr.color.ColorRGBa
 
 fun main() = application {
     configure {
@@ -36,9 +35,7 @@ fun main() = application {
             viewModel.keyDown(it)
         }
         extend {
-            drawer.fill = ColorRGBa.WHITE
-            drawer.stroke = ColorRGBa.PINK
-            drawer.strokeWeight = 2.0
+            setStyle(drawer, ViewModel.DEFAULT_STYLE)
             viewModel.draw(drawer)
         }
     }

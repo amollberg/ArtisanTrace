@@ -6,9 +6,11 @@ import org.openrndr.DropEvent
 import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyEvent
 import org.openrndr.KeyEventType
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
+import org.openrndr.shape.CompositionDrawer
 import org.openrndr.svg.loadSVG
 import java.io.File
 
@@ -24,6 +26,15 @@ class ViewModel(internal var model: Model) {
 
     // Map KEY_CODE to whether the key is held or not
     var modifierKeysHeld = HashMap<Int, Boolean>()
+
+    companion object {
+        val DEFAULT_STYLE = Style(
+            fill = ColorRGBa.WHITE,
+            stroke = ColorRGBa.PINK,
+            strokeWeight = 2.0,
+            background = ColorRGBa.BLACK
+        )
+    }
 
     fun keyUp(key: KeyEvent) {
         updateModifiers(key)
@@ -51,6 +62,7 @@ class ViewModel(internal var model: Model) {
             }
             "s" -> {
                 model.saveToFile()
+                model.exportToSvg()
             }
             "y" -> {
                 changeTool(ComponentMoveTool(this))
@@ -63,9 +75,17 @@ class ViewModel(internal var model: Model) {
     }
 
     fun draw(drawer: Drawer) {
-        val orientedDrawer = OrientedDrawer(drawer, root)
-        model.draw(orientedDrawer, areInterfacesVisible)
+        val orientedDrawer = OrientedDrawer(compositionDrawer(drawer), root)
+
+        val interfacesToIgnore = if (!areInterfacesVisible) {
+            model.connectedInterfaces()
+        } else {
+            setOf()
+        }
+
+        model.draw(orientedDrawer, interfacesToIgnore)
         activeTool.draw(orientedDrawer)
+        drawer.composition(orientedDrawer.drawer.composition)
     }
 
     internal fun changeTool(newTool: BaseTool) {
@@ -165,7 +185,57 @@ class ViewModel(internal var model: Model) {
     }
 }
 
+fun isolatedStyle(
+    drawer: CompositionDrawer,
+    fill: ColorRGBa? = drawer.fill,
+    stroke: ColorRGBa? = drawer.stroke,
+    strokeWeight: Double = drawer.strokeWeight,
+    action: (drawer: CompositionDrawer) -> Unit
+) {
+    val oldFill = drawer.fill
+    val oldStroke = drawer.stroke
+    val oldStrokeWeight = drawer.strokeWeight
+
+    drawer.fill = fill
+    drawer.stroke = stroke
+    drawer.strokeWeight = strokeWeight
+
+    action(drawer)
+
+    drawer.fill = oldFill
+    drawer.stroke = oldStroke
+    drawer.strokeWeight = oldStrokeWeight
+}
+
+data class Style(
+    val fill: ColorRGBa?,
+    val stroke: ColorRGBa?,
+    val strokeWeight: Double,
+    val background: ColorRGBa
+)
+
+fun setStyle(drawer: Drawer, style: Style) {
+    drawer.fill = style.fill
+    drawer.stroke = style.stroke
+    drawer.strokeWeight = style.strokeWeight
+    drawer.clear(style.background)
+}
+
+fun setStyle(drawer: CompositionDrawer, style: Style) {
+    drawer.fill = style.fill
+    drawer.stroke = style.stroke
+    drawer.strokeWeight = style.strokeWeight
+}
+
 data class OrientedDrawer(
-    val drawer: Drawer,
+    val drawer: CompositionDrawer,
     override val system: coordinates.System
 ) : Oriented
+
+fun compositionDrawer(drawer: Drawer): CompositionDrawer {
+    val cd = CompositionDrawer()
+    cd.fill = drawer.fill
+    cd.stroke = drawer.stroke
+    cd.strokeWeight = drawer.strokeWeight
+    return cd
+}

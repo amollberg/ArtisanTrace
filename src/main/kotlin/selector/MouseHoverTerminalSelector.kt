@@ -18,10 +18,7 @@ class MouseHoverTerminalSelector(private val viewModel: ViewModel) {
         val terminals = getTerminals() ?: return
         val selectedInterface = terminals.hostInterface
         terminals.range.forEach { i ->
-            drawer.drawer.circle(
-                selectedInterface.getTerminalPosition(i).xyIn(drawer.system),
-                6.0
-            )
+            markTerminal(drawer, selectedInterface, i)
         }
     }
 
