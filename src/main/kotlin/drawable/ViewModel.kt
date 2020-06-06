@@ -102,10 +102,21 @@ class ViewModel(internal var model: Model) {
             model.backingFile.toPath().toAbsolutePath().parent
                 .relativize(droppedFile.toPath())
                 .toFile()
-        if (fileOpened.isFile) {
+        val svg = if (muteSerializationExceptions) {
+            try {
+                Svg(loadSVG(fileOpened.path), fileOpened)
+            } catch (e: JsonException) {
+                null
+            } catch (e: SerializationException) {
+                null
+            }
+        } else {
+            Svg(loadSVG(fileOpened.path), fileOpened)
+        }
+        if (svg != null) {
             model.svgComponents.add(
                 SvgComponent(
-                    Svg(loadSVG(fileOpened.path), fileOpened),
+                    svg,
                     root.createSystem(origin = position.xyIn(root))
                 )
             )
