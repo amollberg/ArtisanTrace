@@ -5,7 +5,6 @@ import coordinates.Length
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import org.openrndr.math.Vector2
-import org.openrndr.shape.SegmentJoin
 import org.openrndr.shape.contours
 import kotlin.math.PI
 import kotlin.math.abs
@@ -76,18 +75,9 @@ data class TraceSegment(
                 lineTo(firstEndPosition().xy(drawer))
             }
             if (cs.isNotEmpty()) {
-                val c = cs.first()
-                (0 until start.count()).forEach { i ->
-                    drawer.drawer.contour(
-                        c.offset(10.0 * i, SegmentJoin.MITER)
-                    )
-                }
+                drawer.drawer.contour(cs.first())
             }
         }
-    }
-
-    private fun recalculate() {
-
     }
 
     fun firstStartPosition() =
