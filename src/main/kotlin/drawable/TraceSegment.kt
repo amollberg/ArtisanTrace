@@ -75,7 +75,13 @@ data class TraceSegment(
                 lineTo(firstEndPosition().xy(drawer))
             }
             if (cs.isNotEmpty()) {
-                drawer.drawer.contour(cs.first())
+                // Workaround for fill color showing up in the convex hull
+                isolatedStyle(
+                    drawer.drawer,
+                    fill = ViewModel.DEFAULT_STYLE.background
+                ) {
+                    it.contour(cs.first())
+                }
             }
         }
     }
