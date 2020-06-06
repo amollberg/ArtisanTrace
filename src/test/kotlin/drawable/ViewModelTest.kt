@@ -1,5 +1,6 @@
 import TestUtils.Companion.assertEquals
 import TestUtils.Companion.assertNotEquals
+import TestUtils.Companion.scrollMouse
 import coordinates.System
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -86,17 +87,7 @@ class ViewModelTest {
         var original = createViewModel(Model(root()))
 
         original.changeTool(InterfaceDrawTool(original))
-        original.activeTool.mouseScrolled(
-            MouseEvent(
-                Vector2.ZERO,
-                Vector2(0.0, 3.0),
-                Vector2.ZERO,
-                MouseEventType.SCROLLED,
-                MouseButton.NONE,
-                setOf(KeyModifier.ALT),
-                false
-            )
-        )
+        scrollMouse(original, 3, setOf(KeyModifier.ALT))
         original.activeTool.mouseClicked(
             at(original, ORIGINAL_INTERFACE1_CENTER)
         )

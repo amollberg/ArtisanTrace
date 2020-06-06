@@ -1,6 +1,10 @@
 import coordinates.Coordinate
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.openrndr.KeyModifier
+import org.openrndr.MouseButton
+import org.openrndr.MouseEvent
+import org.openrndr.MouseEventType
 import org.openrndr.math.Vector2
 
 open class WithImplicitView {
@@ -40,6 +44,24 @@ class TestUtils {
 
         fun assertNotEquals(a: Model, b: Model) =
             assertNotEquals(toList(a), toList(b))
+
+        fun scrollMouse(
+            view: ViewModel,
+            count: Int,
+            modifiers: Set<KeyModifier> = setOf()
+        ) {
+            view.activeTool.mouseScrolled(
+                MouseEvent(
+                    Vector2.ZERO,
+                    Vector2(0.0, count.toDouble()),
+                    Vector2.ZERO,
+                    MouseEventType.SCROLLED,
+                    MouseButton.NONE,
+                    modifiers,
+                    false
+                )
+            )
+        }
 
         private fun toList(model: Model) =
             listOf(model.interfaces, model.traces)
