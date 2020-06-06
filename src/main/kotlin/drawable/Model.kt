@@ -66,10 +66,21 @@ class Model(@Transient val system: System = root()) : FileBacked {
             model.interfaces.forEach {
                 it.center = model.system.coord(it.center.xy())
             }
-            model.svgComponents.forEach {
-                it.svg = loadFromBackingFile(it.svg, model)
-                it.svg.relativizeBackingFileTo(model)
-                replaceComponentReferenceSystem(it, model)
+            model.svgComponents.forEach { svgComponent ->
+                svgComponent.svg = loadFromBackingFile(svgComponent.svg, model)
+                svgComponent.svg.relativizeBackingFileTo(model)
+                replaceComponentReferenceSystem(svgComponent, model)
+                svgComponent.interfaces = svgComponent.interfaces.map { itf ->
+                    model.getInterfacesRecursively()
+                        .first { it.id == itf.id }
+                }.toMutableList()
+                svgComponent.interfaces.forEach {
+                    // We have forcibly set all coordinates to their
+                    // intrinsic xy in the model system above, so here we know
+                    // that the true position is the current xy but in the svg
+                    // component system.
+                    it.center = svgComponent.system.coord(it.center.xy())
+                }
             }
             return model
         }

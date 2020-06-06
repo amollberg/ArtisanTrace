@@ -12,7 +12,8 @@ import java.io.File
 class SvgComponent(
     @Serializable(with = SvgReferenceSerializer::class)
     var svg: Svg,
-    override var system: System
+    override var system: System,
+    var interfaces: MutableList<Interface> = mutableListOf()
 ) : Component {
 
     fun draw(drawer: OrientedDrawer) {

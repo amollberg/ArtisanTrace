@@ -131,24 +131,23 @@ class ViewModel(internal var model: Model) {
             Svg.fromFile(droppedFile)
         }
         if (svg != null) {
-            val svgComponent = SvgComponent(
-                svg,
-                root.createSystem(origin = position.xyIn(root))
-            )
+            val svgSystem = root.createSystem(origin = position.xyIn(root))
+            val interfaces = svg.interfaceEnds.map { (start, end) ->
+                val center = (start + end) * 0.5
+                val line = end - start
+                val angle = 180 / PI * atan2(line.y, line.x)
+                Interface(
+                    svgSystem.coord(center),
+                    angle,
+                    line.length,
+                    2
+                )
+            }
+            val svgComponent =
+                SvgComponent(svg, svgSystem, interfaces.toMutableList())
+            model.interfaces.addAll(interfaces)
             svgComponent.svg.relativizeBackingFileTo(model)
             model.svgComponents.add(svgComponent)
-            model.interfaces.addAll(
-                svg.interfaceEnds.map { (start, end) ->
-                    val center = (start + end) * 0.5
-                    val line = start - end
-                    val angle = 180 / PI * atan2(line.y, line.x)
-                    Interface(
-                        svgComponent.system.coord(center),
-                        angle,
-                        line.length,
-                        2
-                    )
-                })
         }
     }
 
