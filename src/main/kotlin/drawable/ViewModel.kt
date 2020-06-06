@@ -64,7 +64,14 @@ class ViewModel(internal var model: Model) {
 
     fun draw(drawer: Drawer) {
         val orientedDrawer = OrientedDrawer(drawer, root)
-        model.draw(orientedDrawer, areInterfacesVisible)
+
+        val interfacesToIgnore = if (!areInterfacesVisible) {
+            model.connectedInterfaces()
+        } else {
+            setOf()
+        }
+
+        model.draw(orientedDrawer, interfacesToIgnore)
         activeTool.draw(orientedDrawer)
     }
 

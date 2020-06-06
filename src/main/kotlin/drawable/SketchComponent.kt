@@ -16,8 +16,8 @@ class SketchComponent(
         model.setReference(system)
     }
 
-    fun draw(drawer: OrientedDrawer, areInterfacesVisible: Boolean) =
-        model.draw(drawer, areInterfacesVisible)
+    fun draw(drawer: OrientedDrawer, interfacesToIgnore: Set<Interface>) =
+        model.draw(drawer, interfacesToIgnore)
 
     override fun bounds(inSystem: System): ShapeContour {
         val contours = model.svgComponents.map {
