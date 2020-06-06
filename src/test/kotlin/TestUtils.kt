@@ -31,6 +31,11 @@ class TestUtils {
             assertEquals(a.y, b.y, "$a != $b (y-coord)\n")
         }
 
+        fun assertEquals(a: Vector2, b: Vector2, delta: Double) {
+            assertEquals(a.x, b.x, delta, "$a != $b (x-coord)\n")
+            assertEquals(a.y, b.y, delta, "$a != $b (y-coord)\n")
+        }
+
         fun assertEquals(a: Matrix22, b: Matrix22) {
             assertEquals(a.columnMajor, b.columnMajor)
         }
@@ -38,6 +43,17 @@ class TestUtils {
         fun assertEquals(a: List<Vector2>, b: List<Vector2>) {
             a.zip(b).forEach { (a, b) ->
                 assertEquals(a, b)
+            }
+        }
+
+        fun assertEquals(
+            a: List<List<Vector2>>, b: List<List<Vector2>>, delta: Double = 0.0
+        ) {
+            assertEquals(a.size, b.size)
+            a.zip(b).forEach { (al, bl) ->
+                al.zip(bl).forEach { (av, bv) ->
+                    assertEquals(av, bv, delta)
+                }
             }
         }
 
