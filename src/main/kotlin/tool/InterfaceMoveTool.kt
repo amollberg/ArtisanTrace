@@ -41,16 +41,20 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
         interfaceSelector.draw(drawer)
 
         val itf = selectedItf ?: return
-        // Note: A temporary variable is created here because itf.center
-        // needs to be untouched while projectOrthogonal is called below
-        var newCenter = viewModel.mousePoint - mouseOffset
-        // Restrict the new interface position if shift is held
-        if (viewModel.modifierKeysHeld
-                .getOrDefault(KEY_LEFT_SHIFT, false)
-        ) {
-            newCenter = projectOrthogonal(newCenter, itf.getTerminals())
+        // Interfaces that are in SVG component systems shall not be movable
+        // with this tool
+        if (itf.center.system == viewModel.root) {
+            // Note: A temporary variable is created here because itf.center
+            // needs to be untouched while projectOrthogonal is called below
+            var newCenter = viewModel.mousePoint - mouseOffset
+            // Restrict the new interface position if shift is held
+            if (viewModel.modifierKeysHeld
+                    .getOrDefault(KEY_LEFT_SHIFT, false)
+            ) {
+                newCenter = projectOrthogonal(newCenter, itf.getTerminals())
+            }
+            itf.center = newCenter
         }
-        itf.center = newCenter
 
         itf.draw(drawer)
     }
