@@ -4,6 +4,7 @@ import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
 import org.openrndr.math.Vector2
+import kotlin.math.max
 
 class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     var selectedItf: Interface? = null
@@ -32,6 +33,9 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
 
         if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
             itf.length += 4 * mouse.rotation.y
+        } else if (mouse.modifiers.contains(KeyModifier.ALT)) {
+            itf.terminalCount += mouse.rotation.y.toInt()
+            itf.terminalCount = max(1, itf.terminalCount)
         } else {
             itf.angle -= mouse.rotation.y * 45 % 360
         }
