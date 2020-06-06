@@ -12,6 +12,8 @@ import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import org.openrndr.shape.CompositionDrawer
 import java.io.File
+import kotlin.math.PI
+import kotlin.math.atan2
 
 class ViewModel(internal var model: Model) {
     val root = model.system
@@ -135,6 +137,18 @@ class ViewModel(internal var model: Model) {
             )
             svgComponent.svg.relativizeBackingFileTo(model)
             model.svgComponents.add(svgComponent)
+            model.interfaces.addAll(
+                svg.interfaceEnds.map { (start, end) ->
+                    val center = (start + end) * 0.5
+                    val line = start - end
+                    val angle = 180 / PI * atan2(line.y, line.x)
+                    Interface(
+                        svgComponent.system.coord(center),
+                        angle,
+                        line.length,
+                        2
+                    )
+                })
         }
     }
 
