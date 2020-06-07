@@ -97,7 +97,7 @@ class ViewModelTest {
             original,
             DropEvent(
                 Vector2(123.0, 45.0),
-                listOf(File("src/test/resources/IC1.svg").absoluteFile)
+                listOf(File("src/test/resources/IC1.svg"))
             )
         )
 
@@ -105,7 +105,7 @@ class ViewModelTest {
             original,
             DropEvent(
                 ORIGINAL_COMP1_ORIGIN,
-                listOf(File("src/test/resources/IC1.ats").absoluteFile)
+                listOf(File("src/test/resources/IC1.ats"))
             ),
             setOf(KEY_LEFT_SHIFT)
         )
@@ -114,7 +114,7 @@ class ViewModelTest {
             original,
             DropEvent(
                 COMP2_ORIGIN,
-                listOf(File("src/test/resources/IC1.ats").absoluteFile)
+                listOf(File("src/test/resources/IC1.ats"))
             ),
             setOf(KEY_LEFT_SHIFT)
         )

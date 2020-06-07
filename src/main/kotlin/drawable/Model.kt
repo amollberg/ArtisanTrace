@@ -9,6 +9,7 @@ import org.openrndr.shape.CompositionDrawer
 import org.openrndr.svg.loadSVG
 import org.openrndr.svg.writeSVG
 import java.io.File
+import java.nio.file.Path
 
 val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
 
@@ -63,7 +64,7 @@ class Model(@Transient val system: System = root()) {
                 it.center = model.system.coord(it.center.xy())
             }
             model.svgComponents.forEach {
-                it.svg = loadFromBackingFile(it.svg)
+                it.svg = loadFromBackingFile(it.svg, model)
                 replaceComponentReferenceSystem(it, model)
             }
             return model
@@ -86,17 +87,21 @@ class Model(@Transient val system: System = root()) {
             componentModel: Model,
             model: Model
         ): Model {
-            val workingDir = model.backingFile.toPath().toAbsolutePath().parent
+
             val path =
-                workingDir.resolve(componentModel.backingFile.toPath()).toFile()
+                model.workingDir.resolve(componentModel.backingFile.toPath())
+                    .toFile()
             return loadFromFile(path) ?: throw SerializationException(
                 "Sketch component from file '$path' could not be loaded"
             )
         }
 
-        private fun loadFromBackingFile(componentSvg: Svg): Svg {
+        private fun loadFromBackingFile(componentSvg: Svg, model: Model): Svg {
+            val path =
+                model.workingDir.resolve(componentSvg.backingFile.toPath())
+                    .toFile()
             return Svg(
-                loadSVG(componentSvg.backingFile.path),
+                loadSVG(path.path),
                 componentSvg.backingFile
             )
         }
@@ -111,6 +116,9 @@ class Model(@Transient val system: System = root()) {
     }
 
     val components: List<Component> get() = sketchComponents + svgComponents
+
+    val workingDir: Path
+        get() = backingFile.toPath().parent ?: File("").toPath()
 
     fun saveToFile() {
         backingFile.writeText(serialize())
