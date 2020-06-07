@@ -118,28 +118,24 @@ class ViewModel(internal var model: Model) {
 
     private fun handleDroppedSvgFile(droppedFile: File, position: Coordinate) {
         // Add the svg from the file as a subcomponent
-        val fileOpened =
-            model.backingFile.toPath().toAbsolutePath().parent
-                .relativize(droppedFile.toPath())
-                .toFile()
         val svg = if (muteSerializationExceptions) {
             try {
-                Svg(loadSVG(fileOpened.path), fileOpened)
+                Svg(loadSVG(droppedFile.path), droppedFile)
             } catch (e: JsonException) {
                 null
             } catch (e: SerializationException) {
                 null
             }
         } else {
-            Svg(loadSVG(fileOpened.path), fileOpened)
+            Svg(loadSVG(droppedFile.path), droppedFile)
         }
         if (svg != null) {
-            model.svgComponents.add(
-                SvgComponent(
-                    svg,
-                    root.createSystem(origin = position.xyIn(root))
-                )
+            val svgComponent = SvgComponent(
+                svg,
+                root.createSystem(origin = position.xyIn(root))
             )
+            svgComponent.svg.relativizeBackingFileTo(model)
+            model.svgComponents.add(svgComponent)
         }
     }
 
@@ -149,23 +145,21 @@ class ViewModel(internal var model: Model) {
     ) {
         if (modifierKeysHeld.getOrDefault(KEY_LEFT_SHIFT, false)) {
             // Add the model from the file as a subcomponent
-            val fileOpened =
-                model.backingFile.toPath().toAbsolutePath().parent
-                    .relativize(droppedFile.toPath()).toFile()
             var submodel =
                 if (muteSerializationExceptions) {
                     try {
-                        Model.loadFromFile(fileOpened)
+                        Model.loadFromFile(droppedFile)
                     } catch (e: JsonException) {
                         null
                     } catch (e: SerializationException) {
                         null
                     }
                 } else {
-                    Model.loadFromFile(fileOpened)
+                    Model.loadFromFile(droppedFile)
                 }
 
             if (submodel != null) {
+                submodel.relativizeBackingFileTo(model)
                 model.sketchComponents.add(
                     SketchComponent(
                         submodel,

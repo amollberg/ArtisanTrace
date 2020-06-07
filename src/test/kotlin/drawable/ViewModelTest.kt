@@ -1,5 +1,10 @@
 import TestUtils.Companion.assertEquals
 import TestUtils.Companion.assertNotEquals
+import TestUtils.Companion.at
+import TestUtils.Companion.clickMouse
+import TestUtils.Companion.createViewModel
+import TestUtils.Companion.dropFiles
+import TestUtils.Companion.scrollMouse
 import coordinates.System
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -76,60 +81,54 @@ class ViewModelTest {
         }
     }
 
-    private fun createViewModel(model: Model = createModel()): ViewModel {
-        val viewModel = ViewModel(model)
-        viewModel.muteSerializationExceptions = false
-        return viewModel
+    private fun createViewModel(): ViewModel {
+        return createViewModel(createModel())
     }
 
     private fun createModel(): Model {
         var original = createViewModel(Model(root()))
 
         original.changeTool(InterfaceDrawTool(original))
-        original.activeTool.mouseScrolled(
-            MouseEvent(
-                Vector2.ZERO,
-                Vector2(0.0, 3.0),
-                Vector2.ZERO,
-                MouseEventType.SCROLLED,
-                MouseButton.NONE,
-                setOf(KeyModifier.ALT),
-                false
-            )
-        )
-        original.activeTool.mouseClicked(
-            at(original, ORIGINAL_INTERFACE1_CENTER)
-        )
-        original.activeTool.mouseClicked(at(original, INTERFACE2_CENTER))
+        scrollMouse(original, 3, setOf(KeyModifier.ALT))
+        clickMouse(original, at(original, ORIGINAL_INTERFACE1_CENTER))
+        clickMouse(original, at(original, INTERFACE2_CENTER))
 
-        original.fileDrop(
+        dropFiles(
+            original,
             DropEvent(
                 Vector2(123.0, 45.0),
-                listOf(File("src/test/resources/IC1.svg").absoluteFile)
+                listOf(File("src/test/resources/IC1.svg"))
             )
         )
 
-        original.fileDrop(
+        dropFiles(
+            original,
             DropEvent(
                 ORIGINAL_COMP1_ORIGIN,
-                listOf(File("src/test/resources/IC1.ats").absoluteFile)
-            )
+                listOf(File("src/test/resources/IC1.ats"))
+            ),
+            setOf(KEY_LEFT_SHIFT)
         )
 
-        original.fileDrop(
+        dropFiles(
+            original,
             DropEvent(
                 COMP2_ORIGIN,
-                listOf(File("src/test/resources/IC1.ats").absoluteFile)
-            )
+                listOf(File("src/test/resources/IC1.ats"))
+            ),
+            setOf(KEY_LEFT_SHIFT)
         )
 
         // Draw a trace between the components
         original.changeTool(TraceDrawTool(original))
-        original.activeTool.mouseClicked(at(original, ORIGINAL_COMP1_ORIGIN))
-        original.activeTool.mouseClicked(at(original, COMP2_ORIGIN))
+        clickMouse(original, at(original, ORIGINAL_COMP1_ORIGIN))
+        clickMouse(original, at(original, COMP2_ORIGIN))
 
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
+
+        assertEquals(2, original.model.sketchComponents.size)
+        assertEquals(1, original.model.svgComponents.size)
         return original.model
     }
 
@@ -148,17 +147,13 @@ class ViewModelTest {
                 false
             )
         )
-        viewModel.activeTool.mouseClicked(
-            at(viewModel, ORIGINAL_INTERFACE1_CENTER)
-        )
-        viewModel.activeTool.mouseClicked(
-            at(viewModel, MOVED_INTERFACE1_CENTER)
-        )
+        clickMouse(viewModel, at(viewModel, ORIGINAL_INTERFACE1_CENTER))
+        clickMouse(viewModel, at(viewModel, MOVED_INTERFACE1_CENTER))
 
         // Move one of the components
         viewModel.changeTool(ComponentMoveTool(viewModel))
-        viewModel.activeTool.mouseClicked(at(viewModel, ORIGINAL_COMP1_ORIGIN))
-        viewModel.activeTool.mouseClicked(at(viewModel, ORIGINAL_COMP1_ORIGIN))
+        clickMouse(viewModel, at(viewModel, ORIGINAL_COMP1_ORIGIN))
+        clickMouse(viewModel, at(viewModel, ORIGINAL_COMP1_ORIGIN))
 
         // Exit the active tool to commit any pending changes
         viewModel.changeTool(EmptyTool(viewModel))
@@ -257,12 +252,6 @@ private fun isDescendant(system: System, rootSystem: System): Boolean {
     val reference = system.reference ?: return false
     return isDescendant(reference, rootSystem)
 }
-
-private fun at(viewModel: ViewModel, x: Double, y: Double) =
-    viewModel.root.coord(Vector2(x, y))
-
-private fun at(viewModel: ViewModel, xy: Vector2) =
-    viewModel.root.coord(xy)
 
 private fun deserialize(value: String): Model =
     Model.deserialize(value, File("dontcare"))!!

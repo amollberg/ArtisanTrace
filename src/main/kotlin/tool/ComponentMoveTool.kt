@@ -18,7 +18,8 @@ class ComponentMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
             mouseOffset =
                 viewModel.mousePoint - selectedComponent!!.system.originCoord
         } else {
-            // Place the selected component (already done in draw())
+            updatePosition()
+            // Place the selected component
             hasSelectedComponent = false
             selectedComponent = null
         }
@@ -37,8 +38,13 @@ class ComponentMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
     override fun draw(drawer: OrientedDrawer) {
-        componentSelector.draw(drawer)
+        if (!hasSelectedComponent) {
+            componentSelector.draw(drawer)
+        }
+        updatePosition()
+    }
 
+    private fun updatePosition() {
         val component = selectedComponent ?: return
         component.system.originCoord = viewModel.mousePoint - mouseOffset!!
     }

@@ -1,6 +1,7 @@
 import coordinates.Coordinate
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.openrndr.*
 import org.openrndr.math.Vector2
 
 open class WithImplicitView {
@@ -11,6 +12,11 @@ open class WithImplicitView {
 
     protected fun at(x: Double = 0.0, y: Double = 0.0) =
         Coordinate(Vector2(x, y), view.root)
+
+    protected fun clickMouse(position: Coordinate) {
+        view.mousePoint = position.relativeTo(view.root)
+        view.activeTool.mouseClicked(view.mousePoint)
+    }
 }
 
 class TestUtils {
@@ -40,6 +46,58 @@ class TestUtils {
 
         fun assertNotEquals(a: Model, b: Model) =
             assertNotEquals(toList(a), toList(b))
+
+        fun createViewModel(model: Model = Model()): ViewModel {
+            val viewModel = ViewModel(model)
+            viewModel.muteSerializationExceptions = false
+            return viewModel
+        }
+
+        fun at(viewModel: ViewModel, x: Double, y: Double) =
+            viewModel.root.coord(Vector2(x, y))
+
+        fun at(viewModel: ViewModel, xy: Vector2) =
+            viewModel.root.coord(xy)
+
+        fun scrollMouse(
+            view: ViewModel,
+            count: Int,
+            modifiers: Set<KeyModifier> = setOf()
+        ) {
+            view.activeTool.mouseScrolled(
+                MouseEvent(
+                    Vector2.ZERO,
+                    Vector2(0.0, count.toDouble()),
+                    Vector2.ZERO,
+                    MouseEventType.SCROLLED,
+                    MouseButton.NONE,
+                    modifiers,
+                    false
+                )
+            )
+        }
+
+        fun clickMouse(
+            view: ViewModel,
+            position: Coordinate
+        ) {
+            view.mousePoint = position.relativeTo(view.root)
+            view.activeTool.mouseClicked(view.mousePoint)
+        }
+
+        fun dropFiles(
+            view: ViewModel,
+            dropEvent: DropEvent,
+            modifiers: Set<Int> = setOf()
+        ) {
+            modifiers.forEach {
+                view.modifierKeysHeld[it] = true
+            }
+            view.fileDrop(dropEvent)
+            modifiers.forEach {
+                view.modifierKeysHeld[it] = false
+            }
+        }
 
         private fun toList(model: Model) =
             listOf(model.interfaces, model.traces)

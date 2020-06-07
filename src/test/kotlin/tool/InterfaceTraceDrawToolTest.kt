@@ -7,10 +7,11 @@ class InterfaceTraceDrawToolTest : WithImplicitView() {
         var startItf = Interface(at(x = 10), 0.0, 10.0, 4)
         view.model.interfaces = mutableListOf(startItf)
         val tool = InterfaceTraceDrawTool(view)
+        view.changeTool(tool)
         tool.terminalSelector.desiredLeads = 3
 
-        tool.mouseClicked(startItf.center)
-        tool.mouseClicked(at(34, 56))
+        clickMouse(startItf.center)
+        clickMouse(at(34, 56))
         val createdInterface = view.model.interfaces[1]
         assertEquals(4, startItf.terminalCount)
         assertEquals(3, createdInterface.terminalCount)
@@ -24,10 +25,11 @@ class InterfaceTraceDrawToolTest : WithImplicitView() {
         var startItf = Interface(at(x = 10), 0.0, 10.0, originalCount)
         view.model.interfaces = mutableListOf(startItf)
         val tool = InterfaceTraceDrawTool(view)
+        view.changeTool(tool)
         tool.terminalSelector.desiredLeads = cloneCount
 
-        tool.mouseClicked(startItf.center)
-        tool.mouseClicked(at(34, 56))
+        clickMouse(startItf.center)
+        clickMouse(at(34, 56))
         val createdInterface = view.model.interfaces[1]
 
         assertEquals(
