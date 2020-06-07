@@ -52,6 +52,17 @@ data class Interface(
         }
     }
 
+    fun getConnectedSegments(terminalIndex: Int, model: Model) =
+        model.getTracesRecursively().flatMap {
+            it.segments.filter {
+                (it.start.hostInterface == this && it.start.range.contains(
+                    terminalIndex
+                )) || (it.end.hostInterface == this && it.end.range.contains(
+                    terminalIndex
+                ))
+            }
+        }
+
     internal fun getEnds(): List<Coordinate> {
         val vec = system.length(
             Vector2(cos(angle * PI / 180), sin(angle * PI / 180))

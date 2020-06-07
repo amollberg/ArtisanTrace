@@ -1,0 +1,38 @@
+{
+    "interfaces": [
+    ],
+    "traces": [
+    ],
+    "sketchComponents": [
+    ],
+    "svgComponents": [
+        {
+            "svg": "IC1.svg",
+            "system": {
+                "reference": {
+                    "reference": null,
+                    "origin": [
+                        0.0,
+                        0.0
+                    ],
+                    "axes": {
+                        "c0r0": 1.0,
+                        "c1r0": 0.0,
+                        "c0r1": 0.0,
+                        "c1r1": 1.0
+                    }
+                },
+                "origin": [
+                    -10.0,
+                    -11.0
+                ],
+                "axes": {
+                    "c0r0": 2.7792514592478246,
+                    "c1r0": 0.0,
+                    "c0r1": 0.0,
+                    "c1r1": 2.7792514592478246
+                }
+            }
+        }
+    ]
+}

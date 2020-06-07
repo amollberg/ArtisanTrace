@@ -7,17 +7,15 @@ import org.openrndr.shape.Composition
 import org.openrndr.shape.ShapeNode
 import org.openrndr.shape.map
 import java.io.File
-
-data class Svg(
-    var composition: Composition? = null,
-    override var backingFile: File
-) : FileBacked
+import kotlin.math.PI
+import kotlin.math.atan2
 
 @Serializable
 class SvgComponent(
     @Serializable(with = SvgReferenceSerializer::class)
     var svg: Svg,
-    override var system: System
+    override var system: System,
+    var interfaces: MutableList<Interface> = mutableListOf()
 ) : Component {
 
     fun draw(drawer: OrientedDrawer) {
@@ -35,6 +33,31 @@ class SvgComponent(
                 transformedSvg(toTranslatingMatrix44(m), c)
             }
         ).relativeTo(toSystem)
+
+    fun inferInterfaces(model: Model) {
+        svg.interfaceEnds.forEachIndexed { i, (start, end) ->
+            val center = (start + end) * 0.5
+            val line = end - start
+            val angle = 180 / PI * atan2(line.y, line.x)
+            if (i < interfaces.size) {
+                // Modify the existing interface
+                val itf = interfaces[i]
+                itf.center = system.coord(center)
+                itf.angle = angle
+                itf.length = line.length
+            } else {
+                // Create a new interface
+                val itf = Interface(
+                    system.coord(center),
+                    angle,
+                    line.length,
+                    2
+                )
+                interfaces.add(itf)
+                model.interfaces.add(itf)
+            }
+        }
+    }
 }
 
 class Transformable<T>(

@@ -11,7 +11,6 @@ import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import org.openrndr.shape.CompositionDrawer
-import org.openrndr.svg.loadSVG
 import java.io.File
 
 class ViewModel(internal var model: Model) {
@@ -67,6 +66,9 @@ class ViewModel(internal var model: Model) {
             "y" -> {
                 changeTool(ComponentMoveTool(this))
             }
+            "f" -> {
+                model.inferSvgInterfaces(model.svgComponents)
+            }
         }
     }
 
@@ -120,22 +122,21 @@ class ViewModel(internal var model: Model) {
         // Add the svg from the file as a subcomponent
         val svg = if (muteSerializationExceptions) {
             try {
-                Svg(loadSVG(droppedFile.path), droppedFile)
+                Svg.fromFile(droppedFile)
             } catch (e: JsonException) {
                 null
             } catch (e: SerializationException) {
                 null
             }
         } else {
-            Svg(loadSVG(droppedFile.path), droppedFile)
+            Svg.fromFile(droppedFile)
         }
         if (svg != null) {
-            val svgComponent = SvgComponent(
-                svg,
-                root.createSystem(origin = position.xyIn(root))
-            )
+            val svgSystem = root.createSystem(origin = position.xyIn(root))
+            val svgComponent = SvgComponent(svg, svgSystem)
             svgComponent.svg.relativizeBackingFileTo(model)
             model.svgComponents.add(svgComponent)
+            model.inferSvgInterfaces(listOf(svgComponent))
         }
     }
 
