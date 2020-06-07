@@ -12,8 +12,6 @@ import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import org.openrndr.shape.CompositionDrawer
 import java.io.File
-import kotlin.math.PI
-import kotlin.math.atan2
 
 class ViewModel(internal var model: Model) {
     val root = model.system
@@ -67,6 +65,9 @@ class ViewModel(internal var model: Model) {
             }
             "y" -> {
                 changeTool(ComponentMoveTool(this))
+            }
+            "f" -> {
+                model.inferSvgInterfaces(model.svgComponents)
             }
         }
     }
@@ -132,22 +133,10 @@ class ViewModel(internal var model: Model) {
         }
         if (svg != null) {
             val svgSystem = root.createSystem(origin = position.xyIn(root))
-            val interfaces = svg.interfaceEnds.map { (start, end) ->
-                val center = (start + end) * 0.5
-                val line = end - start
-                val angle = 180 / PI * atan2(line.y, line.x)
-                Interface(
-                    svgSystem.coord(center),
-                    angle,
-                    line.length,
-                    2
-                )
-            }
-            val svgComponent =
-                SvgComponent(svg, svgSystem, interfaces.toMutableList())
-            model.interfaces.addAll(interfaces)
+            val svgComponent = SvgComponent(svg, svgSystem)
             svgComponent.svg.relativizeBackingFileTo(model)
             model.svgComponents.add(svgComponent)
+            model.inferSvgInterfaces(listOf(svgComponent))
         }
     }
 

@@ -6,6 +6,8 @@ import TestUtils.Companion.dropFiles
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
+import org.openrndr.KeyEvent
+import org.openrndr.KeyEventType
 import org.openrndr.math.Vector2
 import java.io.File
 
@@ -35,6 +37,49 @@ class SvgComponentTest {
                     it.xyIn(modified.system)
                 }
             },
+            delta = 1e-5
+        )
+    }
+
+    @Test
+    fun inferInterfacesDroppedIc1() {
+        var view = createViewModel(Model(root()))
+
+        val SVG_PATH = "src/test/resources/IC1.svg"
+
+        dropFiles(view, DropEvent(Vector2(47.0, 11.0), listOf(File(SVG_PATH))))
+
+        val svgSystem = view.model.svgComponents.first().system
+        val interfaceEnds = view.model.interfaces.map { itf ->
+            itf.getEnds().map { it.xyIn(svgSystem) }
+        }
+        assertEquals(
+            EXPECTED_INTERFACE_ENDS[SVG_PATH]!!,
+            interfaceEnds,
+            delta = 1e-5
+        )
+    }
+
+    @Test
+    fun inferInterfacesLoadedIc1Sketch() {
+        var view = ViewModel(createModel())
+
+        val SKETCH_PATH =
+            "src/test/resources/IC1_without_inferred_interfaces.ats"
+
+        // Load the sketch
+        dropFiles(view, DropEvent(Vector2.ZERO, listOf(File(SKETCH_PATH))))
+
+        // Infer interfaces of all SVG components
+        view.keyUp(KeyEvent(KeyEventType.KEY_UP, 0, "f", setOf()))
+
+        val svgSystem = view.model.svgComponents.first().system
+        val interfaceEnds = view.model.interfaces.map { itf ->
+            itf.getEnds().map { it.xyIn(svgSystem) }
+        }
+        assertEquals(
+            EXPECTED_INTERFACE_ENDS[SVG_PATH]!!,
+            interfaceEnds,
             delta = 1e-5
         )
     }

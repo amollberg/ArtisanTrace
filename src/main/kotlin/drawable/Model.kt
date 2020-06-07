@@ -192,6 +192,13 @@ class Model(@Transient val system: System = root()) : FileBacked {
         traces + sketchComponents.flatMap {
             it.model.getTracesRecursively()
         }
+
+    fun inferSvgInterfaces(selectedSvgComponents: List<SvgComponent>) {
+        selectedSvgComponents.forEach {
+            it.inferInterfaces(this)
+            assert(it in svgComponents)
+        }
+    }
 }
 
 fun assertIsRootSystem(system: System) {
