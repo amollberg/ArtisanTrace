@@ -38,7 +38,9 @@ class ComponentMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
     override fun draw(drawer: OrientedDrawer) {
-        componentSelector.draw(drawer)
+        if (!hasSelectedComponent) {
+            componentSelector.draw(drawer)
+        }
         updatePosition()
     }
 
