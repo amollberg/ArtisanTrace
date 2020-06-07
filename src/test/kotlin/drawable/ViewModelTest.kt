@@ -3,6 +3,7 @@ import TestUtils.Companion.assertNotEquals
 import TestUtils.Companion.at
 import TestUtils.Companion.clickMouse
 import TestUtils.Companion.createViewModel
+import TestUtils.Companion.dropFiles
 import TestUtils.Companion.scrollMouse
 import coordinates.System
 import coordinates.System.Companion.root
@@ -92,25 +93,30 @@ class ViewModelTest {
         clickMouse(original, at(original, ORIGINAL_INTERFACE1_CENTER))
         clickMouse(original, at(original, INTERFACE2_CENTER))
 
-        original.fileDrop(
+        dropFiles(
+            original,
             DropEvent(
                 Vector2(123.0, 45.0),
                 listOf(File("src/test/resources/IC1.svg").absoluteFile)
             )
         )
 
-        original.fileDrop(
+        dropFiles(
+            original,
             DropEvent(
                 ORIGINAL_COMP1_ORIGIN,
                 listOf(File("src/test/resources/IC1.ats").absoluteFile)
-            )
+            ),
+            setOf(KEY_LEFT_SHIFT)
         )
 
-        original.fileDrop(
+        dropFiles(
+            original,
             DropEvent(
                 COMP2_ORIGIN,
                 listOf(File("src/test/resources/IC1.ats").absoluteFile)
-            )
+            ),
+            setOf(KEY_LEFT_SHIFT)
         )
 
         // Draw a trace between the components
@@ -120,6 +126,9 @@ class ViewModelTest {
 
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
+
+        assertEquals(2, original.model.sketchComponents.size)
+        assertEquals(1, original.model.svgComponents.size)
         return original.model
     }
 

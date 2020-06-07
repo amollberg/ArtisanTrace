@@ -1,10 +1,7 @@
 import coordinates.Coordinate
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.openrndr.KeyModifier
-import org.openrndr.MouseButton
-import org.openrndr.MouseEvent
-import org.openrndr.MouseEventType
+import org.openrndr.*
 import org.openrndr.math.Vector2
 
 open class WithImplicitView {
@@ -86,6 +83,20 @@ class TestUtils {
         ) {
             view.mousePoint = position.relativeTo(view.root)
             view.activeTool.mouseClicked(view.mousePoint)
+        }
+
+        fun dropFiles(
+            view: ViewModel,
+            dropEvent: DropEvent,
+            modifiers: Set<Int> = setOf()
+        ) {
+            modifiers.forEach {
+                view.modifierKeysHeld[it] = true
+            }
+            view.fileDrop(dropEvent)
+            modifiers.forEach {
+                view.modifierKeysHeld[it] = false
+            }
         }
 
         private fun toList(model: Model) =
