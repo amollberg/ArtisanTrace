@@ -8,7 +8,10 @@ import org.openrndr.shape.ShapeNode
 import org.openrndr.shape.map
 import java.io.File
 
-data class Svg(var composition: Composition? = null, var backingFile: File)
+data class Svg(
+    var composition: Composition? = null,
+    override var backingFile: File
+) : FileBacked
 
 @Serializable
 class SvgComponent(

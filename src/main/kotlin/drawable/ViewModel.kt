@@ -134,9 +134,7 @@ class ViewModel(internal var model: Model) {
                 svg,
                 root.createSystem(origin = position.xyIn(root))
             )
-            svgComponent.svg.backingFile = model.workingDir
-                .relativize(svgComponent.svg.backingFile.toPath())
-                .toFile()
+            svgComponent.svg.relativizeBackingFileTo(model)
             model.svgComponents.add(svgComponent)
         }
     }
@@ -161,9 +159,7 @@ class ViewModel(internal var model: Model) {
                 }
 
             if (submodel != null) {
-                submodel.backingFile = model.workingDir
-                    .relativize(submodel.backingFile.toPath())
-                    .toFile()
+                submodel.relativizeBackingFileTo(model)
                 model.sketchComponents.add(
                     SketchComponent(
                         submodel,

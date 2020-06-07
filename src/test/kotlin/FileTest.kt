@@ -36,4 +36,14 @@ class FileTest {
             setOf(KEY_LEFT_SHIFT)
         )
     }
+
+    @Test
+    fun insertSubdirSketch() {
+        val view = ViewModel(Model(root()))
+        TestUtils.dropFiles(
+            view,
+            DropEvent(Vector2.ZERO, listOf(File("src/test/resources/IC1.ats"))),
+            setOf(KEY_LEFT_SHIFT)
+        )
+    }
 }
