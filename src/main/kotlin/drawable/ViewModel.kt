@@ -12,6 +12,7 @@ import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import org.openrndr.shape.CompositionDrawer
 import java.io.File
+import java.io.FileNotFoundException
 
 class ViewModel(internal var model: Model) {
     val root = model.system
@@ -120,17 +121,7 @@ class ViewModel(internal var model: Model) {
 
     private fun handleDroppedSvgFile(droppedFile: File, position: Coordinate) {
         // Add the svg from the file as a subcomponent
-        val svg = if (muteSerializationExceptions) {
-            try {
-                Svg.fromFile(droppedFile)
-            } catch (e: JsonException) {
-                null
-            } catch (e: SerializationException) {
-                null
-            }
-        } else {
-            Svg.fromFile(droppedFile)
-        }
+        val svg = maybeMuteExceptions { Svg.fromFile(droppedFile) }
         if (svg != null) {
             val svgSystem = root.createSystem(origin = position.xyIn(root))
             val svgComponent = SvgComponent(svg, svgSystem)
@@ -147,17 +138,7 @@ class ViewModel(internal var model: Model) {
         if (modifierKeysHeld.getOrDefault(KEY_LEFT_SHIFT, false)) {
             // Add the model from the file as a subcomponent
             var submodel =
-                if (muteSerializationExceptions) {
-                    try {
-                        Model.loadFromFile(droppedFile)
-                    } catch (e: JsonException) {
-                        null
-                    } catch (e: SerializationException) {
-                        null
-                    }
-                } else {
-                    Model.loadFromFile(droppedFile)
-                }
+                maybeMuteExceptions { Model.loadFromFile(droppedFile) }
 
             if (submodel != null) {
                 submodel.relativizeBackingFileTo(model)
@@ -171,13 +152,29 @@ class ViewModel(internal var model: Model) {
         } else {
             // Replace the top level model
             val fileOpened = droppedFile.absoluteFile
-            var replacingModel = Model.loadFromFile(fileOpened)
+            var replacingModel =
+                maybeMuteExceptions { Model.loadFromFile(fileOpened) }
             if (replacingModel != null) {
                 model = replacingModel
                 modelLoaded.trigger(fileOpened)
             }
         }
     }
+
+    private fun <T> maybeMuteExceptions(code: () -> T) =
+        if (muteSerializationExceptions) {
+            try {
+                code()
+            } catch (e: JsonException) {
+                null
+            } catch (e: SerializationException) {
+                null
+            } catch (e: FileNotFoundException) {
+                null
+            }
+        } else {
+            code()
+        }
 }
 
 fun isolatedStyle(
