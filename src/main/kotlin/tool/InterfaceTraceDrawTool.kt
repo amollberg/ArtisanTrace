@@ -79,6 +79,8 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
     }
 
     override fun exit() {
-        viewModel.model.traces.add(trace)
+        if (trace.segments.size > 0) {
+            viewModel.model.traces.add(trace)
+        }
     }
 }
