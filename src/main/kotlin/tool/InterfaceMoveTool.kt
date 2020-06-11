@@ -16,9 +16,9 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
         if (!hasSelectedItf) {
             // Select the nearest interface
             selectedItf = interfaceSelector.getInterface()
-            if (selectedItf != null) {
+            selectedItf?.ifPresent {
                 hasSelectedItf = true
-                mouseOffset = viewModel.mousePoint - selectedItf!!.center
+                mouseOffset = viewModel.mousePoint - it.center
             }
         } else {
             // Place the selected interface

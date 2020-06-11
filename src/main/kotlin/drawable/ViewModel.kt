@@ -122,9 +122,9 @@ class ViewModel(internal var model: Model) {
     private fun handleDroppedSvgFile(droppedFile: File, position: Coordinate) {
         // Add the svg from the file as a subcomponent
         val svg = maybeMuteExceptions { Svg.fromFile(droppedFile) }
-        if (svg != null) {
+        svg?.ifPresent {
             val svgSystem = root.createSystem(origin = position.xyIn(root))
-            val svgComponent = SvgComponent(svg, svgSystem)
+            val svgComponent = SvgComponent(it, svgSystem)
             svgComponent.svg.relativizeBackingFileTo(model)
             model.svgComponents.add(svgComponent)
             model.inferSvgInterfaces(listOf(svgComponent))
@@ -140,11 +140,11 @@ class ViewModel(internal var model: Model) {
             var submodel =
                 maybeMuteExceptions { Model.loadFromFile(droppedFile) }
 
-            if (submodel != null) {
+            submodel?.ifPresent {
                 submodel.relativizeBackingFileTo(model)
                 model.sketchComponents.add(
                     SketchComponent(
-                        submodel,
+                        it,
                         root.createSystem(origin = position.xyIn(root))
                     )
                 )
@@ -154,8 +154,8 @@ class ViewModel(internal var model: Model) {
             val fileOpened = droppedFile.absoluteFile
             var replacingModel =
                 maybeMuteExceptions { Model.loadFromFile(fileOpened) }
-            if (replacingModel != null) {
-                model = replacingModel
+            replacingModel?.ifPresent {
+                model = it
                 modelLoaded.trigger(fileOpened)
             }
         }
