@@ -22,7 +22,7 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
             }
         } else {
             // Place the selected interface
-            // (already done in draw())
+            selectedItf?.ifPresent { update(it) }
             hasSelectedItf = false
             selectedItf = null
         }
@@ -53,6 +53,12 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
         interfaceSelector.draw(drawer)
 
         val itf = selectedItf ?: return
+        update(itf)
+
+        itf.draw(drawer)
+    }
+
+    private fun update(itf: Interface) {
         // Interfaces that are in SVG component systems shall not be movable
         // with this tool
         if (itf.center.system == viewModel.root) {
@@ -67,7 +73,5 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
             }
             itf.center = newCenter
         }
-
-        itf.draw(drawer)
     }
 }

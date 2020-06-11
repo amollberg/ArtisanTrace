@@ -5,6 +5,7 @@ import kotlin.math.max
 
 class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
     override fun mouseClicked(position: Coordinate) {
+        updatePosition()
         viewModel.model.interfaces.add(itf)
         itf = itf.clone()
     }
@@ -21,7 +22,11 @@ class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
     }
 
     override fun draw(drawer: OrientedDrawer) {
-        itf.center = viewModel.mousePoint
+        updatePosition()
         itf.draw(drawer)
+    }
+
+    private fun updatePosition() {
+        itf.center = viewModel.mousePoint
     }
 }
