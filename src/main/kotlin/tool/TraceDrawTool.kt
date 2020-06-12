@@ -1,4 +1,5 @@
 import coordinates.Coordinate
+import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
 import org.openrndr.math.clamp
 
@@ -8,6 +9,7 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val terminalSelector = MouseHoverTerminalSelector(viewModel)
     private val angle = Angle.OBTUSE
     private var hasPlacedStart = false
+    private var reverseKnee = false
 
     override fun mouseClicked(position: Coordinate) {
         val clickedTerminals = terminalSelector.getTerminals() ?: return
@@ -17,7 +19,10 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
         } else {
             trace.add(
                 TraceSegment(
-                    previousTerminals!!, clickedTerminals, angle
+                    previousTerminals!!,
+                    clickedTerminals,
+                    angle,
+                    reverseKnee
                 )
             )
         }
@@ -35,9 +40,14 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
             )
             terminalSelector.desiredLeads = leads
         } else {
-            // Change the match order of the destination terminals
-            terminalSelector.reverseTerminalOrder =
-                !terminalSelector.reverseTerminalOrder
+            if (mouse.modifiers.contains(KeyModifier.CTRL)) {
+                // Reverse the knee if Control key is held
+                reverseKnee = !reverseKnee
+            } else {
+                // Change the match order of the destination terminals
+                terminalSelector.reverseTerminalOrder =
+                    !terminalSelector.reverseTerminalOrder
+            }
         }
     }
 
@@ -48,7 +58,12 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
             val selectedEndTerminals =
                 terminalSelector.getTerminals() ?: return
             val s =
-                TraceSegment(previousTerminals!!, selectedEndTerminals, angle)
+                TraceSegment(
+                    previousTerminals!!,
+                    selectedEndTerminals,
+                    angle,
+                    reverseKnee
+                )
             trace.withSegment(s).draw(drawer)
         }
     }

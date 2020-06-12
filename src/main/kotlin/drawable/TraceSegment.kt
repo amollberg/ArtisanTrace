@@ -17,13 +17,18 @@ import kotlin.math.atan2
 data class TraceSegment(
     internal var start: Terminals,
     internal var end: Terminals,
-    val angle: Angle
+    val angle: Angle,
+    var reverseKnee: Boolean
 ) {
     fun getStart() = start
     fun getEnd() = end
 
     fun getKnee(): Coordinate {
-        var vec = firstEndPosition() - firstStartPosition()
+        val (startPosition, endPosition) =
+            if (reverseKnee) Pair(firstEndPosition(), firstStartPosition())
+            else Pair(firstStartPosition(), firstEndPosition())
+
+        var vec = endPosition - startPosition
         val (x, y) = vec.xy()
         val kneepoints = listOf(
             Vector2(x - y, 0.0),
@@ -59,7 +64,7 @@ data class TraceSegment(
             }
         }.getOrElse(0, { Vector2.ZERO })
 
-        return firstStartPosition() + Length(relativeKnee, vec.system)
+        return startPosition + Length(relativeKnee, vec.system)
     }
 
     fun getKnees() = splitIntoSingleLeads().map { it.getKnee() }
@@ -103,7 +108,8 @@ data class TraceSegment(
                     end.hostInterface,
                     endTerminal..endTerminal
                 ),
-                angle
+                angle,
+                reverseKnee
             )
         }
 }

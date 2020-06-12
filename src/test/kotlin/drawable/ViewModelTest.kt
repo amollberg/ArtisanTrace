@@ -122,6 +122,8 @@ class ViewModelTest {
         // Draw a trace between the components
         original.changeTool(TraceDrawTool(original))
         clickMouse(original, at(original, ORIGINAL_COMP1_ORIGIN))
+        // Reverse the knee
+        scrollMouse(original, 1, setOf(KeyModifier.CTRL))
         clickMouse(original, at(original, COMP2_ORIGIN))
 
         // Exit the active tool to commit any pending changes
