@@ -1,5 +1,6 @@
 import coordinates.Coordinate
 import org.openrndr.KEY_LEFT_SHIFT
+import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
 import org.openrndr.math.clamp
 
@@ -10,6 +11,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
     internal val terminalSelector = MouseHoverTerminalSelector(viewModel)
     private val angle = Angle.OBTUSE
     private var hasPlacedStart = false
+    private var reverseKnee = false
 
     override fun mouseClicked(position: Coordinate) {
         if (!hasPlacedStart) {
@@ -29,7 +31,8 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
                 TraceSegment(
                     previousTerminals!!,
                     itf.getTerminals(),
-                    angle
+                    angle,
+                    reverseKnee
                 )
             )
             previousTerminals = itf.getTerminals()
@@ -48,6 +51,9 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
                 terminalSelector.getInterface()?.terminalCount ?: leads
             )
             terminalSelector.desiredLeads = leads
+        } else if (mouse.modifiers.contains(KeyModifier.CTRL)) {
+            // Reverse the knee if Control key is held
+            reverseKnee = !reverseKnee
         } else {
             // Behave like any other interface tool
             super.mouseScrolled(mouse)
@@ -60,7 +66,12 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
         } else {
             update()
 
-            val s = TraceSegment(previousTerminals!!, itf.getTerminals(), angle)
+            val s = TraceSegment(
+                previousTerminals!!,
+                itf.getTerminals(),
+                angle,
+                reverseKnee
+            )
             itf.draw(drawer)
             trace.withSegment(s).draw(drawer)
         }
