@@ -70,6 +70,9 @@ class ViewModel(internal var model: Model) {
             "f" -> {
                 model.inferSvgInterfaces(model.svgComponents)
             }
+            "a" -> {
+                changeTool(InterfaceEraseTool(this))
+            }
         }
     }
 

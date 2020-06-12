@@ -69,6 +69,9 @@ class TestUtils {
             return viewModel
         }
 
+        fun at(viewModel: ViewModel, x: Int, y: Int) =
+            viewModel.root.coord(Vector2(x.toDouble(), y.toDouble()))
+
         fun at(viewModel: ViewModel, x: Double, y: Double) =
             viewModel.root.coord(Vector2(x, y))
 

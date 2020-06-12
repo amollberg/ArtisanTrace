@@ -23,6 +23,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
                 terminalSelector.desiredLeads
             )
         } else {
+            update()
             // Place an interface and connect the trace to it
             trace.add(
                 TraceSegment(
@@ -54,19 +55,10 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
     }
 
     override fun draw(drawer: OrientedDrawer) {
-        itf.center = viewModel.mousePoint
-
         if (!hasPlacedStart) {
             terminalSelector.draw(drawer)
         } else {
-            // Restrict the new interface position if shift is held
-            if (viewModel.modifierKeysHeld.getOrDefault(
-                    KEY_LEFT_SHIFT,
-                    false
-                )
-            ) {
-                itf.center = projectOrthogonal(itf.center, previousTerminals!!)
-            }
+            update()
 
             val s = TraceSegment(previousTerminals!!, itf.getTerminals(), angle)
             itf.draw(drawer)
@@ -74,7 +66,21 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
         }
     }
 
+    private fun update() {
+        itf.center = viewModel.mousePoint
+        // Restrict the new interface position if shift is held
+        if (viewModel.modifierKeysHeld.getOrDefault(
+                KEY_LEFT_SHIFT,
+                false
+            )
+        ) {
+            itf.center = projectOrthogonal(itf.center, previousTerminals!!)
+        }
+    }
+
     override fun exit() {
-        viewModel.model.traces.add(trace)
+        if (trace.segments.size > 0) {
+            viewModel.model.traces.add(trace)
+        }
     }
 }

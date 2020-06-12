@@ -2,6 +2,20 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class InterfaceTraceDrawToolTest : WithImplicitView() {
+
+    @Test
+    fun abortEmptyTrace() {
+        var startItf = Interface(at(x = 10), 0.0, 10.0, 4)
+        view.model.interfaces = mutableListOf(startItf)
+
+        view.changeTool(InterfaceTraceDrawTool(view))
+        clickMouse(startItf.center)
+        view.changeTool(EmptyTool(view))
+
+        assertEquals(0, view.model.traces.size)
+        assertEquals(1, view.model.interfaces.size)
+    }
+
     @Test
     fun correctNumberOfTerminals() {
         var startItf = Interface(at(x = 10), 0.0, 10.0, 4)

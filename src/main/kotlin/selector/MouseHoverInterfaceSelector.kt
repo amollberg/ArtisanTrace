@@ -1,4 +1,7 @@
-class MouseHoverInterfaceSelector(private val viewModel: ViewModel) {
+class MouseHoverInterfaceSelector(
+    private val viewModel: ViewModel,
+    private val includeComponents: Boolean = true
+) {
 
     fun draw(drawer: OrientedDrawer) {
         val itf = getInterface() ?: return
@@ -8,8 +11,13 @@ class MouseHoverInterfaceSelector(private val viewModel: ViewModel) {
     }
 
     fun getInterface(): Interface? {
+        val interfaces = if (includeComponents) {
+            viewModel.model.getInterfacesRecursively()
+        } else {
+            viewModel.model.interfaces
+        }
         // Get the interface nearest to the mouse
-        return viewModel.model.getInterfacesRecursively().minBy {
+        return interfaces.minBy {
             (it.center - viewModel.mousePoint).lengthIn(viewModel.root)
         }
     }
