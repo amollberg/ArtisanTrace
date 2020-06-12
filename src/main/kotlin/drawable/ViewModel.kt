@@ -128,7 +128,7 @@ class ViewModel(internal var model: Model) {
         svg?.ifPresent {
             val svgSystem = root.createSystem(origin = position.xyIn(root))
             val svgComponent = SvgComponent(it, svgSystem)
-            svgComponent.svg.relativizeBackingFileTo(model)
+            svgComponent.svg.relativizeBackingFileTo(model.workingDir)
             model.svgComponents.add(svgComponent)
             model.inferSvgInterfaces(listOf(svgComponent))
         }
@@ -144,7 +144,7 @@ class ViewModel(internal var model: Model) {
                 maybeMuteExceptions { Model.loadFromFile(droppedFile) }
 
             submodel?.ifPresent {
-                submodel.relativizeBackingFileTo(model)
+                submodel.relativizeBackingFileTo(model.workingDir)
                 model.sketchComponents.add(
                     SketchComponent(
                         it,
