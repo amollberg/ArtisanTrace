@@ -51,7 +51,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
                 // Connect the component system to the top-level model root
                 replaceComponentReferenceSystem(it, model)
 
-                it.model.relativizeBackingFileTo(model)
+                it.model.relativizeBackingFileTo(model.workingDir)
             }
             // Re-index interfaces to the combined model
             model.getInterfacesRecursively().forEachIndexed { i, itf ->
@@ -68,7 +68,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
             }
             model.svgComponents.forEach { svgComponent ->
                 svgComponent.svg = loadFromBackingFile(svgComponent.svg, model)
-                svgComponent.svg.relativizeBackingFileTo(model)
+                svgComponent.svg.relativizeBackingFileTo(model.workingDir)
                 replaceComponentReferenceSystem(svgComponent, model)
                 svgComponent.interfaces = svgComponent.interfaces.map { itf ->
                     model.getInterfacesRecursively()
@@ -116,7 +116,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
                     .toFile()
             return Svg(
                 loadSVG(path.path),
-                componentSvg.backingFile
+                path.absoluteFile
             )
         }
 
