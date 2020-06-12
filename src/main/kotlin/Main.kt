@@ -5,6 +5,7 @@ fun main() = application {
     configure {
         width = 768
         height = 576
+        windowResizable = true
     }
 
     program {
