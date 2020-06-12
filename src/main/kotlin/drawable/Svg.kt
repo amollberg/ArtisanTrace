@@ -11,7 +11,8 @@ data class Svg(
 
     companion object {
         fun fromFile(file: File): Svg {
-            val svgText = file.readText()
+            var svgText = file.readText()
+            svgText = "(\\d)px;".toRegex().replace(svgText, "\\1;")
             return Svg(loadSVG(svgText), file)
         }
     }

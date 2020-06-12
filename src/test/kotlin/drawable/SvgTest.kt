@@ -13,4 +13,9 @@ class SvgTest {
             delta = 1e-5
         )
     }
+
+    @Test
+    fun loadInkscapeSvg() {
+        Svg.fromFile(File("src/test/resources/Via1.svg"))
+    }
 }
