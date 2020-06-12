@@ -54,6 +54,8 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
     override fun exit() {
-        viewModel.model.traces.add(trace)
+        if (trace.segments.size > 0) {
+            viewModel.model.traces.add(trace)
+        }
     }
 }
