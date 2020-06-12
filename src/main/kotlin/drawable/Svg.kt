@@ -10,8 +10,10 @@ data class Svg(
 ) : FileBacked {
 
     companion object {
-        fun fromFile(file: File) =
-            Svg(loadSVG(file.path), file)
+        fun fromFile(file: File): Svg {
+            val svgText = file.readText()
+            return Svg(loadSVG(svgText), file)
+        }
     }
 
     val interfaceEnds: List<List<Vector2>>
