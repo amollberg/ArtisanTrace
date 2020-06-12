@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="44.8"
-     inkscape:cx="3.4667191"
-     inkscape:cy="1118.4179"
+     inkscape:zoom="22.4"
+     inkscape:cx="-11.595343"
+     inkscape:cy="1105.1228"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -37,7 +37,7 @@
      inkscape:snap-bbox="true"
      inkscape:snap-bbox-midpoints="true"
      inkscape:snap-object-midpoints="true"
-     inkscape:snap-to-guides="false"
+     inkscape:snap-to-guides="true"
      inkscape:object-paths="true"
      inkscape:snap-nodes="true"
      inkscape:snap-smooth-nodes="true"
@@ -65,7 +65,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -73,21 +73,22 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <circle
-       style="fill:#000000;fill-opacity:1;stroke:#00ff00;stroke-width:0.26458332;stroke-opacity:1"
-       id="path822"
-       cx="-4.4408921e-16"
-       cy="-9.2207119e-06"
-       r="0.83863467" />
     <path
-       style="fill:#00ff00;fill-rule:evenodd;stroke:#00ff00;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 0,0.83862544 V 1.6116062"
+       style="fill:#00ff00;fill-rule:evenodd;stroke:#00ff00;stroke-width:0.5153988px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 0,5.008252 v 5.897876"
        id="path824"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#ff00ff;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 0,1.5584566 v 0.0502"
+       d="m 0,10.906128 v 0.0502"
        id="path826"
        inkscape:connector-curvature="0" />
+    <circle
+       style="fill:#000000;fill-opacity:1;stroke:#00ff00;stroke-width:0.29902336;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path817"
+       cx="0"
+       cy="-9.2207119e-06"
+       r="5.0082612" />
   </g>
 </svg>
