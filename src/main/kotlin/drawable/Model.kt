@@ -116,7 +116,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
                     .toFile()
             return Svg(
                 loadSVG(path.path),
-                componentSvg.backingFile
+                path.absoluteFile
             )
         }
 
