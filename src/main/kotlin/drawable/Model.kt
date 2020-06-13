@@ -200,6 +200,11 @@ class Model(@Transient val system: System = root()) : FileBacked {
             it.model.getTracesRecursively()
         }
 
+    fun getSvgComponentsRecursively(): List<SvgComponent> =
+        svgComponents + sketchComponents.flatMap {
+            it.model.getSvgComponentsRecursively()
+        }
+
     fun inferSvgInterfaces(selectedSvgComponents: List<SvgComponent>) {
         selectedSvgComponents.forEach {
             it.inferInterfaces(this)
