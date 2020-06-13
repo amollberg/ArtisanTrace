@@ -1,12 +1,16 @@
 import TestUtils.Companion.sendKey
 import coordinates.Coordinate
+import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.openrndr.*
 import org.openrndr.math.Vector2
 
 open class WithImplicitView {
-    protected var view = ViewModel(Model(coordinates.System.Companion.root()))
+    protected var view = ViewModel(Model(root())).let {
+        it.muteSerializationExceptions = false
+        it
+    }
 
     protected fun at(x: Int = 0, y: Int = 0) =
         Coordinate(Vector2(x.toDouble(), y.toDouble()), view.root)
