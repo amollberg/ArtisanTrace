@@ -18,8 +18,10 @@ open class WithImplicitView {
     protected fun at(x: Double = 0.0, y: Double = 0.0) =
         Coordinate(Vector2(x, y), view.root)
 
+    fun at(xy: Vector2) = Coordinate(xy, view.root)
+
     protected fun clickMouse(position: Coordinate) {
-        view.mousePoint = position.relativeTo(view.root)
+        moveMouse(position)
         view.activeTool.mouseClicked(view.mousePoint)
     }
 
@@ -29,6 +31,10 @@ open class WithImplicitView {
 
     fun sendKey(name: String, modifiers: Set<KeyModifier> = setOf()) {
         sendKey(view, name, modifiers)
+    }
+
+    fun moveMouse(position: Coordinate) {
+        view.mousePoint = position.relativeTo(view.root)
     }
 }
 
