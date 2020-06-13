@@ -4,7 +4,7 @@ import org.openrndr.MouseEvent
 import org.openrndr.math.clamp
 
 class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
-    private val trace = Trace()
+    private val trace = Trace(viewModel.root)
     private var previousTerminals: Terminals? = null
     private val terminalSelector = MouseHoverTerminalSelector(viewModel)
     private val angle = Angle.OBTUSE
@@ -22,7 +22,8 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
                     previousTerminals!!,
                     clickedTerminals,
                     angle,
-                    reverseKnee
+                    reverseKnee,
+                    trace.system
                 )
             )
         }
@@ -62,7 +63,8 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
                     previousTerminals!!,
                     selectedEndTerminals,
                     angle,
-                    reverseKnee
+                    reverseKnee,
+                    trace.system
                 )
             trace.withSegment(s).draw(drawer)
         }

@@ -9,19 +9,18 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
             seg.getStart(),
             itf.getTerminals(),
             seg.angle,
-            seg.reverseKnee
+            seg.reverseKnee,
+            seg.system
         )
         val newSecondSegment = TraceSegment(
             itf.getTerminals(),
             seg.getEnd(),
             seg.angle,
-            seg.reverseKnee
+            seg.reverseKnee,
+            seg.system
         )
         // Replace the segment with the two new ones that go via the mouse
-        trace.segments = trace.segments.flatMap {
-            if (it == seg) listOf(newFirstSegment, newSecondSegment)
-            else listOf(it)
-        }.toMutableList()
+        trace.replace(seg, listOf(newFirstSegment, newSecondSegment))
 
         viewModel.model.interfaces.add(itf)
         itf = itf.clone()
@@ -35,13 +34,15 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
             seg.getStart(),
             itf.getTerminals(),
             seg.angle,
-            seg.reverseKnee
+            seg.reverseKnee,
+            seg.system
         )
         val newSecondSegment = TraceSegment(
             itf.getTerminals(),
             seg.getEnd(),
             seg.angle,
-            seg.reverseKnee
+            seg.reverseKnee,
+            seg.system
         )
 
         newFirstSegment.draw(drawer)

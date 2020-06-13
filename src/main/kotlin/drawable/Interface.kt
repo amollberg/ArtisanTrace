@@ -1,7 +1,6 @@
 import coordinates.Coordinate
 import coordinates.System
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import org.openrndr.math.Vector2
 import org.openrndr.shape.LineSegment
 import org.openrndr.shape.ShapeContour
@@ -18,7 +17,6 @@ data class Interface(
     // Only used for serialization
     internal var id: Int = -1
 ) {
-    @Transient
     private val system get() = center.system
 
     fun draw(drawer: OrientedDrawer) {

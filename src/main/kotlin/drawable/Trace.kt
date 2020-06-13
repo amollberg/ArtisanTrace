@@ -1,25 +1,55 @@
+import coordinates.System
 import kotlinx.serialization.Serializable
 import org.openrndr.math.Vector2
 import kotlin.math.tan
 
 @Serializable
-data class Trace(var segments: MutableList<TraceSegment> = mutableListOf()) {
+data class Trace(
+    var system: System,
+    private var traceSegments: MutableList<TraceSegment> = mutableListOf()
+) {
+    init {
+        setSystem()
+    }
 
-    constructor(points: Iterable<TraceSegment>) :
-            this(points.toMutableList())
+    val segments: MutableList<TraceSegment> get() = traceSegments
+
+    constructor(system: System, points: Iterable<TraceSegment>) :
+            this(system, points.toMutableList())
 
     fun add(segment: TraceSegment) {
-        if (segments.isNotEmpty()) {
-            assert(segment.getStart() == segments.last().getEnd())
+        if (traceSegments.isNotEmpty()) {
+            assert(segment.getStart() == traceSegments.last().getEnd())
         }
-        segments.add(segment)
+        traceSegments.add(segment)
+        setSystem()
+    }
+
+    fun replace(segment: TraceSegment, replacements: List<TraceSegment>) {
+        traceSegments = traceSegments.flatMap {
+            if (it == segment) replacements
+            else listOf(it)
+        }.toMutableList()
+        setSystem()
     }
 
     fun draw(drawer: OrientedDrawer) {
-        segments.forEach { it.draw(drawer) }
+        traceSegments.forEach { it.draw(drawer) }
     }
 
-    fun withSegment(segment: TraceSegment) = Trace(segments + segment)
+    fun withSegment(segment: TraceSegment) =
+        Trace(system, traceSegments + segment)
+
+    private fun setSystem() {
+        traceSegments.forEach {
+            it.system = system
+        }
+    }
+
+    fun setCoordinateSystem(modelSystem: System) {
+        system = modelSystem
+        setSystem()
+    }
 }
 
 fun fold(v: Vector2, foldMatrix: Matrix22): Vector2 {

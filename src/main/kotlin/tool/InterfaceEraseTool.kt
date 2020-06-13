@@ -18,13 +18,13 @@ class InterfaceEraseTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
     }
 
     private fun splitTraceAt(trace: Trace, itf: Interface) {
-        var newTraces = mutableListOf(Trace(mutableListOf()))
+        var newTraces = mutableListOf(Trace(trace.system))
         trace.segments.forEach { segment ->
             if (segment.start.hostInterface == itf
                 || segment.end.hostInterface == itf
             ) {
                 // Start on a new trace
-                newTraces.add(Trace(mutableListOf()))
+                newTraces.add(Trace(trace.system))
             } else {
                 // Add the current terminals to the current trace
                 newTraces.last().segments.add(segment)

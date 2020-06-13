@@ -3,11 +3,10 @@ import TestUtils.Companion.at
 import TestUtils.Companion.clickMouse
 import TestUtils.Companion.createViewModel
 import TestUtils.Companion.dropFiles
+import TestUtils.Companion.sendKey
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
-import org.openrndr.KeyEvent
-import org.openrndr.KeyEventType
 import org.openrndr.math.Vector2
 import java.io.File
 
@@ -71,7 +70,7 @@ class SvgComponentTest {
         dropFiles(view, DropEvent(Vector2.ZERO, listOf(File(SKETCH_PATH))))
 
         // Infer interfaces of all SVG components
-        view.keyUp(KeyEvent(KeyEventType.KEY_UP, 0, "f", setOf()))
+        sendKey(view, "f")
 
         val svgSystem = view.model.svgComponents.first().system
         val interfaceEnds = view.model.interfaces.map { itf ->
