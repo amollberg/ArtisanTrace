@@ -10,8 +10,11 @@ data class Svg(
 ) : FileBacked {
 
     companion object {
-        fun fromFile(file: File) =
-            Svg(loadSVG(file.path), file)
+        fun fromFile(file: File): Svg {
+            var svgText = file.readText()
+            svgText = "(\\d)px;".toRegex().replace(svgText, "\\1;")
+            return Svg(loadSVG(svgText), file)
+        }
     }
 
     val interfaceEnds: List<List<Vector2>>

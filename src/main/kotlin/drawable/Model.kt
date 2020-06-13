@@ -6,7 +6,6 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import org.openrndr.shape.CompositionDrawer
-import org.openrndr.svg.loadSVG
 import org.openrndr.svg.writeSVG
 import java.io.File
 import java.nio.file.Path
@@ -117,10 +116,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
             val path =
                 model.workingDir.resolve(componentSvg.backingFile.toPath())
                     .toFile()
-            return Svg(
-                loadSVG(path.path),
-                path.absoluteFile
-            )
+            return Svg.fromFile(path.absoluteFile)
         }
 
         private fun replaceComponentReferenceSystem(

@@ -31,7 +31,7 @@ class ViewModel(internal var model: Model) {
         val DEFAULT_STYLE = Style(
             fill = ColorRGBa.WHITE,
             stroke = ColorRGBa.PINK,
-            strokeWeight = 2.0,
+            strokeWeight = 1.2,
             background = ColorRGBa.BLACK
         )
     }
