@@ -8,7 +8,8 @@ internal class TraceSegmentTest : WithImplicitView() {
             terminalsAt(0.0, 0.0),
             terminalsAt(20.0, 10.0),
             Angle.OBTUSE,
-            false
+            false,
+            view.root
         )
         assertEquals(at(10.0, 0.0), s.getKnee())
     }
@@ -19,7 +20,8 @@ internal class TraceSegmentTest : WithImplicitView() {
             terminalsAt(10.0, 5.0),
             terminalsAt(110.0, 205.0),
             Angle.OBTUSE,
-            false
+            false,
+            view.root
         )
         assertEquals(at(10.0, 105.0), s.getKnee())
     }
@@ -30,7 +32,8 @@ internal class TraceSegmentTest : WithImplicitView() {
             terminalsAt(0.0, 0.0),
             terminalsAt(20.0, 10.0),
             Angle.OBTUSE,
-            true
+            true,
+            view.root
         )
         assertEquals(at(10.0, 10.0), s.getKnee())
     }
@@ -41,7 +44,8 @@ internal class TraceSegmentTest : WithImplicitView() {
             terminalsAt(10.0, 5.0),
             terminalsAt(110.0, 205.0),
             Angle.OBTUSE,
-            true
+            true,
+            view.root
         )
         assertEquals(at(110.0, 105.0), s.getKnee())
     }

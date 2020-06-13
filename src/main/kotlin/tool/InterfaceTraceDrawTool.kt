@@ -6,7 +6,7 @@ import org.openrndr.math.clamp
 
 class InterfaceTraceDrawTool(viewModel: ViewModel) :
     BaseInterfaceTool(viewModel) {
-    private val trace = Trace()
+    private val trace = Trace(viewModel.root)
     private var previousTerminals: Terminals? = null
     internal val terminalSelector = MouseHoverTerminalSelector(viewModel)
     private val angle = Angle.OBTUSE
@@ -32,7 +32,8 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
                     previousTerminals!!,
                     itf.getTerminals(),
                     angle,
-                    reverseKnee
+                    reverseKnee,
+                    trace.system
                 )
             )
             previousTerminals = itf.getTerminals()
@@ -70,7 +71,8 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
                 previousTerminals!!,
                 itf.getTerminals(),
                 angle,
-                reverseKnee
+                reverseKnee,
+                trace.system
             )
             itf.draw(drawer)
             trace.withSegment(s).draw(drawer)

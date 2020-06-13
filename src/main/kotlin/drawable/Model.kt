@@ -62,6 +62,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
                     it.start = replaceInterfaceUsingModel(it.start, model)
                     it.end = replaceInterfaceUsingModel(it.end, model)
                 }
+                trace.setCoordinateSystem(model.system)
             }
             model.interfaces.forEach {
                 it.center = model.system.coord(it.center.xy())

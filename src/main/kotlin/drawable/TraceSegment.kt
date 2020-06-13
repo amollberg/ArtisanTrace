@@ -2,6 +2,7 @@
 
 import coordinates.Coordinate
 import coordinates.Length
+import coordinates.System
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import org.openrndr.math.Vector2
@@ -18,7 +19,9 @@ data class TraceSegment(
     internal var start: Terminals,
     internal var end: Terminals,
     val angle: Angle,
-    var reverseKnee: Boolean
+    var reverseKnee: Boolean,
+    @Transient
+    var system: System
 ) {
     fun getStart() = start
     fun getEnd() = end
@@ -109,7 +112,8 @@ data class TraceSegment(
                     endTerminal..endTerminal
                 ),
                 angle,
-                reverseKnee
+                reverseKnee,
+                system
             )
         }
 }
