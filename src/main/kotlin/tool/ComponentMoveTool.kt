@@ -1,5 +1,6 @@
 import coordinates.Coordinate
 import coordinates.Length
+import org.openrndr.KeyEvent
 import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
 import kotlin.math.PI
@@ -42,6 +43,17 @@ class ComponentMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
             componentSelector.draw(drawer)
         }
         updatePosition()
+    }
+
+    override fun keyUp(key: KeyEvent) {
+        if (key.name == "c") {
+            val component = componentSelector.getComponent() ?: return
+            // Create a copy of the nearest component and select it
+            selectedComponent = component.clone(viewModel.model)
+            hasSelectedComponent = true
+            mouseOffset =
+                viewModel.mousePoint - selectedComponent!!.system.originCoord
+        }
     }
 
     private fun updatePosition() {

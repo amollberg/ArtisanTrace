@@ -45,6 +45,10 @@ class SketchComponent(
             acc.plus(shapeContour).bounds.shape.outline
         }
     }
+
+    override fun clone(parentModel: Model): Component =
+        // Import a new instance of the model, placed on the same position
+        parentModel.addSketch(model.backingFile, model.system.originCoord)!!
 }
 
 object SketchReferenceSerializer :

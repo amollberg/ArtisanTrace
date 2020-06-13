@@ -58,6 +58,10 @@ class SvgComponent(
             }
         }
     }
+
+    override fun clone(parentModel: Model): Component =
+        // Import a new instance of the SVG, placed on the same position
+        parentModel.addSvg(svg.backingFile, system.originCoord)
 }
 
 class Transformable<T>(

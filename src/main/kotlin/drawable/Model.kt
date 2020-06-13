@@ -1,3 +1,5 @@
+import Svg.Companion.fromFile
+import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.root
 import kotlinx.serialization.Serializable
@@ -116,7 +118,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
             val path =
                 model.workingDir.resolve(componentSvg.backingFile.toPath())
                     .toFile()
-            return Svg.fromFile(path.absoluteFile)
+            return fromFile(path.absoluteFile)
         }
 
         private fun replaceComponentReferenceSystem(
@@ -196,6 +198,29 @@ class Model(@Transient val system: System = root()) : FileBacked {
         selectedSvgComponents.forEach {
             it.inferInterfaces(this)
             assert(it in svgComponents)
+        }
+    }
+
+    fun addSvg(backingFile: File, position: Coordinate): SvgComponent {
+        val svg = fromFile(backingFile)
+        val svgSystem = system.createSystem(origin = position.xyIn(system))
+        val svgComponent = SvgComponent(svg, svgSystem)
+        svgComponent.svg.relativizeBackingFileTo(workingDir)
+        svgComponents.add(svgComponent)
+        inferSvgInterfaces(listOf(svgComponent))
+        return svgComponent
+    }
+
+    fun addSketch(backingFile: File, position: Coordinate): SketchComponent? {
+        var submodel = loadFromFile(backingFile)
+        return submodel?.ifPresent {
+            submodel.relativizeBackingFileTo(workingDir)
+            val sketch = SketchComponent(
+                it,
+                system.createSystem(origin = position.xyIn(system))
+            )
+            sketchComponents.add(sketch)
+            sketch
         }
     }
 }
