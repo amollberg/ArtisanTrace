@@ -7,6 +7,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
+import org.openrndr.color.ColorRGBa
 import org.openrndr.shape.CompositionDrawer
 import org.openrndr.svg.writeSVG
 import java.io.File
@@ -21,6 +22,9 @@ class Model(@Transient val system: System = root()) : FileBacked {
     var traces: MutableList<Trace> = mutableListOf()
     var sketchComponents: MutableList<SketchComponent> = mutableListOf()
     var svgComponents: MutableList<SvgComponent> = mutableListOf()
+
+    @Serializable(with = ColorRGBaSerializer::class)
+    var color = ColorRGBa.PINK
 
     @Transient
     override var backingFile = File("default.ats")
@@ -161,12 +165,14 @@ class Model(@Transient val system: System = root()) : FileBacked {
         drawer: OrientedDrawer,
         interfacesToIgnore: Set<Interface>
     ) {
-        svgComponents.forEach { it.draw(drawer) }
-        sketchComponents.forEach {
-            it.draw(drawer, interfacesToIgnore)
+        isolatedStyle(drawer.drawer, stroke = color) {
+            svgComponents.forEach { it.draw(drawer) }
+            sketchComponents.forEach {
+                it.draw(drawer, interfacesToIgnore)
+            }
+            traces.forEach { it.draw(drawer) }
+            (interfaces - interfacesToIgnore).forEach { it.draw(drawer) }
         }
-        traces.forEach { it.draw(drawer) }
-        (interfaces - interfacesToIgnore).forEach { it.draw(drawer) }
     }
 
     /** Return all interfaces that are connected to a trace */
