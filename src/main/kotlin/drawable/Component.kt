@@ -7,4 +7,6 @@ interface Component {
     fun bounds(inSystem: System): ShapeContour
 
     fun origin(inSystem: System) = inSystem.get(system.coord(Vector2.ZERO))
+
+    fun clone(parentModel: Model): Component
 }

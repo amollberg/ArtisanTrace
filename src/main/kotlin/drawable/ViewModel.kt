@@ -73,6 +73,9 @@ class ViewModel(internal var model: Model) {
             "a" -> {
                 changeTool(InterfaceEraseTool(this))
             }
+            else -> {
+                activeTool.keyUp(key)
+            }
         }
     }
 
@@ -124,14 +127,7 @@ class ViewModel(internal var model: Model) {
 
     private fun handleDroppedSvgFile(droppedFile: File, position: Coordinate) {
         // Add the svg from the file as a subcomponent
-        val svg = maybeMuteExceptions { Svg.fromFile(droppedFile) }
-        svg?.ifPresent {
-            val svgSystem = root.createSystem(origin = position.xyIn(root))
-            val svgComponent = SvgComponent(it, svgSystem)
-            svgComponent.svg.relativizeBackingFileTo(model.workingDir)
-            model.svgComponents.add(svgComponent)
-            model.inferSvgInterfaces(listOf(svgComponent))
-        }
+        maybeMuteExceptions { model.addSvg(droppedFile, position) }
     }
 
     private fun handleDroppedSketchFile(
@@ -140,18 +136,7 @@ class ViewModel(internal var model: Model) {
     ) {
         if (modifierKeysHeld.getOrDefault(KEY_LEFT_SHIFT, false)) {
             // Add the model from the file as a subcomponent
-            var submodel =
-                maybeMuteExceptions { Model.loadFromFile(droppedFile) }
-
-            submodel?.ifPresent {
-                submodel.relativizeBackingFileTo(model.workingDir)
-                model.sketchComponents.add(
-                    SketchComponent(
-                        it,
-                        root.createSystem(origin = position.xyIn(root))
-                    )
-                )
-            }
+            maybeMuteExceptions { model.addSketch(droppedFile, position) }
         } else {
             // Replace the top level model
             val fileOpened = droppedFile.absoluteFile
