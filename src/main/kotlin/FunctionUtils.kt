@@ -1,1 +1,1 @@
-inline fun <T : Any> T.ifPresent(func: (t: T) -> Unit): Unit = func(this)
+inline fun <T : Any, R : Any> T.ifPresent(func: (t: T) -> R): R = func(this)
