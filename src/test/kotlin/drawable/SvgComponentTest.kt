@@ -5,10 +5,12 @@ import TestUtils.Companion.createViewModel
 import TestUtils.Companion.dropFiles
 import TestUtils.Companion.sendKey
 import coordinates.System.Companion.root
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
 import org.openrndr.math.Vector2
 import java.io.File
+import kotlin.math.PI
 
 class SvgComponentTest {
     companion object {
@@ -81,6 +83,18 @@ class SvgComponentTest {
             interfaceEnds,
             delta = 1e-5
         )
+    }
+
+    @Test
+    fun componentClonesTransformation() {
+        val model = createModel()
+        val original = model.svgComponents[0]
+        // Rotate and scale it
+        original.system.axes *= Matrix22.rotation(45 * PI / 180)
+        original.system.axes *= 1.4
+
+        val clone = original.clone(model)
+        assertEquals(clone.system, original.system)
     }
 
     private fun createModel(): Model {

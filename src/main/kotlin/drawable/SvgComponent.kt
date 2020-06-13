@@ -60,9 +60,14 @@ class SvgComponent(
         svg.hideInterfaceShapes()
     }
 
-    override fun clone(parentModel: Model): Component =
+    override fun clone(parentModel: Model): Component {
         // Import a new instance of the SVG, placed on the same position
-        parentModel.addSvg(svg.backingFile, system.originCoord)
+        val cloneComponent =
+            parentModel.addSvg(svg.backingFile, system.originCoord)
+        // Make sure it has the same rotation and scaling as the original
+        cloneComponent.system.setAbsoluteFrom(system)
+        return cloneComponent
+    }
 }
 
 class Transformable<T>(

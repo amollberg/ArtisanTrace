@@ -68,6 +68,13 @@ data class System(
             axes.c0r1, axes.c1r1, origin.y,
             0.0, 0.0, 1.0
         )
+
+    /** Sets the system to appear as the other system */
+    fun setAbsoluteFrom(other: System) {
+        val tf = transformFromTo(other, reference!!)
+        origin = Vector2(tf.c2r0, tf.c2r1)
+        axes = Matrix22(tf)
+    }
 }
 
 fun inversed(m: Matrix33): Matrix33 {

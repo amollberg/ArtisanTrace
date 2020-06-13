@@ -1,10 +1,12 @@
 package coordinates
 
 import Matrix22
+import Matrix22.Companion.rotation
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Matrix33
 import org.openrndr.math.Vector2
+import kotlin.math.PI
 
 class CoordinatesTest {
     val root = System.root()
@@ -52,6 +54,18 @@ class CoordinatesTest {
             47.0, 11.0, -17.0
         )
         assertEquals(Matrix33.IDENTITY, m * inversed(m), delta = 1e-14)
+    }
+
+    @Test
+    fun setAbsolute() {
+        val root = System.root()
+        val a = root.createSystem(Vector2(-2.3, 4.5))
+        val b = root.createSystem(Vector2(3.14, 47.11))
+        b.axes *= 1.4
+        b.axes *= rotation(30 * PI / 180)
+
+        a.setAbsoluteFrom(b)
+        assertEquals(a.absoluteTransform(), b.absoluteTransform())
     }
 
     private fun assertEquals(a: Matrix33, b: Matrix33, delta: Double) {

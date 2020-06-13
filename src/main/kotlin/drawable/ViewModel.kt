@@ -158,10 +158,13 @@ class ViewModel(internal var model: Model) {
             try {
                 code()
             } catch (e: JsonException) {
+                println(e)
                 null
             } catch (e: SerializationException) {
+                println(e)
                 null
             } catch (e: FileNotFoundException) {
+                println(e)
                 null
             }
         } else {
