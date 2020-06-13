@@ -57,6 +57,7 @@ class SvgComponent(
                 model.interfaces.add(itf)
             }
         }
+        svg.hideInterfaceShapes()
     }
 
     override fun clone(parentModel: Model): Component =

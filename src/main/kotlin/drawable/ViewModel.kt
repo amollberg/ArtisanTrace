@@ -11,6 +11,7 @@ import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import org.openrndr.shape.CompositionDrawer
+import tool.ColorPickTool
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -72,6 +73,9 @@ class ViewModel(internal var model: Model) {
             }
             "a" -> {
                 changeTool(InterfaceEraseTool(this))
+            }
+            "g" -> {
+                changeTool(ColorPickTool(this))
             }
             else -> {
                 activeTool.keyUp(key)
