@@ -1,3 +1,4 @@
+import TestUtils.Companion.sendKey
 import coordinates.Coordinate
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -16,6 +17,14 @@ open class WithImplicitView {
     protected fun clickMouse(position: Coordinate) {
         view.mousePoint = position.relativeTo(view.root)
         view.activeTool.mouseClicked(view.mousePoint)
+    }
+
+    fun dropFiles(dropEvent: DropEvent, modifiers: Set<Int> = setOf()) {
+        TestUtils.dropFiles(view, dropEvent, modifiers)
+    }
+
+    fun sendKey(name: String, modifiers: Set<KeyModifier> = setOf()) {
+        sendKey(view, name, modifiers)
     }
 }
 
@@ -116,6 +125,15 @@ class TestUtils {
             modifiers.forEach {
                 view.modifierKeysHeld[it] = false
             }
+        }
+
+        fun sendKey(
+            view: ViewModel,
+            name: String,
+            modifiers: Set<KeyModifier> = setOf()
+        ) {
+            view.keyDown(KeyEvent(KeyEventType.KEY_DOWN, 0, name, modifiers))
+            view.keyUp(KeyEvent(KeyEventType.KEY_UP, 0, name, modifiers))
         }
 
         private fun toList(model: Model) =
