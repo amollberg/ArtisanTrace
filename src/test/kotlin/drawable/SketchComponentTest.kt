@@ -1,7 +1,3 @@
-package drawable
-
-import Matrix22
-import Model
 import SvgComponentTest.Companion.DROP_ORIGIN
 import TestUtils.Companion.createViewModel
 import TestUtils.Companion.dropFiles

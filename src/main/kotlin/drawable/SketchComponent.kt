@@ -46,9 +46,14 @@ class SketchComponent(
         }
     }
 
-    override fun clone(parentModel: Model): Component =
+    override fun clone(parentModel: Model): Component {
         // Import a new instance of the model, placed on the same position
-        parentModel.addSketch(model.backingFile, model.system.originCoord)!!
+        val cloneComponent =
+            parentModel.addSketch(model.backingFile, system.originCoord)!!
+        // Make sure it has the same rotation and scaling as the original
+        cloneComponent.system.setAbsoluteFrom(system)
+        return cloneComponent
+    }
 }
 
 object SketchReferenceSerializer :
