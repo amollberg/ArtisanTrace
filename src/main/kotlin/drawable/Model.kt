@@ -35,7 +35,9 @@ class Model(@Transient val system: System = root()) : FileBacked {
         }
 
         internal fun deserialize(string: String, backingFile: File): Model? {
-            val model = json.parse(serializer(), string)
+            val model =
+                if (string.length > 0) json.parse(serializer(), string)
+                else Model()
             model.backingFile = backingFile
             return postProcessDeserialized(model)
         }

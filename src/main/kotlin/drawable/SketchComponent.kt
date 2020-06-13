@@ -3,6 +3,7 @@ import coordinates.System.Companion.root
 import kotlinx.serialization.*
 import org.openrndr.shape.LineSegment
 import org.openrndr.shape.ShapeContour
+import org.openrndr.shape.ShapeContour.Companion.EMPTY
 import java.io.File
 
 @Serializable
@@ -39,7 +40,8 @@ class SketchComponent(
                 line.contour
             }
         }
-        return contours.reduce { acc, shapeContour ->
+
+        return contours.fold(EMPTY) { acc, shapeContour ->
             acc.plus(shapeContour).bounds.shape.outline
         }
     }
