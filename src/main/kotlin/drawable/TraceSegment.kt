@@ -32,7 +32,7 @@ data class TraceSegment(
             else Pair(firstStartPosition(), firstEndPosition())
 
         var vec = endPosition - startPosition
-        val (x, y) = vec.xy()
+        val (x, y) = vec.xyIn(system)
         val kneepoints = listOf(
             Vector2(x - y, 0.0),
             Vector2(x, 0.0),
@@ -54,7 +54,7 @@ data class TraceSegment(
         fun angleOf(point: Vector2): Int {
             val origin = Vector2.ZERO
             val a1 = arg(origin - point)
-            val a2 = arg(vec.xy() - point)
+            val a2 = arg(vec.xyIn(system) - point)
             return abs((a1 - a2).toInt() % 360)
         }
 
@@ -67,7 +67,7 @@ data class TraceSegment(
             }
         }.getOrElse(0, { Vector2.ZERO })
 
-        return startPosition + Length(relativeKnee, vec.system)
+        return startPosition + Length(relativeKnee, system)
     }
 
     fun getKnees() = splitIntoSingleLeads().map { it.getKnee() }
