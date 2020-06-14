@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import org.openrndr.math.Vector2
-import org.openrndr.shape.contours
+import org.openrndr.shape.LineSegment
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -73,26 +73,21 @@ data class TraceSegment(
 
     fun getKnees() = splitIntoSingleLeads().map { it.getKnee() }
 
+    fun lineSegments(system: System) = splitIntoSingleLeads().flatMap {
+        listOf(
+            LineSegment(
+                it.firstStartPosition().xyIn(system),
+                it.getKnee().xyIn(system)
+            ),
+            LineSegment(
+                it.getKnee().xyIn(system),
+                it.firstEndPosition().xyIn(system)
+            )
+        )
+    }
+
     fun draw(drawer: OrientedDrawer) {
-        if (start.count() > 1) {
-            // Divide segment into one per lead
-            splitIntoSingleLeads().forEach { it.draw(drawer) }
-        } else {
-            val cs = contours {
-                moveTo(firstStartPosition().xy(drawer))
-                lineTo(getKnee().xy(drawer))
-                lineTo(firstEndPosition().xy(drawer))
-            }
-            if (cs.isNotEmpty()) {
-                // Workaround for fill color showing up in the convex hull
-                isolatedStyle(
-                    drawer.drawer,
-                    fill = ViewModel.DEFAULT_STYLE.background
-                ) {
-                    it.contour(cs.first())
-                }
-            }
-        }
+        drawer.drawer.lineSegments(lineSegments(drawer.system))
     }
 
     fun firstStartPosition() =
