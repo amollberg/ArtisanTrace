@@ -91,6 +91,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
                     it.center = svgComponent.system.coord(it.center.xy())
                 }
             }
+            reconstructGroups(model)
             return model
         }
 
@@ -133,6 +134,25 @@ class Model(@Transient val system: System = root()) : FileBacked {
             component.system.reference?.let { assertIsRootSystem(it) }
             component.system.reference = model.system
         }
+
+        private fun reconstructGroups(model: Model) {
+            val maxGroupId = model.groupMembers.map {
+                it.groupId
+            }.max() ?: -1
+            if (maxGroupId > -1) {
+                model.groups = (0..maxGroupId).map { groupId ->
+                    fun <T : GroupMember> correctMembers(groupMembers: List<T>) =
+                        groupMembers.filter { it.groupId == groupId }
+                            .toMutableSet()
+                    Group(
+                        correctMembers(model.interfaces),
+                        correctMembers(model.traces),
+                        correctMembers(model.sketchComponents),
+                        correctMembers(model.svgComponents)
+                    )
+                }.toMutableList()
+            }
+        }
     }
 
     val components: List<Component> get() = sketchComponents + svgComponents
@@ -168,6 +188,9 @@ class Model(@Transient val system: System = root()) : FileBacked {
 
     internal fun serialize(): String {
         getInterfacesRecursively().forEachIndexed { i, itf -> itf.id = i }
+        groups.forEachIndexed { groupId, group ->
+            group.members.forEach { it.groupId = groupId }
+        }
         return json.stringify(serializer(), this)
     }
 
