@@ -151,7 +151,8 @@ class TestUtils {
                 model.interfaces,
                 model.traces,
                 model.sketchComponents.map { toList(it) },
-                model.svgComponents.map { toList(it) }
+                model.svgComponents.map { toList(it) },
+                model.groups.map { toList(it) }
             )
 
         private fun toList(sketchComponent: SketchComponent) =
@@ -166,6 +167,15 @@ class TestUtils {
                 svgComponent.groupId,
                 svgComponent.system,
                 svgComponent.svg.backingFile
+            )
+
+        private fun toList(group: Group) =
+            listOf(
+                group.id,
+                group.traces,
+                group.interfaces,
+                group.sketchComponents.map { toList(it) },
+                group.svgComponents.map { toList(it) }
             )
     }
 }

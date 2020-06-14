@@ -22,6 +22,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
     var traces: MutableList<Trace> = mutableListOf()
     var sketchComponents: MutableList<SketchComponent> = mutableListOf()
     var svgComponents: MutableList<SvgComponent> = mutableListOf()
+    var groups: MutableList<Group> = mutableListOf()
 
     @Serializable(with = ColorRGBaSerializer::class)
     var color = ColorRGBa.PINK
@@ -175,6 +176,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
         interfacesToIgnore: Set<Interface>
     ) {
         isolatedStyle(drawer.drawer, stroke = color) {
+            //groups.forEach { it.draw(drawer) }
             svgComponents.forEach { it.draw(drawer) }
             sketchComponents.forEach {
                 it.draw(drawer, interfacesToIgnore)
