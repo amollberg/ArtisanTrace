@@ -11,7 +11,7 @@ import kotlin.math.PI
 import kotlin.math.atan2
 
 @Serializable
-class SvgComponent(
+data class SvgComponent(
     @Serializable(with = SvgReferenceSerializer::class)
     var svg: Svg,
     override var system: System,

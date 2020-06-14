@@ -7,7 +7,7 @@ import org.openrndr.shape.ShapeContour.Companion.EMPTY
 import java.io.File
 
 @Serializable
-class SketchComponent(
+data class SketchComponent(
     @Serializable(with = SketchReferenceSerializer::class)
     var model: Model,
     override var system: System
