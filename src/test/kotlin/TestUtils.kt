@@ -156,12 +156,14 @@ class TestUtils {
 
         private fun toList(sketchComponent: SketchComponent) =
             listOf(
+                sketchComponent.groupId,
                 sketchComponent.system,
                 sketchComponent.model.backingFile
             )
 
         private fun toList(svgComponent: SvgComponent) =
             listOf(
+                svgComponent.groupId,
                 svgComponent.system,
                 svgComponent.svg.backingFile
             )

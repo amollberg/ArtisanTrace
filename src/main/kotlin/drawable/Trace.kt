@@ -6,8 +6,10 @@ import kotlin.math.tan
 @Serializable
 data class Trace(
     var system: System,
-    private var traceSegments: MutableList<TraceSegment> = mutableListOf()
-) {
+    private var traceSegments: MutableList<TraceSegment> = mutableListOf(),
+    override var groupId: Int = -1,
+    override var groupOrdinal: Int = -1
+) : GroupMember {
     init {
         setSystem()
     }
@@ -33,7 +35,7 @@ data class Trace(
         setSystem()
     }
 
-    fun draw(drawer: OrientedDrawer) {
+    override fun draw(drawer: OrientedDrawer) {
         traceSegments.forEach { it.draw(drawer) }
     }
 

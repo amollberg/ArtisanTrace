@@ -10,12 +10,16 @@ import java.io.File
 data class SketchComponent(
     @Serializable(with = SketchReferenceSerializer::class)
     var model: Model,
-    override var system: System
+    override var system: System,
+    override var groupId: Int = -1,
+    override var groupOrdinal: Int = -1
 ) : Component, InterfaceComponent {
 
     init {
         model.setReference(system)
     }
+
+    override fun draw(drawer: OrientedDrawer) = model.draw(drawer, setOf())
 
     fun draw(drawer: OrientedDrawer, interfacesToIgnore: Set<Interface>) =
         model.draw(drawer, interfacesToIgnore)

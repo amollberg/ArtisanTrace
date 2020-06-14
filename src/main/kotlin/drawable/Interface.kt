@@ -15,11 +15,13 @@ data class Interface(
     var length: Double,
     var terminalCount: Int,
     // Only used for serialization
-    internal var id: Int = -1
-) {
+    internal var id: Int = -1,
+    override var groupId: Int = -1,
+    override var groupOrdinal: Int = -1
+) : GroupMember {
     private val system get() = center.system
 
-    fun draw(drawer: OrientedDrawer) {
+    override fun draw(drawer: OrientedDrawer) {
         val (end1, end2) = getEnds().map { it.relativeTo(drawer.system) }
         val line = LineSegment(end1.xy(), end2.xy())
         drawer.drawer.lineSegment(line)

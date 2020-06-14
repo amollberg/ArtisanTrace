@@ -15,10 +15,12 @@ data class SvgComponent(
     @Serializable(with = SvgReferenceSerializer::class)
     var svg: Svg,
     override var system: System,
-    override var interfaces: MutableList<Interface> = mutableListOf()
+    override var interfaces: MutableList<Interface> = mutableListOf(),
+    override var groupId: Int = -1,
+    override var groupOrdinal: Int = -1
 ) : Component, InterfaceComponent {
 
-    fun draw(drawer: OrientedDrawer) {
+    override fun draw(drawer: OrientedDrawer) {
         drawer.drawer.root.children.add(transformed(drawer.system).root)
     }
 

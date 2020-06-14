@@ -136,6 +136,15 @@ class Model(@Transient val system: System = root()) : FileBacked {
 
     val components: List<Component> get() = sketchComponents + svgComponents
 
+    // Note: The initial empty list is needed to help the compiler to infer
+    // the correct type of the list for the plus operations
+    val groupMembers: List<GroupMember>
+        get() = listOf<GroupMember>() +
+                sketchComponents +
+                svgComponents +
+                interfaces +
+                traces
+
     val workingDir: Path
         get() = (backingFile.toPath().toAbsolutePath().parent.toFile()
             ?: Paths.get("").toFile().absoluteFile).toPath()
