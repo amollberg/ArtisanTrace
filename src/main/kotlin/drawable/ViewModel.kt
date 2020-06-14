@@ -80,6 +80,9 @@ class ViewModel(internal var model: Model) {
             "u" -> {
                 changeTool(ComponentEraseTool(this))
             }
+            "j" -> {
+                changeTool(TraceSegmentEraseTool(this))
+            }
             else -> {
                 activeTool.keyUp(key)
             }
