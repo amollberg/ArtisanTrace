@@ -15,8 +15,8 @@ class SvgComponent(
     @Serializable(with = SvgReferenceSerializer::class)
     var svg: Svg,
     override var system: System,
-    var interfaces: MutableList<Interface> = mutableListOf()
-) : Component {
+    override var interfaces: MutableList<Interface> = mutableListOf()
+) : Component, InterfaceComponent {
 
     fun draw(drawer: OrientedDrawer) {
         drawer.drawer.root.children.add(transformed(drawer.system).root)

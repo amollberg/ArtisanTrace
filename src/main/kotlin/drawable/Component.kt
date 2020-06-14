@@ -10,3 +10,7 @@ interface Component {
 
     fun clone(parentModel: Model): Component
 }
+
+interface InterfaceComponent {
+    val interfaces: List<Interface>
+}

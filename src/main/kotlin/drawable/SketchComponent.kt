@@ -11,7 +11,7 @@ class SketchComponent(
     @Serializable(with = SketchReferenceSerializer::class)
     var model: Model,
     override var system: System
-) : Component {
+) : Component, InterfaceComponent {
 
     init {
         model.setReference(system)
@@ -54,6 +54,9 @@ class SketchComponent(
         cloneComponent.system.setAbsoluteFrom(system)
         return cloneComponent
     }
+
+    override val interfaces: List<Interface>
+        get() = model.getInterfacesRecursively()
 }
 
 object SketchReferenceSerializer :
