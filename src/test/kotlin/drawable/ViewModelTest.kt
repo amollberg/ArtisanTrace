@@ -125,6 +125,9 @@ class ViewModelTest {
         // Reverse the knee
         scrollMouse(original, 1, setOf(KeyModifier.CTRL))
         clickMouse(original, at(original, COMP2_ORIGIN))
+        // Assign a component to a group
+        original.changeTool(GroupAssignTool(original))
+        clickMouse(original, at(original, COMP2_ORIGIN))
 
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
