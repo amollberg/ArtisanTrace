@@ -77,6 +77,9 @@ class ViewModel(internal var model: Model) {
             "g" -> {
                 changeTool(ColorPickTool(this))
             }
+            "u" -> {
+                changeTool(ComponentEraseTool(this))
+            }
             else -> {
                 activeTool.keyUp(key)
             }
