@@ -238,15 +238,26 @@ class Model(@Transient val system: System = root()) : FileBacked {
     fun eraseSegmentsTo(itf: Interface) {
         // Note: Copying to avoid concurrent modification problems
         copy(traces).forEach { trace ->
-            var newTraces = mutableListOf(Trace(trace.system))
             trace.segments.forEach { segment ->
                 if (segment.start.hostInterface == itf
                     || segment.end.hostInterface == itf
                 ) {
-                    // Start on a new trace
+                    eraseSegment(segment)
+                }
+            }
+        }
+    }
+
+    fun eraseSegment(segmentToErase: TraceSegment) {
+        // Note: Copying to avoid concurrent modification problems
+        copy(traces).forEach { trace ->
+            var newTraces = mutableListOf(Trace(trace.system))
+            trace.segments.forEach { segment ->
+                if (segment == segmentToErase) {
+                    // Do not add it. Start on a new trace
                     newTraces.add(Trace(trace.system))
                 } else {
-                    // Add the current terminals to the current trace
+                    // Add the current segment to the current trace
                     newTraces.last().segments.add(segment)
                 }
             }
