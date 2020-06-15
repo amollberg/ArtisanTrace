@@ -1,4 +1,5 @@
 import coordinates.Coordinate
+import org.openrndr.color.ColorRGBa
 
 class GroupAssignTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val groupMemberSelector = MouseHoverGroupMemberSelector(viewModel)
@@ -30,5 +31,18 @@ class GroupAssignTool(viewModel: ViewModel) : BaseTool(viewModel) {
 
     override fun draw(drawer: OrientedDrawer) {
         groupMemberSelector.draw(drawer)
+        val darkBlue = ColorRGBa.fromHex(0x0000CC)
+        val relevantGroup = selectedGroup
+            ?: groupMemberSelector.getGroupMember()
+                ?.group(viewModel.model.groups)
+
+        isolatedStyle(
+            drawer.drawer,
+            stroke = darkBlue
+        ) {
+            relevantGroup?.ifPresent {
+                it.draw(drawer)
+            }
+        }
     }
 }

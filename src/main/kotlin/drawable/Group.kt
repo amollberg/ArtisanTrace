@@ -33,4 +33,11 @@ data class Group(
                 svgComponents.remove(groupMember as SvgComponent)
         }
     }
+
+    fun draw(drawer: OrientedDrawer) {
+        interfaces.forEach { it.draw(drawer) }
+        traces.forEach { it.draw(drawer) }
+        sketchComponents.forEach { it.draw(drawer) }
+        svgComponents.forEach { it.draw(drawer) }
+    }
 }
