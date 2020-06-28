@@ -6,8 +6,10 @@ class MouseHoverGroupMemberSelector(private val viewModel: ViewModel) {
 
     fun getGroupMember(): GroupMember? =
         viewModel.model.groupMembers.minBy {
-            (it.origin.xyIn(viewModel.mousePoint.system) -
-                    viewModel.mousePoint.xy()).length
+            distanceTo(
+                it.bounds.contour(viewModel.mousePoint.system),
+                viewModel.mousePoint.xy()
+            )
         }
 
     fun draw(drawer: OrientedDrawer) {

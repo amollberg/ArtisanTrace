@@ -1,19 +1,23 @@
 import Poly.Companion.rect
+import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
 
 class PolyTest {
+    companion object {
+        val system = root()
+    }
 
     @Test
     fun testPointsAfter() {
-        val poly = rect(20, 30, 0)
+        val poly = rect(system, 20, 30)
         val points = listOf(
             Vector2(0.0, 0.0),
             Vector2(20.0, 0.0),
             Vector2(20.0, 30.0),
             Vector2(0.0, 30.0)
-        )
+        ).map { system.coord(it) }
         assertEquals(points, poly.points)
 
         assertEquals(
@@ -25,7 +29,7 @@ class PolyTest {
     @Test
     fun testConcaveAreas() {
         val poly = Poly(
-            Vector2.ZERO, listOf(
+            listOf(
                 Vector2(0.0, 0.0),
                 Vector2(100.0, 0.0),
                 // Inward spike
@@ -35,7 +39,7 @@ class PolyTest {
 
                 Vector2(100.0, 100.0),
                 Vector2(0.0, 100.0)
-            )
+            ).map { system.coord(it) }
         )
         val concaveAreas = poly.concaveAreas.map {
             it.contours.map {

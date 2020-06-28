@@ -1,4 +1,3 @@
-import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.transformFromTo
 import kotlinx.serialization.*
@@ -25,10 +24,9 @@ data class SvgComponent(
         drawer.drawer.root.children.add(transformed(drawer.system).root)
     }
 
-    override val origin: Coordinate get() = system.originCoord
-
-    override fun bounds(inSystem: System) =
-        transformed(inSystem).root.bounds.contour
+    override val bounds
+        get() =
+            Poly.from(transformed(system).root.bounds.contour, system)
 
     private fun transformed(toSystem: System) =
         Transformable(

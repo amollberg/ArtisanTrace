@@ -2,9 +2,6 @@ import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.root
 import kotlinx.serialization.*
-import org.openrndr.shape.LineSegment
-import org.openrndr.shape.ShapeContour
-import org.openrndr.shape.ShapeContour.Companion.EMPTY
 import java.io.File
 
 @Serializable
@@ -20,38 +17,26 @@ data class SketchComponent(
         model.setReference(system)
     }
 
-    override val origin: Coordinate get() = system.originCoord
-
     override fun draw(drawer: OrientedDrawer) = model.draw(drawer, setOf())
 
     fun draw(drawer: OrientedDrawer, interfacesToIgnore: Set<Interface>) =
         model.draw(drawer, interfacesToIgnore)
 
-    override fun bounds(inSystem: System): ShapeContour {
-        val contours = model.svgComponents.map {
-            it.bounds(inSystem)
-        } + model.sketchComponents.map {
-            it.bounds(inSystem)
-        } + model.interfaces.map {
-            val (end1, end2) = it.getEnds().map { it.xyIn(inSystem) }
-            val line = LineSegment(end1, end2)
-            line.contour
-        } + model.traces.flatMap {
-            it.segments.map {
-                val knees = it.getKnees()
-                val line =
-                    LineSegment(
-                        knees.first().xyIn(inSystem),
-                        knees.last().xyIn(inSystem)
-                    )
-                line.contour
-            }
-        }
+    override val bounds: Poly
+        get() {
+            val points: List<Coordinate> = (
+                    model.svgComponents.map {
+                        it.bounds
+                    } + model.sketchComponents.map {
+                        it.bounds
+                    } + model.interfaces.map {
+                        it.bounds
+                    } + model.traces.map {
+                        it.bounds
+                    }).flatMap { it.points }
 
-        return contours.fold(EMPTY) { acc, shapeContour ->
-            acc.plus(shapeContour).bounds.shape.outline
+            return convexHull(points)
         }
-    }
 
     override fun clone(parentModel: Model): Component {
         // Import a new instance of the model, placed on the same position

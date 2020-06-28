@@ -1,49 +1,32 @@
-import org.openrndr.draw.Drawer
-import org.openrndr.extra.noise.random
+import coordinates.Coordinate
+import coordinates.System
 import org.openrndr.math.Vector2
 import org.openrndr.shape.ShapeContour
 import org.openrndr.shape.compound
 import org.openrndr.shape.contour
-import kotlin.math.PI
 
 data class Poly(
-    var origin: Vector2,
-    private var relativePoints: List<Vector2>
+    var points: List<Coordinate>
 ) {
-    val contour: ShapeContour
-        get() = contour {
-            points.forEach { moveOrLineTo(it) }
-            close()
-        }
+    val system: System? get() = points.firstOrNull()?.system
 
-    var points
-        get() = relativePoints.map { origin + it }
-        set(value) {
-            relativePoints = value.map { it - origin }
-        }
+    fun contour(system: System): ShapeContour = contour {
+        points.forEach { moveOrLineTo(it.xyIn(system)) }
+        close()
+    }
 
     val segmentPointers: List<SegmentPointer>
         get() = points.indices.map { i ->
             SegmentPointer(this, i)
         }
 
-    fun draw(drawer: Drawer) {
-        drawer.contour(contour)
+    fun draw(drawer: OrientedDrawer) {
+        drawer.drawer.contour(contour(drawer.system))
     }
-
-    fun movedTo(newOrigin: Vector2): Poly {
-        origin = newOrigin
-        return this
-    }
-
-    fun rotated(radiansCcw: Double): Poly =
-        Poly(origin, relativePoints.map {
-            Matrix22.rotation(radiansCcw).times(it)
-        })
 
     // Other points in the poly, same order, starting with the point after
     // the indicated one
-    fun pointsAfter(point: Vector2): List<Vector2> {
+    fun pointsAfter(point: Coordinate): List<Coordinate> {
         var pointRing = points
         if (!pointRing.contains(point))
             throw IllegalArgumentException("$point not in $pointRing")
@@ -53,52 +36,34 @@ data class Poly(
         return pointRing.drop(1)
     }
 
+    fun contains(point: Coordinate) =
+        contour(point.system).contains(point.xy())
+
     val convexHull get() = convexHull(this)
 
     val concaveAreas
         get() = compound {
             difference {
-                shape(convexHull.contour)
-                shape(contour)
+                system?.ifPresent {
+                    shape(convexHull.contour(it))
+                    shape(contour(it))
+                }
             }
         }
 
     companion object {
-        fun rect(width: Int, height: Int, rotation: Int) = Poly(
-            Vector2.ZERO,
+        fun rect(system: System, width: Int, height: Int) = Poly(
             listOf(
                 Vector2(0.0, 0.0),
                 Vector2(width.toDouble(), 0.0),
                 Vector2(width.toDouble(), height.toDouble()),
                 Vector2(0.0, height.toDouble())
-            ).map { Matrix22.rotation(rotation * 45 * PI / 180).times(it) })
+            ).map { system.coord(it) })
 
-        fun randomRect() =
-            rect(
-                width = random(10.0, 100.0).toInt(),
-                height = random(10.0, 100.0).toInt(),
-                rotation = random(0.0, 8.0).toInt()
-            )
-
-        fun rightTriangle(firstCathenus: Int, secondCathenus: Int) = Poly(
-            Vector2.ZERO,
-            listOf(
-                Vector2(0.0, 0.0),
-                Vector2(firstCathenus.toDouble(), 0.0),
-                Vector2(0.0, secondCathenus.toDouble())
-            )
-        )
-
-        fun randomRightTriangle() =
-            rightTriangle(
-                firstCathenus = random(10.0, 100.0).toInt(),
-                secondCathenus = random(10.0, 100.0).toInt()
-            )
-
-        fun randomShape() =
-            when (random(0.0, 1.999).toInt()) {
-                0 -> randomRect()
-                else -> randomRightTriangle()
-            }
+        fun from(shapeContour: ShapeContour, system: System) =
+            Poly(shapeContour
+                .sampleLinear(0.5).segments.map {
+                    system.coord(it.start)
+                })
     }
 }
