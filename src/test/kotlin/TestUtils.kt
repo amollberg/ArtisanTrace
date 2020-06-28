@@ -147,6 +147,35 @@ class TestUtils {
         }
 
         private fun toList(model: Model) =
-            listOf(model.interfaces, model.traces)
+            listOf(
+                model.interfaces,
+                model.traces,
+                model.sketchComponents.map { toList(it) },
+                model.svgComponents.map { toList(it) },
+                model.groups.map { toList(it) }
+            )
+
+        private fun toList(sketchComponent: SketchComponent) =
+            listOf(
+                sketchComponent.groupId,
+                sketchComponent.system,
+                sketchComponent.model.backingFile
+            )
+
+        private fun toList(svgComponent: SvgComponent) =
+            listOf(
+                svgComponent.groupId,
+                svgComponent.system,
+                svgComponent.svg.backingFile
+            )
+
+        private fun toList(group: Group) =
+            listOf(
+                group.id,
+                group.traces,
+                group.interfaces,
+                group.sketchComponents.map { toList(it) },
+                group.svgComponents.map { toList(it) }
+            )
     }
 }

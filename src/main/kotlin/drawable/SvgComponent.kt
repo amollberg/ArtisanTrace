@@ -1,3 +1,4 @@
+import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.transformFromTo
 import kotlinx.serialization.*
@@ -11,16 +12,20 @@ import kotlin.math.PI
 import kotlin.math.atan2
 
 @Serializable
-class SvgComponent(
+data class SvgComponent(
     @Serializable(with = SvgReferenceSerializer::class)
     var svg: Svg,
     override var system: System,
-    override var interfaces: MutableList<Interface> = mutableListOf()
-) : Component, InterfaceComponent {
+    override var interfaces: MutableList<Interface> = mutableListOf(),
+    override var groupId: Int = -1,
+    override var groupOrdinal: Int = -1
+) : Component, InterfaceComponent, GroupMember() {
 
-    fun draw(drawer: OrientedDrawer) {
+    override fun draw(drawer: OrientedDrawer) {
         drawer.drawer.root.children.add(transformed(drawer.system).root)
     }
+
+    override val origin: Coordinate get() = system.originCoord
 
     override fun bounds(inSystem: System) =
         transformed(inSystem).root.bounds.contour

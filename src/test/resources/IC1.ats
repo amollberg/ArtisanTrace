@@ -23,7 +23,9 @@
             "angle": -90.0,
             "length": 40.0,
             "terminalCount": 6,
-            "id": 0
+            "id": 0,
+            "groupId": -1,
+            "groupOrdinal": -1
         },
         {
             "center": {
@@ -48,7 +50,9 @@
             "angle": -90.0,
             "length": 40.0,
             "terminalCount": 6,
-            "id": 1
+            "id": 1,
+            "groupId": -1,
+            "groupOrdinal": -1
         }
     ],
     "traces": [
@@ -84,8 +88,12 @@
                 }
             },
             "interfaces": [
-            ]
+            ],
+            "groupId": -1,
+            "groupOrdinal": -1
         }
+    ],
+    "groups": [
     ],
     "color": [
         1.0,

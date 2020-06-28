@@ -83,6 +83,9 @@ class ViewModel(internal var model: Model) {
             "j" -> {
                 changeTool(TraceSegmentEraseTool(this))
             }
+            "k" -> {
+                changeTool(GroupAssignTool(this))
+            }
             else -> {
                 activeTool.keyUp(key)
             }

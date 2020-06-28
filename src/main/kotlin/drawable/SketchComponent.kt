@@ -1,3 +1,4 @@
+import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.root
 import kotlinx.serialization.*
@@ -7,15 +8,21 @@ import org.openrndr.shape.ShapeContour.Companion.EMPTY
 import java.io.File
 
 @Serializable
-class SketchComponent(
+data class SketchComponent(
     @Serializable(with = SketchReferenceSerializer::class)
     var model: Model,
-    override var system: System
-) : Component, InterfaceComponent {
+    override var system: System,
+    override var groupId: Int = -1,
+    override var groupOrdinal: Int = -1
+) : Component, InterfaceComponent, GroupMember() {
 
     init {
         model.setReference(system)
     }
+
+    override val origin: Coordinate get() = system.originCoord
+
+    override fun draw(drawer: OrientedDrawer) = model.draw(drawer, setOf())
 
     fun draw(drawer: OrientedDrawer, interfacesToIgnore: Set<Interface>) =
         model.draw(drawer, interfacesToIgnore)

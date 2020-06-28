@@ -1,3 +1,4 @@
+import coordinates.Coordinate
 import coordinates.System
 import kotlinx.serialization.Serializable
 import org.openrndr.math.Vector2
@@ -6,13 +7,19 @@ import kotlin.math.tan
 @Serializable
 data class Trace(
     var system: System,
-    private var traceSegments: MutableList<TraceSegment> = mutableListOf()
-) {
+    private var traceSegments: MutableList<TraceSegment> = mutableListOf(),
+    override var groupId: Int = -1,
+    override var groupOrdinal: Int = -1
+) : GroupMember() {
     init {
         setSystem()
     }
 
     val segments: MutableList<TraceSegment> get() = traceSegments
+
+    override val origin: Coordinate
+        get() = traceSegments.firstOrNull()?.firstStartPosition()
+            ?: system.originCoord
 
     constructor(system: System, points: Iterable<TraceSegment>) :
             this(system, points.toMutableList())
@@ -33,7 +40,7 @@ data class Trace(
         setSystem()
     }
 
-    fun draw(drawer: OrientedDrawer) {
+    override fun draw(drawer: OrientedDrawer) {
         traceSegments.forEach { it.draw(drawer) }
     }
 
