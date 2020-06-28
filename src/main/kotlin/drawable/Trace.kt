@@ -1,3 +1,4 @@
+import coordinates.Coordinate
 import coordinates.System
 import kotlinx.serialization.Serializable
 import org.openrndr.math.Vector2
@@ -15,6 +16,10 @@ data class Trace(
     }
 
     val segments: MutableList<TraceSegment> get() = traceSegments
+
+    override val origin: Coordinate
+        get() = traceSegments.firstOrNull()?.firstStartPosition()
+            ?: system.originCoord
 
     constructor(system: System, points: Iterable<TraceSegment>) :
             this(system, points.toMutableList())

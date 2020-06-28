@@ -1,3 +1,4 @@
+import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.root
 import kotlinx.serialization.*
@@ -18,6 +19,8 @@ data class SketchComponent(
     init {
         model.setReference(system)
     }
+
+    override val origin: Coordinate get() = system.originCoord
 
     override fun draw(drawer: OrientedDrawer) = model.draw(drawer, setOf())
 

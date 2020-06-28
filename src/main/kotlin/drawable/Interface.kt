@@ -21,6 +21,8 @@ data class Interface(
 ) : GroupMember {
     private val system get() = center.system
 
+    override val origin get() = center
+
     override fun draw(drawer: OrientedDrawer) {
         val (end1, end2) = getEnds().map { it.relativeTo(drawer.system) }
         val line = LineSegment(end1.xy(), end2.xy())
