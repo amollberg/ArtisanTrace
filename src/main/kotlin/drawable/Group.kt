@@ -22,4 +22,15 @@ data class Group(
                 svgComponents.add(groupMember as SvgComponent)
         }
     }
+
+    fun remove(groupMember: GroupMember) {
+        when (groupMember::class) {
+            Interface::class -> interfaces.remove(groupMember as Interface)
+            Trace::class -> traces.remove(groupMember as Trace)
+            SketchComponent::class ->
+                sketchComponents.remove(groupMember as SketchComponent)
+            SvgComponent::class ->
+                svgComponents.remove(groupMember as SvgComponent)
+        }
+    }
 }

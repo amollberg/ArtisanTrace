@@ -25,6 +25,7 @@ class GroupAssignTool(viewModel: ViewModel) : BaseTool(viewModel) {
         }
         // Add the element to the group
         if (!selectedGroup!!.members.contains(groupMember)) {
+            assignedGroup?.remove(groupMember)
             selectedGroup!!.add(groupMember)
         }
     }
