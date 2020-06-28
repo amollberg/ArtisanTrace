@@ -14,7 +14,7 @@ data class SketchComponent(
     override var system: System,
     override var groupId: Int = -1,
     override var groupOrdinal: Int = -1
-) : Component, InterfaceComponent {
+) : Component, InterfaceComponent, GroupMember() {
 
     init {
         model.setReference(system)

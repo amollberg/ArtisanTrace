@@ -19,7 +19,7 @@ data class SvgComponent(
     override var interfaces: MutableList<Interface> = mutableListOf(),
     override var groupId: Int = -1,
     override var groupOrdinal: Int = -1
-) : Component, InterfaceComponent {
+) : Component, InterfaceComponent, GroupMember() {
 
     override fun draw(drawer: OrientedDrawer) {
         drawer.drawer.root.children.add(transformed(drawer.system).root)

@@ -18,7 +18,7 @@ data class Interface(
     internal var id: Int = -1,
     override var groupId: Int = -1,
     override var groupOrdinal: Int = -1
-) : GroupMember {
+) : GroupMember() {
     private val system get() = center.system
 
     override val origin get() = center

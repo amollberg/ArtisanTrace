@@ -8,9 +8,7 @@ class GroupAssignTool(viewModel: ViewModel) : BaseTool(viewModel) {
 
     override fun mouseClicked(position: Coordinate) {
         val groupMember = groupMemberSelector.getGroupMember() ?: return
-        val assignedGroup = viewModel.model.groups.firstOrNull {
-            it.members.contains(groupMember)
-        }
+        val assignedGroup = groupMember.group(viewModel.model.groups)
         if (selectedGroup == null) {
             // Select a group
             if (assignedGroup != null) {

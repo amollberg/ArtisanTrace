@@ -2,7 +2,7 @@ import coordinates.System
 import org.openrndr.math.Vector2
 import org.openrndr.shape.ShapeContour
 
-interface Component : GroupMember {
+interface Component {
     var system: System
     fun bounds(inSystem: System): ShapeContour
 

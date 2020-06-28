@@ -10,7 +10,7 @@ data class Trace(
     private var traceSegments: MutableList<TraceSegment> = mutableListOf(),
     override var groupId: Int = -1,
     override var groupOrdinal: Int = -1
-) : GroupMember {
+) : GroupMember() {
     init {
         setSystem()
     }
