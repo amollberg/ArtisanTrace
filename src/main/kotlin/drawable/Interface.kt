@@ -11,6 +11,7 @@ import kotlin.math.sin
 @Serializable
 data class Interface(
     var center: Coordinate,
+    // Rotation of interface clockwise from positive X axis
     var angle: Double,
     var length: Double,
     var terminalCount: Int,
