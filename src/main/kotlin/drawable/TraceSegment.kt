@@ -24,6 +24,36 @@ data class TraceSegment(
     @Transient
     var system: System = System.root()
 ) {
+    val bounds: Poly
+        get() {
+            val startFirst = getStart().hostInterface.getEnds().first()
+            val startLast = getStart().hostInterface.getEnds().last()
+            val endFirst = getEnd().hostInterface.getEnds().first()
+            val endLast = getEnd().hostInterface.getEnds().last()
+            return Poly(
+                listOf(
+                    startFirst,
+                    Companion.getKnee(
+                        startFirst,
+                        endFirst,
+                        system,
+                        angle,
+                        reverseKnee
+                    ),
+                    endFirst,
+                    endLast,
+                    Companion.getKnee(
+                        startLast,
+                        endLast,
+                        system,
+                        angle,
+                        reverseKnee
+                    ),
+                    startLast
+                )
+            )
+        }
+
     fun getStart() = start
     fun getEnd() = end
 
