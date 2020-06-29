@@ -20,6 +20,8 @@ data class Poly(
             SegmentPointer(this, i)
         }
 
+    val reversed get() = Poly(points.reversed())
+
     fun draw(drawer: OrientedDrawer) {
         drawer.drawer.contour(contour(drawer.system))
     }
@@ -75,5 +77,19 @@ data class Poly(
                 aSeg.start == bSeg.start && aSeg.end == bSeg.end
             }?.first
 
+        // If they share a segment, create a Poly with the remaining segments.
+        // Note: Will not work as intended if a === b
+        fun join(a: Poly, b: Poly): Poly? {
+            if (a.points.isEmpty()) return b
+            if (b.points.isEmpty()) return a
+            var commonSegment = firstCommonSegment(a, b)
+            if (commonSegment == null) {
+                commonSegment = firstCommonSegment(a, b.reversed) ?: return null
+            }
+            return Poly(
+                a.pointsAfter(commonSegment.end) +
+                        b.pointsAfter(commonSegment.start)
+            )
+        }
     }
 }

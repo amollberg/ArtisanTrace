@@ -106,4 +106,31 @@ class PolyTest {
 
         assertNotEquals(null, Poly.firstCommonSegment(a, b.reversed))
     }
+
+    @Test
+    fun testJoin() {
+        val a = Poly(
+            listOf(
+                Vector2(0.0, 0.0),
+                Vector2(100.0, 30.0),
+                Vector2(100.0, 80.0),
+                Vector2(0.0, 90.0)
+            ).map { system.coord(it) })
+        val b = Poly(
+            listOf(
+                Vector2(200.0, 95.0),
+                Vector2(100.0, 80.0),
+                Vector2(100.0, 30.0),
+                Vector2(200.0, 0.0)
+            ).map { system.coord(it) })
+
+        assertEquals(listOf(
+            Vector2(0.0, 90.0),
+            Vector2(0.0, 0.0),
+            Vector2(100.0, 30.0),
+            Vector2(200.0, 0.0),
+            Vector2(200.0, 95.0),
+            Vector2(100.0, 80.0)
+        ), Poly.join(a, b)!!.points.map { it.xyIn(system) })
+    }
 }
