@@ -8,6 +8,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import org.openrndr.math.Vector2
 import org.openrndr.shape.LineSegment
+import org.openrndr.shape.intersection
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -25,34 +26,10 @@ data class TraceSegment(
     var system: System = System.root()
 ) {
     val bounds: Poly
-        get() {
-            val startFirst = getStart().hostInterface.getEnds().first()
-            val startLast = getStart().hostInterface.getEnds().last()
-            val endFirst = getEnd().hostInterface.getEnds().first()
-            val endLast = getEnd().hostInterface.getEnds().last()
-            return Poly(
-                listOf(
-                    startFirst,
-                    Companion.getKnee(
-                        startFirst,
-                        endFirst,
-                        system,
-                        angle,
-                        reverseKnee
-                    ),
-                    endFirst,
-                    endLast,
-                    Companion.getKnee(
-                        startLast,
-                        endLast,
-                        system,
-                        angle,
-                        reverseKnee
-                    ),
-                    startLast
-                )
-            )
-        }
+        get() = bounds(
+            start.hostInterface.getEnds(),
+            end.hostInterface.getEnds()
+        )
 
     fun getStart() = start
     fun getEnd() = end
@@ -102,6 +79,51 @@ data class TraceSegment(
                 system
             )
         }
+
+    fun bounds(startEnds: List<Coordinate>, endEnds: List<Coordinate>): Poly {
+        val (startFirst, startLast) = startEnds
+        val (endFirst, endLast) = endEnds
+        val kneeFirst = Companion.getKnee(
+            startFirst,
+            endFirst,
+            system,
+            angle,
+            reverseKnee
+        )
+        val kneeLast = Companion.getKnee(
+            startLast,
+            endLast,
+            system,
+            angle,
+            reverseKnee
+        )
+        // Some non-zero margin, to accept collinear segments
+        val margin = 1e-4
+        // If the interfaces are oriented such that the traces cross each other
+        val isTwisted = doIntersect(
+            LineSegment(startFirst.xyIn(system), kneeFirst.xyIn(system)),
+            LineSegment(kneeLast.xyIn(system), endLast.xyIn(system)),
+            margin
+        ) || doIntersect(
+            LineSegment(kneeFirst.xyIn(system), endFirst.xyIn(system)),
+            LineSegment(startLast.xyIn(system), kneeLast.xyIn(system)),
+            margin
+        )
+        return when (isTwisted) {
+            // Untwist by reversing the end ends
+            true -> bounds(startEnds, endEnds.reversed())
+            false -> Poly(
+                listOf(
+                    startFirst,
+                    kneeFirst,
+                    endFirst,
+                    endLast,
+                    kneeLast,
+                    startLast
+                )
+            )
+        }
+    }
 
     companion object {
         fun getKnee(
@@ -167,4 +189,12 @@ enum class Angle {
     ACUTE,
     RIGHT,
     OBTUSE
+}
+
+fun doIntersect(a: LineSegment, b: LineSegment, endMargin: Double = 0.0):
+        Boolean {
+    val point = intersection(a, b)
+
+    return a.sub(endMargin, 1 - endMargin).distance(point) == 0.0 &&
+            b.sub(endMargin, 1 - endMargin).distance(point) == 0.0
 }
