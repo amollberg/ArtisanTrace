@@ -65,5 +65,15 @@ data class Poly(
                 .sampleLinear(0.5).segments.map {
                     system.coord(it.start)
                 })
+
+        // The first segment common between the Polys, if any.
+        // Sensitive to winding direction.
+        fun firstCommonSegment(a: Poly, b: Poly): SegmentPointer? =
+            crossProduct(
+                a.segmentPointers, b.segmentPointers
+            ).firstOrNull { (aSeg, bSeg) ->
+                aSeg.start == bSeg.start && aSeg.end == bSeg.end
+            }?.first
+
     }
 }

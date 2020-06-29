@@ -1,6 +1,7 @@
 import Poly.Companion.rect
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
 
@@ -60,5 +61,49 @@ class PolyTest {
             ),
             concaveAreas
         )
+    }
+
+    @Test
+    fun testFirstCommonSegment() {
+        val a = Poly(
+            listOf(
+                Vector2(0.0, 0.0),
+                Vector2(100.0, 30.0),
+                Vector2(100.0, 80.0),
+                Vector2(0.0, 90.0)
+            ).map { system.coord(it) })
+        val b = Poly(
+            listOf(
+                Vector2(200.0, 0.0),
+                Vector2(100.0, 30.0),
+                Vector2(100.0, 80.0),
+                Vector2(200.0, 95.0)
+            ).map { system.coord(it) })
+
+        assertEquals(a.segmentPointers[1], Poly.firstCommonSegment(a, b))
+    }
+
+    @Test
+    fun firstCommonSegmentRealExample() {
+        val a = Poly(
+            listOf(
+                Vector2(-5.0, 0.0),
+                Vector2(85.0, 0.0),
+                Vector2(95.0, 10.0),
+                Vector2(105.0, 10.0),
+                Vector2(95.0, 0.0),
+                Vector2(5.0, 0.0)
+            ).map { system.coord(it) })
+        val b = Poly(
+            listOf(
+                Vector2(95.0, 10.0),
+                Vector2(75.0, 30.0),
+                Vector2(75.0, 50.0),
+                Vector2(85.0, 50.0),
+                Vector2(85.0, 30.0),
+                Vector2(105.0, 10.0)
+            ).map { system.coord(it) })
+
+        assertNotEquals(null, Poly.firstCommonSegment(a, b.reversed))
     }
 }
