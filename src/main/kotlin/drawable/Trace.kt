@@ -17,10 +17,10 @@ data class Trace(
     val segments: MutableList<TraceSegment> get() = traceSegments
 
     override val bounds: Poly
-        get() {
-            // TODO
-            return Poly.rect(system, 10, 10)
-        }
+        get() = segments.map { it.bounds }
+            .fold(Poly(listOf()), { left, right ->
+                Poly.join(left, right)!!
+            })
 
     constructor(system: System, points: Iterable<TraceSegment>) :
             this(system, points.toMutableList())
