@@ -23,7 +23,7 @@ data class Poly(
         }
 
     val segmentPointers: List<SegmentPointer>
-        get() = (0..(points.size - 2)).map { i ->
+        get() = points.indices.map { i ->
             SegmentPointer(this, i)
         }
 
