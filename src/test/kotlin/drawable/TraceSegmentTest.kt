@@ -130,10 +130,10 @@ internal class TraceSegmentTest : WithImplicitView() {
         assertEquals(
             listOf(
                 Vector2(-5.0, 0.0),
-                Vector2(85.0, 0.0),
-                Vector2(95.0, 10.0),
-                Vector2(105.0, 10.0),
                 Vector2(95.0, 0.0),
+                Vector2(105.0, 10.0),
+                Vector2(95.0, 10.0),
+                Vector2(85.0, 0.0),
                 Vector2(5.0, 0.0)
             ), actual
         )

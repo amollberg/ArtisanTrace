@@ -87,13 +87,16 @@ data class Poly(
         fun join(a: Poly, b: Poly): Poly? {
             if (a.points.isEmpty()) return b
             if (b.points.isEmpty()) return a
-            var commonSegment = firstCommonSegment(a, b)
-            if (commonSegment == null) {
-                commonSegment = firstCommonSegment(a, b.reversed) ?: return null
-            }
+
+            val (other, commonSegment) = listOf(b, b.reversed).map {
+                Pair(it, firstCommonSegment(a, it))
+            }.firstOrNull { (_, commonSegment) ->
+                commonSegment != null
+            } ?: return null
+
             return Poly(
-                a.pointsAfter(commonSegment.end) +
-                        b.pointsAfter(commonSegment.start)
+                a.pointsAfter(commonSegment!!.end) +
+                        other.reversed.pointsAfter(commonSegment!!.start)
             )
         }
     }
