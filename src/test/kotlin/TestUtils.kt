@@ -59,11 +59,6 @@ class TestUtils {
             assertEquals(a.columnMajor, b.columnMajor)
         }
 
-        fun assertEquals(a: List<Vector2>, b: List<Vector2>) {
-            a.zip(b).forEach { (a, b) ->
-                assertEquals(a, b)
-            }
-        }
 
         fun assertEquals(
             a: List<List<Vector2>>, b: List<List<Vector2>>, delta: Double = 0.0
