@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
+import org.openrndr.shape.Triangle
 
 class PolyTest {
     companion object {
@@ -132,5 +133,17 @@ class PolyTest {
             Vector2(200.0, 95.0),
             Vector2(100.0, 80.0)
         ), Poly.join(a, b)!!.points.map { it.xyIn(system) })
+    }
+
+    @Test
+    fun testTriangleArea() {
+        val halfBase = 10.0
+        val height = 17.0
+        val tri = Triangle(
+            Vector2(100.0, 200.0),
+            Vector2(100.0 + halfBase, 200.0 + height),
+            Vector2(100.0 - halfBase, 200.0 + height)
+        )
+        assertEquals(halfBase * height, area(tri))
     }
 }

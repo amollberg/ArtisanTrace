@@ -2,8 +2,10 @@ import coordinates.Coordinate
 import coordinates.System
 import org.openrndr.math.Vector2
 import org.openrndr.shape.ShapeContour
+import org.openrndr.shape.Triangle
 import org.openrndr.shape.compound
 import org.openrndr.shape.contour
+import kotlin.math.abs
 
 data class Poly(
     var points: List<Coordinate>
@@ -14,6 +16,9 @@ data class Poly(
         points.forEach { moveOrLineTo(it.xyIn(system)) }
         close()
     }
+
+    fun area(system: System): Double =
+        contour(system).triangulation.sumByDouble { area(it) }
 
     val segmentPointers: List<SegmentPointer>
         get() = points.indices.map { i ->
@@ -92,4 +97,12 @@ data class Poly(
             )
         }
     }
+}
+
+fun area(tri: Triangle): Double {
+    val (p1, p2, p3) = listOf(tri.x1, tri.x2, tri.x3)
+    return abs(
+        p1.x * p2.y + p2.x * p3.y + p3.x * p1.y
+                - p1.y * p2.x - p2.y * p3.x - p3.y * p1.x
+    ) / 2
 }
