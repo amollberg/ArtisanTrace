@@ -136,6 +136,32 @@ class PolyTest {
     }
 
     @Test
+    fun testFuse() {
+        val a = Poly(
+            listOf(
+                Vector2(40.0, 0.0),
+                Vector2(30.0, 10.0),
+                Vector2(35.0, 20.0)
+            ).map { system.coord(it) })
+        val b = Poly(
+            listOf(
+                Vector2(100.0, 0.0),
+                Vector2(110.0, 10.0),
+                Vector2(105.0, 20.0)
+            ).map { system.coord(it) })
+
+        assertEquals(
+            listOf(
+                Vector2(40.0, 0.0),
+                Vector2(30.0, 10.0),
+                Vector2(35.0, 20.0),
+                Vector2(105.0, 20.0),
+                Vector2(110.0, 10.0),
+                Vector2(100.0, 0.0)
+            ), Poly.fuse(a, b).points.map { it.xyIn(system) })
+    }
+
+    @Test
     fun testTriangleArea() {
         val halfBase = 10.0
         val height = 17.0

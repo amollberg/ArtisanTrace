@@ -1,5 +1,6 @@
 import coordinates.Coordinate
 import coordinates.System
+import coordinates.System.Companion.root
 import org.openrndr.math.Vector2
 import org.openrndr.shape.ShapeContour
 import org.openrndr.shape.Triangle
@@ -82,6 +83,13 @@ data class Poly(
                 aSeg.start == bSeg.start && aSeg.end == bSeg.end
             }?.first
 
+        fun nearestSegments(a: Poly, b: Poly, system: System) =
+            crossProduct(a.segmentPointers, b.segmentPointers)
+                .minBy { (aSeg, bSeg) ->
+                    (aSeg.segment(system).position(0.5)
+                            - bSeg.segment(system).position(0.5)).length
+                }!!
+
         // If they share a segment, create a Poly with the remaining segments.
         // Note: Will not work as intended if a === b
         fun join(a: Poly, b: Poly): Poly? {
@@ -97,6 +105,28 @@ data class Poly(
             return Poly(
                 a.pointsAfter(commonSegment!!.end) +
                         other.reversed.pointsAfter(commonSegment!!.start)
+            )
+        }
+
+        // Make a bridge between the two disjoint polys and join them
+        fun fuse(a: Poly, b: Poly): Poly {
+            if (a.points.isEmpty()) return b
+            if (b.points.isEmpty()) return a
+            val (aSeg, bSeg) = Poly.nearestSegments(a, b, a.system!!)
+
+            val bRev = if (aSeg.segment(root()).direction()
+                    .dot(bSeg.segment(root()).direction()) < 0
+            ) b
+            else b.reversed
+
+            val (_, bRevSeg) = Poly.nearestSegments(a, bRev, a.system!!)
+            return Poly(
+                emptyList<Coordinate>() +
+                        aSeg.end +
+                        a.pointsAfter(aSeg.end) +
+                        bRevSeg.end +
+                        bRev.pointsAfter(bRevSeg.end)
+
             )
         }
     }
