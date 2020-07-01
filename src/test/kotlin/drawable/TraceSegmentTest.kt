@@ -1,8 +1,6 @@
 import TestUtils.Companion.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
-import org.openrndr.shape.LineSegment
 
 internal class TraceSegmentTest : WithImplicitView() {
     @Test
@@ -138,16 +136,6 @@ internal class TraceSegmentTest : WithImplicitView() {
                 Vector2(95.0, 0.0),
                 Vector2(5.0, 0.0)
             ), actual
-        )
-    }
-
-    @Test
-    fun doIntersect() {
-        assertTrue(
-            doIntersect(
-                LineSegment(10.0, 10.0, 100.0, 10.0),
-                LineSegment(10.0, 20.0, 100.0, -10.0)
-            )
         )
     }
 
