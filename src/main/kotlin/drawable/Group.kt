@@ -21,6 +21,7 @@ data class Group(
             }
 
     fun add(groupMember: GroupMember) {
+        if (groupMember in members) return
         groupMember.groupOrdinal = members.size
         when (groupMember::class) {
             Interface::class -> interfaces.add(groupMember as Interface)
