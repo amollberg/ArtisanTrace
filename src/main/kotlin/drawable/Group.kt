@@ -20,6 +20,12 @@ data class Group(
                 Poly.fuse(a, b)
             }
 
+    val surfaceInterfaces: Set<Interface>
+        get() = (interfaces + sketchComponents.flatMap { it.interfaces })
+            .filter { itf ->
+                interfaceIsOnSurface(itf, surface)
+            }.toSet()
+
     fun add(groupMember: GroupMember) {
         if (groupMember in members) return
         groupMember.groupOrdinal = members.size
@@ -58,4 +64,11 @@ data class Group(
                 surface.draw(drawer)
         }
     }
+
+    private fun interfaceIsOnSurface(itf: Interface, surface: Poly) =
+        surface.segmentPointers.any {
+            it.segment(itf.center.system)
+                .project(itf.center.xy())
+                .distance == 0.0
+        }
 }

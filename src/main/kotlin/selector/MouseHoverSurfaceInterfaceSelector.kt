@@ -7,23 +7,9 @@ class MouseHoverSurfaceInterfaceSelector(private val viewModel: ViewModel) {
         }
     }
 
-    private fun interfaceOnSurface(itf: Interface, surface: Poly) =
-        surface.segmentPointers.any {
-            it.segment(itf.center.system)
-                .project(itf.center.xy())
-                .distance == 0.0
-        }
-
     fun getInterface(): Interface? {
         val interfaces =
-            viewModel.model.getInterfacesRecursively().filter { itf ->
-                viewModel.model.groups.any {
-                    interfaceOnSurface(
-                        itf,
-                        it.surface
-                    )
-                }
-            }
+            viewModel.model.groups.flatMap { it.surfaceInterfaces }
 
         return interfaces.minBy {
             (it.center - viewModel.mousePoint).lengthIn(viewModel.root)
