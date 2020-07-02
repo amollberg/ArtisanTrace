@@ -1,5 +1,7 @@
 import coordinates.System
 import kotlinx.serialization.Serializable
+import org.openrndr.color.ColorRGBa.Companion.GRAY
+import org.openrndr.color.ColorRGBa.Companion.TRANSPARENT
 import org.openrndr.math.Vector2
 import kotlin.math.tan
 
@@ -43,6 +45,14 @@ data class Trace(
 
     override fun draw(drawer: OrientedDrawer) {
         traceSegments.forEach { it.draw(drawer) }
+        isolatedStyle(
+            drawer.drawer,
+            stroke = GRAY,
+            fill = TRANSPARENT
+        ) {
+            if (drawer.extendedVisualization)
+                bounds.draw(drawer)
+        }
     }
 
     fun withSegment(segment: TraceSegment) =

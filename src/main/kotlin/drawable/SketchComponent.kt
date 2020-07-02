@@ -2,6 +2,8 @@ import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.root
 import kotlinx.serialization.*
+import org.openrndr.color.ColorRGBa.Companion.GRAY
+import org.openrndr.color.ColorRGBa.Companion.TRANSPARENT
 import java.io.File
 
 @Serializable
@@ -17,7 +19,17 @@ data class SketchComponent(
         model.setReference(system)
     }
 
-    override fun draw(drawer: OrientedDrawer) = model.draw(drawer, setOf())
+    override fun draw(drawer: OrientedDrawer) {
+        model.draw(drawer, setOf())
+        isolatedStyle(
+            drawer.drawer,
+            stroke = GRAY,
+            fill = TRANSPARENT
+        ) {
+            if (drawer.extendedVisualization)
+                bounds.draw(drawer)
+        }
+    }
 
     fun draw(drawer: OrientedDrawer, interfacesToIgnore: Set<Interface>) =
         model.draw(drawer, interfacesToIgnore)

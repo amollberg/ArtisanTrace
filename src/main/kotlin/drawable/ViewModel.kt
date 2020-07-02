@@ -19,7 +19,7 @@ class ViewModel(internal var model: Model) {
     val root = model.system
     var mousePoint = root.coord(Vector2(-1.0, -1.0))
     var activeTool: BaseTool = EmptyTool(this)
-    var areInterfacesVisible = false
+    var extendedVisualization = false
     val modelLoaded = Event<File>("model-loaded")
 
     // For unit testing and debugging
@@ -50,7 +50,7 @@ class ViewModel(internal var model: Model) {
                 changeTool(InterfaceDrawTool(this))
             }
             "x" -> {
-                toggleInterfaceVisibility()
+                toggleExtendedVisualization()
             }
             "d" -> {
                 changeTool(InterfaceInsertTool(this))
@@ -92,14 +92,17 @@ class ViewModel(internal var model: Model) {
         }
     }
 
-    private fun toggleInterfaceVisibility() {
-        areInterfacesVisible = !areInterfacesVisible
+    private fun toggleExtendedVisualization() {
+        extendedVisualization = !extendedVisualization
     }
 
     fun draw(drawer: Drawer) {
-        val orientedDrawer = OrientedDrawer(compositionDrawer(drawer), root)
+        val orientedDrawer = OrientedDrawer(
+            compositionDrawer(drawer), root,
+            extendedVisualization
+        )
 
-        val interfacesToIgnore = if (!areInterfacesVisible) {
+        val interfacesToIgnore = if (!extendedVisualization) {
             model.connectedInterfaces()
         } else {
             setOf()
@@ -225,8 +228,10 @@ fun setStyle(drawer: CompositionDrawer, style: Style) {
 
 data class OrientedDrawer(
     val drawer: CompositionDrawer,
-    override val system: coordinates.System
-) : Oriented
+    override val system: coordinates.System,
+    val extendedVisualization: Boolean
+) : Oriented {
+}
 
 fun compositionDrawer(drawer: Drawer): CompositionDrawer {
     val cd = CompositionDrawer()
