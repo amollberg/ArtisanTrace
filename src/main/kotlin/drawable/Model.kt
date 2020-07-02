@@ -199,7 +199,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
         interfacesToIgnore: Set<Interface>
     ) {
         isolatedStyle(drawer.drawer, stroke = color) {
-            //groups.forEach { it.draw(drawer) }
+            groups.forEach { it.draw(drawer) }
             svgComponents.forEach { it.draw(drawer) }
             sketchComponents.forEach {
                 it.draw(drawer, interfacesToIgnore)
