@@ -24,52 +24,21 @@ data class TraceSegment(
     @Transient
     var system: System = System.root()
 ) {
+    val bounds: Poly
+        get() = listOf(true, false).map { reverseEnd ->
+            bounds(
+                start.hostInterface.getEnds(),
+                end.hostInterface.getEnds(),
+                reverseEnd
+            )
+        }.maxBy { it.area(system) }!!
+
     fun getStart() = start
     fun getEnd() = end
 
-    fun getKnee(): Coordinate {
-        val (startPosition, endPosition) =
-            if (reverseKnee) Pair(firstEndPosition(), firstStartPosition())
-            else Pair(firstStartPosition(), firstEndPosition())
-
-        var vec = endPosition - startPosition
-        val (x, y) = vec.xyIn(system)
-        val kneepoints = listOf(
-            Vector2(x - y, 0.0),
-            Vector2(x, 0.0),
-            Vector2(x + y, 0.0),
-
-            Vector2(0.0, y - x),
-            Vector2(0.0, y),
-            Vector2(0.0, y + x),
-
-            Vector2(-y, y),
-            Vector2((x - y) / 2, (y - x) / 2),
-            Vector2(x, -x),
-
-            Vector2(y, y),
-            Vector2((x + y) / 2, (x + y) / 2),
-            Vector2(x, x)
-        )
-
-        fun angleOf(point: Vector2): Int {
-            val origin = Vector2.ZERO
-            val a1 = arg(origin - point)
-            val a2 = arg(vec.xyIn(system) - point)
-            return abs((a1 - a2).toInt() % 360)
-        }
-
-        val relativeKnee = kneepoints.filter { kneepoint ->
-            val a = 180 - abs(angleOf(kneepoint) - 180)
-            when (angle) {
-                Angle.ACUTE -> a < 90
-                Angle.RIGHT -> a == 90
-                Angle.OBTUSE -> a > 90
-            }
-        }.getOrElse(0, { Vector2.ZERO })
-
-        return startPosition + Length(relativeKnee, system)
-    }
+    fun getKnee() = Companion.getKnee(
+        firstStartPosition(), firstEndPosition(), system, angle, reverseKnee
+    )
 
     fun getKnees() = splitIntoSingleLeads().map { it.getKnee() }
 
@@ -112,6 +81,94 @@ data class TraceSegment(
                 system
             )
         }
+
+    private fun bounds(
+        startEnds: List<Coordinate>,
+        endEnds: List<Coordinate>,
+        reverseEnd: Boolean
+    ): Poly {
+        val (startFirst, startLast) = startEnds
+        val (endFirst, endLast) =
+            if (reverseEnd) endEnds.reversed()
+            else endEnds
+        val kneeFirst = Companion.getKnee(
+            startFirst,
+            endFirst,
+            system,
+            angle,
+            reverseKnee
+        )
+        val kneeLast = Companion.getKnee(
+            startLast,
+            endLast,
+            system,
+            angle,
+            reverseKnee
+        )
+
+        return Poly(
+            listOf(
+                startFirst,
+                kneeFirst,
+                endFirst,
+                endLast,
+                kneeLast,
+                startLast
+            )
+        )
+    }
+
+    companion object {
+        fun getKnee(
+            start: Coordinate,
+            end: Coordinate,
+            system: System,
+            angle: Angle,
+            reverseKnee: Boolean
+        ): Coordinate {
+            val (startPosition, endPosition) =
+                if (reverseKnee) Pair(end, start)
+                else Pair(start, end)
+
+            var vec = endPosition - startPosition
+            val (x, y) = vec.xyIn(system)
+            val kneepoints = listOf(
+                Vector2(x - y, 0.0),
+                Vector2(x, 0.0),
+                Vector2(x + y, 0.0),
+
+                Vector2(0.0, y - x),
+                Vector2(0.0, y),
+                Vector2(0.0, y + x),
+
+                Vector2(-y, y),
+                Vector2((x - y) / 2, (y - x) / 2),
+                Vector2(x, -x),
+
+                Vector2(y, y),
+                Vector2((x + y) / 2, (x + y) / 2),
+                Vector2(x, x)
+            )
+
+            fun angleOf(point: Vector2): Int {
+                val origin = Vector2.ZERO
+                val a1 = arg(origin - point)
+                val a2 = arg(vec.xyIn(system) - point)
+                return abs((a1 - a2).toInt() % 360)
+            }
+
+            val relativeKnee = kneepoints.filter { kneepoint ->
+                val a = 180 - abs(angleOf(kneepoint) - 180)
+                when (angle) {
+                    Angle.ACUTE -> a < 90
+                    Angle.RIGHT -> a == 90
+                    Angle.OBTUSE -> a > 90
+                }
+            }.getOrElse(0, { Vector2.ZERO })
+
+            return startPosition + Length(relativeKnee, system)
+        }
+    }
 }
 
 /** Return the counter-clockwise angle from positive x-axis to xy in degrees,

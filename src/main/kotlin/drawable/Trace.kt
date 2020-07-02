@@ -1,6 +1,7 @@
-import coordinates.Coordinate
 import coordinates.System
 import kotlinx.serialization.Serializable
+import org.openrndr.color.ColorRGBa.Companion.GRAY
+import org.openrndr.color.ColorRGBa.Companion.TRANSPARENT
 import org.openrndr.math.Vector2
 import kotlin.math.tan
 
@@ -17,9 +18,11 @@ data class Trace(
 
     val segments: MutableList<TraceSegment> get() = traceSegments
 
-    override val origin: Coordinate
-        get() = traceSegments.firstOrNull()?.firstStartPosition()
-            ?: system.originCoord
+    override val bounds: Poly
+        get() = segments.map { it.bounds }
+            .fold(Poly(listOf()), { left, right ->
+                Poly.join(left, right)!!
+            })
 
     constructor(system: System, points: Iterable<TraceSegment>) :
             this(system, points.toMutableList())
@@ -42,6 +45,14 @@ data class Trace(
 
     override fun draw(drawer: OrientedDrawer) {
         traceSegments.forEach { it.draw(drawer) }
+        isolatedStyle(
+            drawer.drawer,
+            stroke = GRAY,
+            fill = TRANSPARENT
+        ) {
+            if (drawer.extendedVisualization)
+                bounds.draw(drawer)
+        }
     }
 
     fun withSegment(segment: TraceSegment) =

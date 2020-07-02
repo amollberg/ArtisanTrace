@@ -11,6 +11,7 @@ import kotlin.math.sin
 @Serializable
 data class Interface(
     var center: Coordinate,
+    // Rotation of interface clockwise from positive X axis
     var angle: Double,
     var length: Double,
     var terminalCount: Int,
@@ -20,8 +21,6 @@ data class Interface(
     override var groupOrdinal: Int = -1
 ) : GroupMember() {
     private val system get() = center.system
-
-    override val origin get() = center
 
     override fun draw(drawer: OrientedDrawer) {
         val (end1, end2) = getEnds().map { it.relativeTo(drawer.system) }
@@ -34,6 +33,8 @@ data class Interface(
             1.5
         )
     }
+
+    override val bounds get() = Poly(getEnds())
 
     fun getTerminals(): Terminals {
         return Terminals(this, 0 until terminalCount)

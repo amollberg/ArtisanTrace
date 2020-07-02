@@ -178,7 +178,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
         val cd = CompositionDrawer()
         setStyle(cd, ViewModel.DEFAULT_STYLE)
         draw(
-            OrientedDrawer(cd, system),
+            OrientedDrawer(cd, system, false),
             interfacesToIgnore = getInterfacesRecursively().toSet()
         )
         svgFile.writeText(writeSVG(cd.composition))

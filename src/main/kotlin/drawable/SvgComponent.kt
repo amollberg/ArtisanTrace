@@ -1,7 +1,8 @@
-import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.transformFromTo
 import kotlinx.serialization.*
+import org.openrndr.color.ColorRGBa.Companion.GRAY
+import org.openrndr.color.ColorRGBa.Companion.TRANSPARENT
 import org.openrndr.math.Matrix33
 import org.openrndr.math.Matrix44
 import org.openrndr.shape.Composition
@@ -23,12 +24,19 @@ data class SvgComponent(
 
     override fun draw(drawer: OrientedDrawer) {
         drawer.drawer.root.children.add(transformed(drawer.system).root)
+        isolatedStyle(
+            drawer.drawer,
+            stroke = GRAY,
+            fill = TRANSPARENT
+        ) {
+            if (drawer.extendedVisualization)
+                bounds.draw(drawer)
+        }
     }
 
-    override val origin: Coordinate get() = system.originCoord
-
-    override fun bounds(inSystem: System) =
-        transformed(inSystem).root.bounds.contour
+    override val bounds
+        get() =
+            Poly.from(transformed(system).root.bounds.contour, system)
 
     private fun transformed(toSystem: System) =
         Transformable(
