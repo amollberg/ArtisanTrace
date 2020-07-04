@@ -56,6 +56,7 @@ data class Group(
         traces.forEach { it.draw(drawer) }
         sketchComponents.forEach { it.draw(drawer) }
         svgComponents.forEach { it.draw(drawer) }
-        surface.draw(drawer)
+        if (drawer.extendedVisualization)
+            surface.draw(drawer)
     }
 }

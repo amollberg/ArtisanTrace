@@ -18,8 +18,7 @@ data class Surface(val poly: Poly, val possibleInterfaces: Set<Interface>) {
             fill = TRANSPARENT,
             strokeWeight = 2.0
         ) {
-            if (drawer.extendedVisualization)
-                poly.draw(drawer)
+            poly.draw(drawer)
         }
         isolatedStyle(
             drawer.drawer,
@@ -27,10 +26,8 @@ data class Surface(val poly: Poly, val possibleInterfaces: Set<Interface>) {
             fill = TRANSPARENT,
             strokeWeight = 3.0
         ) {
-            if (drawer.extendedVisualization) {
-                poly.segmentsOnConvexHull.forEach {
-                    drawer.drawer.lineSegment(it.lineSegment(drawer.system))
-                }
+            poly.segmentsOnConvexHull.forEach {
+                drawer.drawer.lineSegment(it.lineSegment(drawer.system))
             }
         }
         isolatedStyle(
@@ -38,10 +35,15 @@ data class Surface(val poly: Poly, val possibleInterfaces: Set<Interface>) {
             fill = fromHex(0x7F0000),
             stroke = WHITE
         ) {
-            if (drawer.extendedVisualization) {
-                poly.concaveAreas.forEach {
-                    it.draw(drawer)
-                }
+            poly.concaveAreas.forEach {
+                it.draw(drawer)
+            }
+        }
+        isolatedStyle(
+            drawer.drawer, stroke = BLUE
+        ) {
+            interfaces.forEach {
+                it.draw(drawer)
             }
         }
     }
