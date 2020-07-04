@@ -59,6 +59,11 @@ data class Poly(
             }
         }
 
+    val segmentsOnConvexHull: Set<SegmentPointer>
+        get() = segmentPointers.filter {
+            segmentIsOnConvexHull(it, this)
+        }.toSet()
+
     companion object {
         fun rect(system: System, width: Int, height: Int) = Poly(
             listOf(
@@ -73,6 +78,13 @@ data class Poly(
                 .sampleLinear(0.5).segments.map {
                     system.coord(it.start)
                 })
+
+        private fun segmentIsOnConvexHull(
+            segmentPointer: SegmentPointer,
+            poly: Poly
+        ): Boolean = poly.convexHull.segmentPointers.any { hullPointer ->
+            segmentPointer.overlapsExactly(hullPointer)
+        }
 
         // The first segment common between the Polys, if any.
         // Sensitive to winding direction.
