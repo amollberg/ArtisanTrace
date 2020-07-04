@@ -2,7 +2,6 @@ import kotlinx.serialization.Serializable
 import org.openrndr.color.ColorRGBa.Companion.GREEN
 import org.openrndr.color.ColorRGBa.Companion.TRANSPARENT
 import org.openrndr.color.ColorRGBa.Companion.fromHex
-import org.openrndr.shape.LineSegment
 
 @Serializable
 data class Group(
@@ -74,11 +73,7 @@ data class Group(
         ) {
             if (drawer.extendedVisualization) {
                 surface.segmentsOnConvexHull.forEach {
-                    drawer.drawer.lineSegment(
-                        it.segment(drawer.system).let {
-                            LineSegment(it.start, it.end)
-                        }
-                    )
+                    drawer.drawer.lineSegment(it.lineSegment(drawer.system))
                 }
             }
         }
