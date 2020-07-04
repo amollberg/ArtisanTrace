@@ -7,4 +7,14 @@ data class SegmentPointer(val poly: Poly, val index: Int) {
 
     val start get() = poly.points[index]
     val end get() = poly.points[Math.floorMod(index + 1, poly.points.size)]
+
+    // TODO: Replace with Segment.equals after OPENRNDR issue #124 is resolved
+    fun overlapsExactly(other: SegmentPointer) =
+        poly.system!!.let { system ->
+            listOf(start.relativeTo(system), end.relativeTo(system)) in
+                    listOf(
+                        other.start.relativeTo(system),
+                        other.end.relativeTo(system)
+                    ).let { listOf(it, it.reversed()) }
+        }
 }
