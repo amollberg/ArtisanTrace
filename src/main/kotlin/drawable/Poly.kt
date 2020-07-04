@@ -57,6 +57,8 @@ data class Poly(
                     shape(contour(it))
                 }
             }
+        }.flatMap { shape ->
+            shape.closedContours.map { Poly.from(it, system!!) }
         }
 
     val segmentsOnConvexHull: Set<SegmentPointer>

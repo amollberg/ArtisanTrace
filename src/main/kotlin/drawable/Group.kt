@@ -1,6 +1,7 @@
 import kotlinx.serialization.Serializable
 import org.openrndr.color.ColorRGBa.Companion.GREEN
 import org.openrndr.color.ColorRGBa.Companion.TRANSPARENT
+import org.openrndr.color.ColorRGBa.Companion.WHITE
 import org.openrndr.color.ColorRGBa.Companion.fromHex
 
 @Serializable
@@ -74,6 +75,17 @@ data class Group(
             if (drawer.extendedVisualization) {
                 surface.segmentsOnConvexHull.forEach {
                     drawer.drawer.lineSegment(it.lineSegment(drawer.system))
+                }
+            }
+        }
+        isolatedStyle(
+            drawer.drawer,
+            fill = fromHex(0x7F0000),
+            stroke = WHITE
+        ) {
+            if (drawer.extendedVisualization) {
+                surface.concaveAreas.forEach {
+                    it.draw(drawer)
                 }
             }
         }
