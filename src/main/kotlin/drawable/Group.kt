@@ -12,13 +12,19 @@ data class Group(
     val members: Set<GroupMember>
         get() = interfaces + traces + sketchComponents + svgComponents
 
+    val recursiveInterfaces
+        get() =
+            interfaces +
+                    sketchComponents.flatMap { it.model.getInterfacesRecursively() } +
+                    svgComponents.flatMap { it.interfaces }
+
     val surface: Surface
         get() = Surface(
             members.sortedBy { it.groupOrdinal }.map { it.bounds }
                 .fold(Poly(emptyList())) { a, b ->
                     Poly.fuse(a, b)
                 },
-            (interfaces + sketchComponents.flatMap { it.interfaces })
+            recursiveInterfaces
         )
 
     fun add(groupMember: GroupMember) {
