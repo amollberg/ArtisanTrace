@@ -1,6 +1,8 @@
 import kotlinx.serialization.Serializable
+import org.openrndr.color.ColorRGBa.Companion.GREEN
 import org.openrndr.color.ColorRGBa.Companion.TRANSPARENT
-import org.openrndr.color.ColorRGBa.Companion.YELLOW
+import org.openrndr.color.ColorRGBa.Companion.fromHex
+import org.openrndr.shape.LineSegment
 
 @Serializable
 data class Group(
@@ -57,11 +59,28 @@ data class Group(
         svgComponents.forEach { it.draw(drawer) }
         isolatedStyle(
             drawer.drawer,
-            stroke = YELLOW,
-            fill = TRANSPARENT
+            stroke = fromHex(0xFF9040),
+            fill = TRANSPARENT,
+            strokeWeight = 2.0
         ) {
             if (drawer.extendedVisualization)
                 surface.draw(drawer)
+        }
+        isolatedStyle(
+            drawer.drawer,
+            stroke = GREEN,
+            fill = TRANSPARENT,
+            strokeWeight = 3.0
+        ) {
+            if (drawer.extendedVisualization) {
+                surface.segmentsOnConvexHull.forEach {
+                    drawer.drawer.lineSegment(
+                        it.segment(drawer.system).let {
+                            LineSegment(it.start, it.end)
+                        }
+                    )
+                }
+            }
         }
     }
 
