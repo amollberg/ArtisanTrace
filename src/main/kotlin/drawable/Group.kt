@@ -1,4 +1,6 @@
 import kotlinx.serialization.Serializable
+import org.openrndr.color.ColorRGBa.Companion.TRANSPARENT
+import org.openrndr.color.ColorRGBa.Companion.YELLOW
 
 @Serializable
 data class Group(
@@ -12,7 +14,21 @@ data class Group(
     val members: Set<GroupMember>
         get() = interfaces + traces + sketchComponents + svgComponents
 
+    val surface: Poly
+        get() = members.sortedBy { it.groupOrdinal }.map { it.bounds }
+            .fold(Poly(emptyList())) { a, b ->
+                Poly.fuse(a, b)
+            }
+
+    val surfaceInterfaces: Set<Interface>
+        get() = (interfaces + sketchComponents.flatMap { it.interfaces })
+            .filter { itf ->
+                interfaceIsOnSurface(itf, surface)
+            }.toSet()
+
     fun add(groupMember: GroupMember) {
+        if (groupMember in members) return
+        groupMember.groupOrdinal = members.size
         when (groupMember::class) {
             Interface::class -> interfaces.add(groupMember as Interface)
             Trace::class -> traces.add(groupMember as Trace)
@@ -39,5 +55,20 @@ data class Group(
         traces.forEach { it.draw(drawer) }
         sketchComponents.forEach { it.draw(drawer) }
         svgComponents.forEach { it.draw(drawer) }
+        isolatedStyle(
+            drawer.drawer,
+            stroke = YELLOW,
+            fill = TRANSPARENT
+        ) {
+            if (drawer.extendedVisualization)
+                surface.draw(drawer)
+        }
     }
+
+    private fun interfaceIsOnSurface(itf: Interface, surface: Poly) =
+        surface.segmentPointers.any {
+            it.segment(itf.center.system)
+                .project(itf.center.xy())
+                .distance == 0.0
+        }
 }
