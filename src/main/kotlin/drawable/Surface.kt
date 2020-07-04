@@ -11,6 +11,12 @@ data class Surface(val poly: Poly, val possibleInterfaces: Set<Interface>) {
                 interfaceIsOnSurface(itf)
             }.toSet()
 
+    val concaveAreas: List<Surface>
+        get() =
+            poly.concaveAreas.map {
+                Surface(it, possibleInterfaces)
+            }
+
     fun draw(drawer: OrientedDrawer) {
         isolatedStyle(
             drawer.drawer,
