@@ -172,4 +172,24 @@ class PolyTest {
         )
         assertEquals(halfBase * height, area(tri))
     }
+
+    @Test
+    fun segmentOnConvexHull() {
+        val a = Poly(
+            listOf(
+                Vector2(0.0, 0.0),
+                Vector2(100.0, 0.0),
+                Vector2(100.0, 100.0),
+                Vector2(50.0, 80.0),
+                Vector2(0.0, 100.0)
+            ).map { system.coord(it) })
+        assertEquals(
+            setOf(
+                a.segmentPointers[0],
+                a.segmentPointers[1],
+                a.segmentPointers[4]
+            ),
+            a.segmentsOnConvexHull
+        )
+    }
 }
