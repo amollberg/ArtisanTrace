@@ -24,6 +24,12 @@ class Model(@Transient val system: System = root()) : FileBacked {
     var svgComponents: MutableList<SvgComponent> = mutableListOf()
     var groups: MutableList<Group> = mutableListOf()
 
+    // Interfaces from SVG components. Cannot be mixed into the other
+    // interfaces because these interfaces shall not be group members by
+    // themselves, but rather through their respective SVG component
+    val svgInterfaces: List<Interface>
+        get() = svgComponents.flatMap { it.interfaces }
+
     @Serializable(with = ColorRGBaSerializer::class)
     var color = ColorRGBa.PINK
 
@@ -72,7 +78,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
                 }
                 trace.setCoordinateSystem(model.system)
             }
-            model.interfaces.forEach {
+            (model.interfaces + model.svgInterfaces).forEach {
                 it.center = model.system.coord(it.center.xy())
             }
             model.svgComponents.forEach { svgComponent ->
@@ -159,6 +165,8 @@ class Model(@Transient val system: System = root()) : FileBacked {
 
     // Note: The initial empty list is needed to help the compiler to infer
     // the correct type of the list for the plus operations
+    // Note: Intentionally does not include svgInterfaces because they shall
+    // not be group members by themselves.
     val groupMembers: List<GroupMember>
         get() = listOf<GroupMember>() +
                 sketchComponents +
@@ -225,7 +233,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
     }
 
     fun getInterfacesRecursively(): List<Interface> =
-        interfaces + sketchComponents.flatMap {
+        interfaces + svgInterfaces + sketchComponents.flatMap {
             it.model.getInterfacesRecursively()
         }
 
@@ -239,10 +247,9 @@ class Model(@Transient val system: System = root()) : FileBacked {
             it.model.getSvgComponentsRecursively()
         }
 
-    fun inferSvgInterfaces(selectedSvgComponents: List<SvgComponent>) {
-        selectedSvgComponents.forEach {
-            it.inferInterfaces(this)
-            assert(it in svgComponents)
+    fun inferSvgInterfaces() {
+        svgComponents.forEach {
+            it.inferInterfaces()
         }
     }
 
@@ -252,7 +259,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
         val svgComponent = SvgComponent(svg, svgSystem)
         svgComponent.svg.relativizeBackingFileTo(workingDir)
         svgComponents.add(svgComponent)
-        inferSvgInterfaces(listOf(svgComponent))
+        svgComponent.inferInterfaces()
         return svgComponent
     }
 

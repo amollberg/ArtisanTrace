@@ -33,7 +33,7 @@ class SvgComponentTest {
         }
         assertEquals(
             expectedInterfaceEnds,
-            modified.interfaces.map { itf ->
+            modified.svgInterfaces.map { itf ->
                 itf.getEnds().map {
                     it.xyIn(modified.system)
                 }
@@ -51,7 +51,7 @@ class SvgComponentTest {
         dropFiles(view, DropEvent(Vector2(47.0, 11.0), listOf(File(SVG_PATH))))
 
         val svgSystem = view.model.svgComponents.first().system
-        val interfaceEnds = view.model.interfaces.map { itf ->
+        val interfaceEnds = view.model.svgInterfaces.map { itf ->
             itf.getEnds().map { it.xyIn(svgSystem) }
         }
         assertEquals(
@@ -75,7 +75,7 @@ class SvgComponentTest {
         sendKey(view, "f")
 
         val svgSystem = view.model.svgComponents.first().system
-        val interfaceEnds = view.model.interfaces.map { itf ->
+        val interfaceEnds = view.model.svgInterfaces.map { itf ->
             itf.getEnds().map { it.xyIn(svgSystem) }
         }
         assertEquals(

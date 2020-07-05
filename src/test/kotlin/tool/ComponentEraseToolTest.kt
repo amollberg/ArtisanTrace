@@ -49,11 +49,13 @@ class ComponentEraseToolTest : WithImplicitView() {
         clickMouse(at(50, 400))
         view.changeTool(EmptyTool(view))
         assertEquals(1, view.model.traces.size)
-        assertEquals(4, view.model.interfaces.size)
+        assertEquals(2, view.model.svgInterfaces.size)
+        assertEquals(2, view.model.interfaces.size)
 
         view.changeTool(ComponentEraseTool(view))
         clickMouse(at(COMPONENT_ORIGIN + OFFSET_TO_BOUNDING_BOX[SVG_PATH]!!))
         assertEquals(0, view.model.svgComponents.size)
+        assertEquals(0, view.model.svgInterfaces.size)
         assertEquals(2, view.model.interfaces.size)
     }
 }
