@@ -169,10 +169,7 @@ class TestUtils {
         private fun toList(group: Group) =
             listOf(
                 group.id,
-                group.traces,
-                group.interfaces,
-                group.sketchComponents.map { toList(it) },
-                group.svgComponents.map { toList(it) }
+                group.members.sortedBy { it.groupOrdinal }
             )
     }
 }
