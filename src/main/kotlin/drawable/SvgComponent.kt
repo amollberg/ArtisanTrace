@@ -39,7 +39,7 @@ data class SvgComponent(
     private fun polys() =
         transformed(system).findShapes().flatMap {
             it.shape.contours.map { Poly.from(it, system) }
-        }
+        } + interfaces.map { it.bounds }
 
     private fun transformed(toSystem: System) =
         Transformable(

@@ -14,6 +14,7 @@ import kotlin.math.PI
 
 class SvgComponentTest {
     companion object {
+        val VIA_SVG_PATH = "src/test/resources/Via2.svg"
         val SVG_PATH = "src/test/resources/IC1.svg"
         val DROP_ORIGIN = Vector2(47.0, 11.0)
         val MOVED_ORIGIN = Vector2(200.0, 34.0)
@@ -95,6 +96,40 @@ class SvgComponentTest {
 
         val clone = original.clone(model)
         assertEquals(clone.system, original.system)
+    }
+
+    @Test
+    fun ic1IncludesInterfacesInConvexHull() {
+        val model = createModel()
+        val svgComponent = model.svgComponents[0]
+        // Get the surface via a group
+        val group = Group()
+        group.add(svgComponent)
+        model.groups.add(group)
+
+        assertEquals(
+            EXPECTED_INTERFACE_ENDS[SVG_PATH]!!.size,
+            group.surface.interfaces.size
+        )
+    }
+
+    @Test
+    fun via2IncludesInterfacesInConvexHull() {
+        val model = createModel()
+        dropFiles(
+            createViewModel(model),
+            DropEvent(DROP_ORIGIN, listOf(File(VIA_SVG_PATH)))
+        )
+        val svgComponent = model.svgComponents.last()
+        // Get the surface via a group
+        val group = Group()
+        group.add(svgComponent)
+        model.groups.add(group)
+
+        assertEquals(
+            1,
+            group.surface.interfaces.size
+        )
     }
 
     private fun createModel(): Model {
