@@ -1,10 +1,13 @@
 import coordinates.Coordinate
 import org.openrndr.math.Vector2
 
-fun convexHull(poly: Poly) =
-    convexHull(poly.points)
+fun convexHull(polys: Iterable<Poly>) =
+    convexHullOfCoordinates(polys.flatMap { it.points })
 
-fun convexHull(coordinates: Iterable<Coordinate>) =
+fun convexHull(poly: Poly) =
+    convexHullOfCoordinates(poly.points)
+
+fun convexHullOfCoordinates(coordinates: Iterable<Coordinate>) =
     Poly(
         pointsAsVector2 {
             convexHull(it.toTypedArray())

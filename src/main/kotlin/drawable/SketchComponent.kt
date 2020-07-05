@@ -47,7 +47,7 @@ data class SketchComponent(
                         it.bounds
                     }).flatMap { it.points }
 
-            return convexHull(points)
+            return convexHullOfCoordinates(points)
         }
 
     override fun clone(parentModel: Model): Component {

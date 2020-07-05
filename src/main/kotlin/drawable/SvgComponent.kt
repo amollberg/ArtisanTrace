@@ -34,9 +34,12 @@ data class SvgComponent(
         }
     }
 
-    override val bounds
-        get() =
-            Poly.from(transformed(system).root.bounds.contour, system)
+    override val bounds get() = convexHull(polys())
+
+    private fun polys() =
+        transformed(system).findShapes().flatMap {
+            it.shape.contours.map { Poly.from(it, system) }
+        }
 
     private fun transformed(toSystem: System) =
         Transformable(
