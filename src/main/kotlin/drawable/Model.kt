@@ -24,6 +24,9 @@ class Model(@Transient val system: System = root()) : FileBacked {
     var svgComponents: MutableList<SvgComponent> = mutableListOf()
     var groups: MutableList<Group> = mutableListOf()
 
+    @Transient
+    var polys: MutableList<Poly> = mutableListOf()
+
     // Interfaces from SVG components. Cannot be mixed into the other
     // interfaces because these interfaces shall not be group members by
     // themselves, but rather through their respective SVG component
@@ -208,6 +211,7 @@ class Model(@Transient val system: System = root()) : FileBacked {
     ) {
         isolatedStyle(drawer.drawer, stroke = color) {
             groups.forEach { it.draw(drawer) }
+            polys.forEach { it.draw(drawer) }
             traces.forEach { it.draw(drawer) }
             (interfaces - interfacesToIgnore).forEach { it.draw(drawer) }
             svgComponents.forEach { it.draw(drawer) }

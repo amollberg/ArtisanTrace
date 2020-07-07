@@ -29,7 +29,9 @@ data class Poly(
     val reversed get() = Poly(points.reversed())
 
     fun draw(drawer: OrientedDrawer) {
-        drawer.drawer.contour(contour(drawer.system))
+        if (points.toSet().size > 1) {
+            drawer.drawer.contour(contour(drawer.system))
+        }
     }
 
     // Other points in the poly, same order, starting with the point after

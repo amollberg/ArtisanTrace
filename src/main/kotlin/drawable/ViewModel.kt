@@ -89,6 +89,9 @@ class ViewModel(internal var model: Model) {
             "m" -> {
                 changeTool(ConcaveAreaMacroTool(this))
             }
+            "p" -> {
+                changeTool(PolyDrawTool(this))
+            }
             else -> {
                 activeTool.keyUp(key)
             }
