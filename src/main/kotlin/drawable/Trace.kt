@@ -18,6 +18,12 @@ data class Trace(
 
     val segments: MutableList<TraceSegment> get() = traceSegments
 
+    val terminals: List<Terminals>
+        get() =
+            if (traceSegments.isNotEmpty())
+                traceSegments.map { it.start } + traceSegments.last().end
+            else emptyList()
+
     override val bounds: Poly
         get() = segments.map { it.bounds }
             .fold(Poly(listOf()), { left, right ->
