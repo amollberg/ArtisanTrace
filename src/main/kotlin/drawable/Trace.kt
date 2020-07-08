@@ -135,3 +135,26 @@ fun snapTo45(firstPoint: Vector2, secondPoint: Vector2): Vector2 {
     }
     return firstPoint + vec
 }
+
+fun trace(system: System, f: TraceBuilder.() -> Unit): Trace {
+    val builder = TraceBuilder(system)
+    builder.f()
+    return builder.result
+}
+
+class TraceBuilder(val system: System) {
+
+    internal val terminalsList: MutableList<Terminals> = mutableListOf()
+
+    fun terminals(terminals: Terminals) {
+        terminalsList.add(terminals)
+    }
+
+    val result: Trace
+        get() = Trace(
+            system,
+            terminalsList.windowed(2) { (start: Terminals, end: Terminals) ->
+                TraceSegment(start, end, Angle.OBTUSE, false)
+            }.toMutableList()
+        )
+}
