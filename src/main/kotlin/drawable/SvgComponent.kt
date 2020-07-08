@@ -1,3 +1,4 @@
+import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.transformFromTo
 import kotlinx.serialization.*
@@ -82,6 +83,13 @@ data class SvgComponent(
         // Make sure it has the same rotation and scaling as the original
         cloneComponent.system.setAbsoluteFrom(system)
         return cloneComponent
+    }
+
+    override fun move(itf: Interface, targetItfPosition: Coordinate) {
+        if (!itf.center.system.derivesFrom(system))
+            throw IllegalArgumentException("$itf does not derive from $this")
+        val distance = targetItfPosition - itf.center
+        system.originCoord += distance
     }
 }
 
