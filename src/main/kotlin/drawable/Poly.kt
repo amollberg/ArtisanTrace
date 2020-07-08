@@ -28,8 +28,12 @@ data class Poly(
 
     val reversed get() = Poly(points.reversed())
 
+    // If it does not have more than one distinct point.
+    // OpenRNDR does not accept building a contour with 0 segments
+    val isTrivial get() = points.toSet().size <= 1
+
     fun draw(drawer: OrientedDrawer) {
-        if (points.toSet().size > 1) {
+        if (!isTrivial) {
             drawer.drawer.contour(contour(drawer.system))
         }
     }

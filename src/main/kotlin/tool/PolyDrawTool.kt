@@ -12,7 +12,7 @@ class PolyDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
     override fun exit() {
-        if (points.isNotEmpty()) {
+        if (!Poly(points).isTrivial) {
             viewModel.model.polys.add(Poly(points))
         }
     }
