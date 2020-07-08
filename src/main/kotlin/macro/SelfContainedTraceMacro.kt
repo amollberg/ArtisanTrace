@@ -1,7 +1,7 @@
 import coordinates.Coordinate
 import java.io.File
 
-data class SelfContainedTraceMacro(val model: Model) {
+data class SelfContainedTraceMacro(val model: Model, var cellSize: Double) {
     var lastTerminals: Terminals? = null
 
     fun generate(area: Poly, startPoint: Coordinate) {
@@ -9,7 +9,7 @@ data class SelfContainedTraceMacro(val model: Model) {
         val startVia = model.addSvg(viaFile, startPoint)
         val traceStartPoint = startVia.interfaces.first().center
 
-        val grid = ArrayPolyGrid(area, 10.0)
+        val grid = ArrayPolyGrid(area, cellSize)
         val walker = SpiralWalker(grid, grid.gridPosition(traceStartPoint))
         val path = walker.generate()
 

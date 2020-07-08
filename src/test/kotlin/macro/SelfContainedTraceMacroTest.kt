@@ -5,7 +5,7 @@ import org.openrndr.math.Vector2
 class SelfContainedTraceMacroTest : WithImplicitView() {
     @Test
     fun tripleWideRect() {
-        val macro = SelfContainedTraceMacro(view.model)
+        val macro = SelfContainedTraceMacro(view.model, 10.0)
         val surface = Surface(Poly.rect(view.root, 30, 20), emptySet())
 
         macro.generate(surface.poly, view.root.coord(Vector2.ZERO))
@@ -25,7 +25,7 @@ class SelfContainedTraceMacroTest : WithImplicitView() {
 
     @Test
     fun irregularQuad() {
-        val macro = SelfContainedTraceMacro(view.model)
+        val macro = SelfContainedTraceMacro(view.model, 10.0)
         val surface = Surface(Poly(
             listOf(
                 Vector2(30.0, 20.0),
