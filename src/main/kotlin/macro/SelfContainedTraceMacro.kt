@@ -6,16 +6,28 @@ data class SelfContainedTraceMacro(val model: Model) {
 
     fun generate(area: Poly, startPoint: Coordinate) {
         val viaFile = File("src/test/resources/Via2.svg")
-        model.addSvg(viaFile, area.system!!.originCoord)
+        val startVia = model.addSvg(viaFile, startPoint)
+        val traceStartPoint = startVia.interfaces.first().center
 
         val grid = ArrayPolyGrid(area, 10.0)
-        val walker = SpiralWalker(grid, grid.gridPosition(startPoint))
+        val walker = SpiralWalker(grid, grid.gridPosition(traceStartPoint))
         val path = walker.generate()
 
-        createTrace(path, grid)
+        val trace = createTrace(path, grid)
+
+        val endPoint = grid.coordinate(path.positions.last())
+        val endVia = model.addSvg(viaFile, endPoint)
+        trace.add(
+            TraceSegment(
+                trace.segments.last().end,
+                Terminals(endVia.interfaces.first(), 0..0),
+                Angle.OBTUSE,
+                false
+            )
+        )
     }
 
-    private fun createTrace(path: Path, grid: ArrayPolyGrid) {
+    private fun createTrace(path: Path, grid: ArrayPolyGrid): Trace {
         lastTerminals = null
         val trace = Trace(model.system)
 
@@ -24,6 +36,7 @@ data class SelfContainedTraceMacro(val model: Model) {
             addCorner(position.relativeTo(model.system), trace)
         }
         model.traces.add(trace)
+        return trace
     }
 
     private fun addCorner(coordinate: Coordinate, trace: Trace) {
