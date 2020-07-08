@@ -75,6 +75,12 @@ data class System(
         origin = Vector2(tf.c2r0, tf.c2r1)
         axes = Matrix22(tf)
     }
+
+    // True if changing other will change this system too
+    fun derivesFrom(other: System): Boolean {
+        if (this === other) return true
+        return reference?.derivesFrom(other) ?: return false
+    }
 }
 
 fun inversed(m: Matrix33): Matrix33 {
