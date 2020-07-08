@@ -9,6 +9,9 @@ val EXPECTED_INTERFACE_ENDS = hashMapOf(
     ),
     "src/test/resources/Via2.svg" to listOf(
         listOf(Vector2(0.63883413, 10.956321), Vector2(-0.63883413, 10.956321))
+    ),
+    "src/test/resources/Via3.svg" to listOf(
+        listOf(Vector2(0.63883413, 0.0), Vector2(-0.63883413, 0.0))
     )
 )
 

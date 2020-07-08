@@ -16,6 +16,11 @@ class ResourceTest : WithImplicitView() {
         checkResource("src/test/resources/Via2.svg")
     }
 
+    @Test
+    fun via3ExpectedInterfaceEnds() {
+        checkResource("src/test/resources/Via3.svg")
+    }
+
     private fun checkResource(path: String) {
         dropFiles(
             view,
