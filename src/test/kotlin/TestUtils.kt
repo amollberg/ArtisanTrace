@@ -153,6 +153,7 @@ class TestUtils {
         private fun toList(sketchComponent: SketchComponent) =
             listOf(
                 sketchComponent.groupId,
+                sketchComponent.groupOrdinal,
                 sketchComponent.system,
                 sketchComponent.model.backingFile
             )
@@ -160,6 +161,7 @@ class TestUtils {
         private fun toList(svgComponent: SvgComponent) =
             listOf(
                 svgComponent.groupId,
+                svgComponent.groupOrdinal,
                 svgComponent.system,
                 svgComponent.svg.backingFile
             )
@@ -167,10 +169,7 @@ class TestUtils {
         private fun toList(group: Group) =
             listOf(
                 group.id,
-                group.traces,
-                group.interfaces,
-                group.sketchComponents.map { toList(it) },
-                group.svgComponents.map { toList(it) }
+                group.members.sortedBy { it.groupOrdinal }
             )
     }
 }

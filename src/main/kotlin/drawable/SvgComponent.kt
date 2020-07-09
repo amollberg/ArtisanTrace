@@ -34,9 +34,12 @@ data class SvgComponent(
         }
     }
 
-    override val bounds
-        get() =
-            Poly.from(transformed(system).root.bounds.contour, system)
+    override val bounds get() = convexHull(polys())
+
+    private fun polys() =
+        transformed(system).findShapes().flatMap {
+            it.shape.contours.map { Poly.from(it, system) }
+        } + interfaces.map { it.bounds }
 
     private fun transformed(toSystem: System) =
         Transformable(
@@ -47,7 +50,7 @@ data class SvgComponent(
             }
         ).relativeTo(toSystem)
 
-    fun inferInterfaces(model: Model) {
+    fun inferInterfaces() {
         svg.interfaceEnds.forEachIndexed { i, (start, end) ->
             val center = (start + end) * 0.5
             val line = end - start
@@ -67,7 +70,6 @@ data class SvgComponent(
                     2
                 )
                 interfaces.add(itf)
-                model.interfaces.add(itf)
             }
         }
         svg.hideInterfaceShapes()

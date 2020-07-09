@@ -44,20 +44,14 @@ class PolyTest {
             ).map { system.coord(it) }
         )
         val concaveAreas = poly.concaveAreas.map {
-            it.contours.map {
-                it.segments.flatMap {
-                    it.control.asList() + it.start
-                }.map { Pair(it.x, it.y) }
-            }
+            it.points.map { it.xy() }
         }
         assertEquals(
             listOf(
                 listOf(
-                    listOf(
-                        Pair(100.0, 60.0),
-                        Pair(80.0, 50.0),
-                        Pair(100.0, 40.0)
-                    )
+                    Vector2(100.0, 60.0),
+                    Vector2(80.0, 50.0),
+                    Vector2(100.0, 40.0)
                 )
             ),
             concaveAreas

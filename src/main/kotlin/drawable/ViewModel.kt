@@ -69,7 +69,7 @@ class ViewModel(internal var model: Model) {
                 changeTool(ComponentMoveTool(this))
             }
             "f" -> {
-                model.inferSvgInterfaces(model.svgComponents)
+                model.inferSvgInterfaces()
             }
             "a" -> {
                 changeTool(InterfaceEraseTool(this))
@@ -85,6 +85,9 @@ class ViewModel(internal var model: Model) {
             }
             "k" -> {
                 changeTool(GroupAssignTool(this))
+            }
+            "m" -> {
+                changeTool(ConcaveAreaMacroTool(this))
             }
             else -> {
                 activeTool.keyUp(key)

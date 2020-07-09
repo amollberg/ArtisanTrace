@@ -1,7 +1,4 @@
 import kotlinx.serialization.Serializable
-import org.openrndr.color.ColorRGBa.Companion.GREEN
-import org.openrndr.color.ColorRGBa.Companion.TRANSPARENT
-import org.openrndr.color.ColorRGBa.Companion.fromHex
 
 @Serializable
 data class Group(
@@ -15,17 +12,20 @@ data class Group(
     val members: Set<GroupMember>
         get() = interfaces + traces + sketchComponents + svgComponents
 
-    val surface: Poly
-        get() = members.sortedBy { it.groupOrdinal }.map { it.bounds }
-            .fold(Poly(emptyList())) { a, b ->
-                Poly.fuse(a, b)
-            }
+    val recursiveInterfaces
+        get() =
+            interfaces +
+                    sketchComponents.flatMap { it.model.getInterfacesRecursively() } +
+                    svgComponents.flatMap { it.interfaces }
 
-    val surfaceInterfaces: Set<Interface>
-        get() = (interfaces + sketchComponents.flatMap { it.interfaces })
-            .filter { itf ->
-                interfaceIsOnSurface(itf, surface)
-            }.toSet()
+    val surface: Surface
+        get() = Surface(
+            members.sortedBy { it.groupOrdinal }.map { it.bounds }
+                .fold(Poly(emptyList())) { a, b ->
+                    Poly.fuse(a, b)
+                },
+            recursiveInterfaces
+        )
 
     fun add(groupMember: GroupMember) {
         if (groupMember in members) return
@@ -56,33 +56,7 @@ data class Group(
         traces.forEach { it.draw(drawer) }
         sketchComponents.forEach { it.draw(drawer) }
         svgComponents.forEach { it.draw(drawer) }
-        isolatedStyle(
-            drawer.drawer,
-            stroke = fromHex(0xFF9040),
-            fill = TRANSPARENT,
-            strokeWeight = 2.0
-        ) {
-            if (drawer.extendedVisualization)
-                surface.draw(drawer)
-        }
-        isolatedStyle(
-            drawer.drawer,
-            stroke = GREEN,
-            fill = TRANSPARENT,
-            strokeWeight = 3.0
-        ) {
-            if (drawer.extendedVisualization) {
-                surface.segmentsOnConvexHull.forEach {
-                    drawer.drawer.lineSegment(it.lineSegment(drawer.system))
-                }
-            }
-        }
+        if (drawer.extendedVisualization)
+            surface.draw(drawer)
     }
-
-    private fun interfaceIsOnSurface(itf: Interface, surface: Poly) =
-        surface.segmentPointers.any {
-            it.segment(itf.center.system)
-                .project(itf.center.xy())
-                .distance == 0.0
-        }
 }

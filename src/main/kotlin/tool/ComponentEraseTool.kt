@@ -15,7 +15,6 @@ class ComponentEraseTool(viewModel: ViewModel) : BaseTool(viewModel) {
             SvgComponent::class -> {
                 (component as SvgComponent).interfaces.forEach {
                     viewModel.model.eraseSegmentsTo(it)
-                    viewModel.model.interfaces.remove(it)
                 }
                 viewModel.model.svgComponents.remove(component)
             }

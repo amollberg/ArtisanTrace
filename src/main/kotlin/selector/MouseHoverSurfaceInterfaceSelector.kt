@@ -9,7 +9,7 @@ class MouseHoverSurfaceInterfaceSelector(private val viewModel: ViewModel) {
 
     fun getInterface(): Interface? {
         val interfaces =
-            viewModel.model.groups.flatMap { it.surfaceInterfaces }
+            viewModel.model.groups.flatMap { it.surface.interfaces }
 
         return interfaces.minBy {
             (it.center - viewModel.mousePoint).lengthIn(viewModel.root)
