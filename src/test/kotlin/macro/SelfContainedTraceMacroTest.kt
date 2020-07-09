@@ -8,7 +8,7 @@ class SelfContainedTraceMacroTest : WithImplicitView() {
         val macro = SelfContainedTraceMacro(view.model, 10.0)
         val surface = Surface(Poly.rect(view.root, 30, 20), emptySet())
 
-        macro.generate(surface.poly, view.root.coord(Vector2.ZERO))
+        macro.generate(surface.poly, view.root.coord(Vector2.ZERO)).commit()
 
         assertEquals(
             listOf(
@@ -37,5 +37,6 @@ class SelfContainedTraceMacroTest : WithImplicitView() {
 
         // Does not throw an exception
         macro.generate(surface.poly, view.root.coord(Vector2(32.0, 21.0)))
+            .commit()
     }
 }

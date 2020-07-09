@@ -257,17 +257,26 @@ class Model(@Transient val system: System = root()) : FileBacked {
         }
     }
 
-    fun addSvg(backingFile: File, position: Coordinate): SvgComponent {
+    fun loadSvg(backingFile: File, position: Coordinate): SvgComponent {
         val svg = fromFile(backingFile)
         val svgSystem = system.createSystem(origin = position.xyIn(system))
         val svgComponent = SvgComponent(svg, svgSystem)
         svgComponent.svg.relativizeBackingFileTo(workingDir)
-        svgComponents.add(svgComponent)
         svgComponent.inferInterfaces()
         return svgComponent
     }
 
-    fun addSketch(backingFile: File, position: Coordinate): SketchComponent? {
+    fun addSvg(svgComponent: SvgComponent) {
+        svgComponents.add(svgComponent)
+    }
+
+    fun addSvg(backingFile: File, position: Coordinate): SvgComponent {
+        val svgComponent = loadSvg(backingFile, position)
+        addSvg(svgComponent)
+        return svgComponent
+    }
+
+    fun loadSketch(backingFile: File, position: Coordinate): SketchComponent? {
         var submodel = loadFromFile(backingFile)
         return submodel?.ifPresent {
             submodel.relativizeBackingFileTo(workingDir)
@@ -275,10 +284,19 @@ class Model(@Transient val system: System = root()) : FileBacked {
                 it,
                 system.createSystem(origin = position.xyIn(system))
             )
-            sketchComponents.add(sketch)
             sketch
         }
     }
+
+    fun addSketch(sketchComponent: SketchComponent) {
+        sketchComponents.add(sketchComponent)
+    }
+
+    fun addSketch(backingFile: File, position: Coordinate): SketchComponent? =
+        loadSketch(backingFile, position)?.ifPresent {
+            addSketch(it)
+            it
+        }
 
     fun eraseSegmentsTo(itf: Interface) {
         // Note: Copying to avoid concurrent modification problems
