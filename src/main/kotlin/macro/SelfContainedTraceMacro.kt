@@ -84,4 +84,12 @@ data class ModelAdditions(val model: Model) {
         traces.clear()
         svgComponents.clear()
     }
+
+    fun draw(drawer: OrientedDrawer) {
+        isolatedStyle(drawer.drawer, stroke = model.color) {
+            traces.forEach { it.draw(drawer) }
+            interfaces.forEach { it.draw(drawer) }
+            svgComponents.forEach { it.draw(drawer) }
+        }
+    }
 }

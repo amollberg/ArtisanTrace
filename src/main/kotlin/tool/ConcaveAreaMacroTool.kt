@@ -12,5 +12,8 @@ class ConcaveAreaMacroTool(viewModel: ViewModel) : BaseTool(viewModel) {
 
     override fun draw(drawer: OrientedDrawer) {
         areaSelector.draw(drawer)
+        val area = areaSelector.getPoly() ?: return
+        val previewModel = macro.generate(area, viewModel.mousePoint)
+        previewModel.draw(drawer)
     }
 }
