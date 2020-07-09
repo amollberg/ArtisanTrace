@@ -18,6 +18,12 @@ data class Trace(
 
     val segments: MutableList<TraceSegment> get() = traceSegments
 
+    val terminals: List<Terminals>
+        get() =
+            if (traceSegments.isNotEmpty())
+                traceSegments.map { it.start } + traceSegments.last().end
+            else emptyList()
+
     override val bounds: Poly
         get() = segments.map { it.bounds }
             .fold(Poly(listOf()), { left, right ->
@@ -68,6 +74,22 @@ data class Trace(
         system = modelSystem
         setSystem()
     }
+
+    fun append(
+        newTerminals: Terminals,
+        angle: Angle = Angle.OBTUSE,
+        reverseKnee: Boolean = false
+    ) {
+        if (traceSegments.isEmpty())
+            throw IllegalStateException("Empty trace cannot be appended to.")
+        add(
+            TraceSegment(
+                terminals.last(),
+                newTerminals,
+                angle, reverseKnee
+            )
+        )
+    }
 }
 
 fun fold(v: Vector2, foldMatrix: Matrix22): Vector2 {
@@ -112,4 +134,27 @@ fun snapTo45(firstPoint: Vector2, secondPoint: Vector2): Vector2 {
         vec = unfold(vec, it)
     }
     return firstPoint + vec
+}
+
+fun trace(system: System, f: TraceBuilder.() -> Unit): Trace {
+    val builder = TraceBuilder(system)
+    builder.f()
+    return builder.result
+}
+
+class TraceBuilder(val system: System) {
+
+    internal val terminalsList: MutableList<Terminals> = mutableListOf()
+
+    fun terminals(terminals: Terminals) {
+        terminalsList.add(terminals)
+    }
+
+    val result: Trace
+        get() = Trace(
+            system,
+            terminalsList.windowed(2) { (start: Terminals, end: Terminals) ->
+                TraceSegment(start, end, Angle.OBTUSE, false)
+            }.toMutableList()
+        )
 }

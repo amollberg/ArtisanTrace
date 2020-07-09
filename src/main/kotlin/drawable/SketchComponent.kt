@@ -61,6 +61,13 @@ data class SketchComponent(
 
     override val interfaces: List<Interface>
         get() = model.getInterfacesRecursively()
+
+    override fun move(itf: Interface, targetItfPosition: Coordinate) {
+        if (!itf.center.system.derivesFrom(system))
+            throw IllegalArgumentException("$itf does not derive from $this")
+        val distance = targetItfPosition - itf.center
+        system.originCoord += distance
+    }
 }
 
 object SketchReferenceSerializer :
