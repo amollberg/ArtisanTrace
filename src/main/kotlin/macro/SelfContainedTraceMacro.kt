@@ -1,10 +1,12 @@
+import TurnDirection.LEFT
 import coordinates.Coordinate
 import coordinates.System
 import java.io.File
 
 data class SelfContainedTraceMacro(
     val model: Model,
-    var cellSize: Double
+    var cellSize: Double,
+    var startDirection: Direction
 ) {
     fun generate(area: Poly, startPoint: Coordinate): ModelAdditions {
         val previewModel = ModelAdditions(model)
@@ -14,7 +16,12 @@ data class SelfContainedTraceMacro(
         val endVia = previewModel.addSvg(viaFile, startPoint)
 
         val grid = ArrayPolyGrid(area, cellSize)
-        val walker = SpiralWalker(grid, grid.gridPosition(startPoint))
+        val walker = SpiralWalker(
+            grid,
+            grid.gridPosition(startPoint),
+            startDirection,
+            LEFT
+        )
         val path = walker.generate()
 
         if (path.positions.isNotEmpty())

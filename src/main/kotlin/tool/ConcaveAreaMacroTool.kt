@@ -2,7 +2,7 @@ import coordinates.Coordinate
 
 class ConcaveAreaMacroTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val areaSelector = MouseHoverPolySelector(viewModel)
-    val macro = SelfContainedTraceMacro(viewModel.model, 7.0)
+    val macro = SelfContainedTraceMacro(viewModel.model, 7.0, Direction(0))
 
     override fun mouseClicked(position: Coordinate) {
         val area = areaSelector.getPoly() ?: return
