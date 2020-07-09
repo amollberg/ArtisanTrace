@@ -74,6 +74,22 @@ data class Trace(
         system = modelSystem
         setSystem()
     }
+
+    fun append(
+        newTerminals: Terminals,
+        angle: Angle = Angle.OBTUSE,
+        reverseKnee: Boolean = false
+    ) {
+        if (traceSegments.isEmpty())
+            throw IllegalStateException("Empty trace cannot be appended to.")
+        add(
+            TraceSegment(
+                terminals.last(),
+                newTerminals,
+                angle, reverseKnee
+            )
+        )
+    }
 }
 
 fun fold(v: Vector2, foldMatrix: Matrix22): Vector2 {

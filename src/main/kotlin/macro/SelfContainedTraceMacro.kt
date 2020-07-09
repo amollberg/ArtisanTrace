@@ -17,14 +17,7 @@ data class SelfContainedTraceMacro(val model: Model) {
 
         val endPoint = grid.coordinate(path.positions.last())
         val endVia = model.addSvg(viaFile, endPoint)
-        trace.add(
-            TraceSegment(
-                trace.segments.last().end,
-                Terminals(endVia.interfaces.first(), 0..0),
-                Angle.OBTUSE,
-                false
-            )
-        )
+        trace.append(Terminals(endVia.interfaces.first(), 0..0))
     }
 
     private fun createTrace(path: Path, grid: ArrayPolyGrid): Trace {
