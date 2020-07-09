@@ -1,28 +1,34 @@
 import coordinates.Coordinate
+import coordinates.System
 import java.io.File
 
-data class SelfContainedTraceMacro(val model: Model, var cellSize: Double) {
-    fun generate(area: Poly, startPoint: Coordinate) {
+data class SelfContainedTraceMacro(
+    val model: Model,
+    var cellSize: Double
+) {
+    fun generate(area: Poly, startPoint: Coordinate): ModelAdditions {
+        val previewModel = ModelAdditions(model)
         val viaFile = File("src/test/resources/Via3.svg")
         // Note: These will be moved when the trace is created
-        val startVia = model.addSvg(viaFile, startPoint)
-        val endVia = model.addSvg(viaFile, startPoint)
+        val startVia = previewModel.addSvg(viaFile, startPoint)
+        val endVia = previewModel.addSvg(viaFile, startPoint)
 
         val grid = ArrayPolyGrid(area, cellSize)
         val walker = SpiralWalker(grid, grid.gridPosition(startPoint))
         val path = walker.generate()
 
         if (path.positions.isNotEmpty())
-            createTrace(path, grid, startVia, endVia)
+            createTrace(previewModel, path, grid, startVia, endVia)
+        return previewModel
     }
 
     private fun createTrace(
+        previewModel: ModelAdditions,
         path: Path,
         grid: ArrayPolyGrid,
         startVia: SvgComponent,
         endVia: SvgComponent
     ): Trace {
-
         startVia.move(
             startVia.interfaces.first(),
             path.positions.first().coord(grid.system)
@@ -31,18 +37,51 @@ data class SelfContainedTraceMacro(val model: Model, var cellSize: Double) {
             endVia.interfaces.first(),
             path.positions.last().coord(grid.system)
         )
-        val trace = trace(model.system) {
+        val trace = trace(previewModel.system) {
             terminals(Terminals(startVia.interfaces.first(), 0..0))
             path.positions.drop(1).dropLast(1).forEach { gridPosition ->
                 val position =
-                    gridPosition.coord(grid.system).relativeTo(model.system)
+                    gridPosition.coord(grid.system)
+                        .relativeTo(previewModel.system)
                 val itf = Interface(position, 0.0, 10.0, 1)
-                model.interfaces.add(itf)
+                previewModel.addInterface(itf)
                 terminals(Terminals(itf, 0..0))
             }
             terminals(Terminals(endVia.interfaces.first(), 0..0))
         }
-        model.traces.add(trace)
+        previewModel.addTrace(trace)
         return trace
+    }
+}
+
+data class ModelAdditions(val model: Model) {
+    val system: System get() = model.system
+
+    private var interfaces: MutableList<Interface> = mutableListOf()
+    private var traces: MutableList<Trace> = mutableListOf()
+    private var svgComponents: MutableList<SvgComponent> = mutableListOf()
+
+    fun addInterface(itf: Interface) {
+        interfaces.add(itf)
+    }
+
+    fun addTrace(trace: Trace) {
+        traces.add(trace)
+    }
+
+    fun addSvg(backingFile: File, coordinate: Coordinate): SvgComponent {
+        val svgComponent = model.loadSvg(backingFile, coordinate)
+        svgComponents.add(svgComponent)
+        return svgComponent
+    }
+
+    fun commit() {
+        model.interfaces.addAll(interfaces)
+        model.traces.addAll(traces)
+        svgComponents.forEach { model.addSvg(it) }
+
+        interfaces.clear()
+        traces.clear()
+        svgComponents.clear()
     }
 }
