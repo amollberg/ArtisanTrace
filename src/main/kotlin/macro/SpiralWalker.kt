@@ -1,4 +1,9 @@
-data class SpiralWalker(val grid: Grid, val startPosition: GridPosition) {
+data class SpiralWalker(
+    val grid: Grid,
+    val startPosition: GridPosition,
+    val startDirection: Direction,
+    val turnDirection: TurnDirection
+) {
     fun generate(): Path {
         val path = Path(mutableListOf())
 
@@ -7,11 +12,14 @@ data class SpiralWalker(val grid: Grid, val startPosition: GridPosition) {
         path.positions.add(startPosition)
         var position = startPosition
 
-        var direction = Direction.of(0)
+        var direction = startDirection
         while (true) {
             val availableDirection =
-                listOf(0, 1, -1, 2, -2, 3, -3, -4).map {
-                    Direction.of(it + direction.angle45)
+                when (turnDirection) {
+                    TurnDirection.LEFT -> listOf(2, 0)
+                    TurnDirection.RIGHT -> listOf(-2, 0)
+                }.map {
+                    it + direction
                 }.filter {
                     position.neighbor(it).let { neighbor ->
                         grid.isInBounds(neighbor) && !grid.hasVisited(neighbor)
@@ -30,4 +38,8 @@ data class SpiralWalker(val grid: Grid, val startPosition: GridPosition) {
         }
         return path
     }
+}
+
+enum class TurnDirection {
+    LEFT, RIGHT
 }

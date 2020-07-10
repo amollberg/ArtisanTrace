@@ -1,22 +1,5 @@
 import coordinates.System
 import org.openrndr.math.Vector2
-import java.lang.Math.floorMod
-
-interface Direction {
-    val angle45: Int
-
-    companion object {
-        fun of(unNormalizedAngle45: Int) =
-            NormalizedDirection(floorMod(unNormalizedAngle45, 360 / 45))
-    }
-}
-
-data class NormalizedDirection(override val angle45: Int) : Direction
-
-// Angle measured in multiples of 45 degrees counter-clockwise from positive
-// x-axis in a system where y-axis points down
-fun direction(unNormalizedAngle45: Int) =
-    floorMod(unNormalizedAngle45, 360 / 45)
 
 data class GridPosition(val x: Int, val y: Int) {
     companion object {
