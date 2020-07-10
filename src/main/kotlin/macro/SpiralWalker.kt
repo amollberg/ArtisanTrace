@@ -7,11 +7,11 @@ data class SpiralWalker(val grid: Grid, val startPosition: GridPosition) {
         path.positions.add(startPosition)
         var position = startPosition
 
-        var direction = Direction.of(0)
+        var direction = Direction(0)
         while (true) {
             val availableDirection =
                 listOf(0, 1, -1, 2, -2, 3, -3, -4).map {
-                    Direction.of(it + direction.angle45)
+                    it + direction
                 }.filter {
                     position.neighbor(it).let { neighbor ->
                         grid.isInBounds(neighbor) && !grid.hasVisited(neighbor)
