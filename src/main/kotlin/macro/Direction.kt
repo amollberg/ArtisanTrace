@@ -15,6 +15,10 @@ class Direction(startAngle45: Int) {
         return Direction(angle45 + other)
     }
 
+    operator fun plus(other: Direction): Direction {
+        return this + other.angle45
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
