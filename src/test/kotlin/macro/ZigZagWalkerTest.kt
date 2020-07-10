@@ -26,4 +26,29 @@ class ZigZagWalkerTest {
             ), walker.generate()
         )
     }
+
+    @Test
+    fun fillsNarrowingTrapezoid() {
+        val walker = ZigZagWalker(
+            ArrayLambdaGrid { (x, y) ->
+                (y..6 - y).contains(x) &&
+                        (0..2).contains(y)
+            },
+            GridPosition(0, 0),
+            Direction(0),
+            TurnDirection.RIGHT
+        )
+        assertEquals(
+            Path(
+                mutableListOf(
+                    GridPosition(0, 0),
+                    GridPosition(5, 0),
+                    GridPosition(5, 1),
+                    GridPosition(2, 1),
+                    GridPosition(2, 2),
+                    GridPosition(4, 2)
+                )
+            ), walker.generate()
+        )
+    }
 }

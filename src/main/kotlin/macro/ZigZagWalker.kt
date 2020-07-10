@@ -38,25 +38,43 @@ class ZigZagWalker(
                 LEFT -> 2
                 RIGHT -> -2
             }
+
+        fun turnDiagonal() = turn() / 2
+        fun switchTurning() {
+            turnDirection = when (turnDirection) {
+                LEFT -> RIGHT
+                RIGHT -> LEFT
+            }
+        }
         while (true) {
-            if (!canGo(0)) {
-                // Turn around
-                if (canGo(turn())) {
-                    go(turn())
-                    if (canGo(turn())) {
-                        go(turn())
+            if (canGo(turn())) {
+                if (canGo(turnDiagonal())) {
+                    if (canGo(0)) {
+                        go(0)
                     } else {
+                        // Turn around
+                        go(turn())
+                        if (!canGo(turn())) {
+                            break
+                        }
+                        go(turn())
+                        switchTurning()
+                    }
+                } else {
+                    // Turn around
+                    go(turn())
+                    if (!canGo(turn())) {
                         break
                     }
+                    go(turn())
+                    switchTurning()
+                }
+            } else {
+                if (canGo(0)) {
+                    go(0)
                 } else {
                     break
                 }
-                turnDirection = when (turnDirection) {
-                    LEFT -> RIGHT
-                    RIGHT -> LEFT
-                }
-            } else {
-                go(0)
             }
         }
         return path
