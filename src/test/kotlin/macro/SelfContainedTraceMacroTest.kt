@@ -1,4 +1,4 @@
-import org.junit.jupiter.api.Assertions.assertEquals
+import TestUtils.Companion.assertListEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
 
@@ -14,7 +14,7 @@ class SelfContainedTraceMacroTest : WithImplicitView() {
 
         // The leftward spiral prefers going left over straight ahead so it
         // will go in positive X
-        assertEquals(
+        assertListEquals(
             listOf(
                 Vector2(10.0, 10.0),
                 Vector2(20.0, 10.0),
@@ -23,7 +23,8 @@ class SelfContainedTraceMacroTest : WithImplicitView() {
                 Vector2(0.0, 20.0),
                 Vector2(20.0, 20.0)
             ), view.model.traces.first().terminals
-                .map { it.hostInterface.center.xyIn(view.root) }
+                .map { it.hostInterface.center.xyIn(view.root) },
+            delta = 1e-8
         )
     }
 

@@ -1,4 +1,4 @@
-import TestUtils.Companion.assertEquals
+import TestUtils.Companion.assertListListEquals
 import TestUtils.Companion.at
 import TestUtils.Companion.clickMouse
 import TestUtils.Companion.createViewModel
@@ -32,7 +32,7 @@ class SvgComponentTest {
         val expectedInterfaceEnds = EXPECTED_INTERFACE_ENDS[SVG_PATH]!!.map {
             it.map { coord -> coord + MOVED_ORIGIN }
         }
-        assertEquals(
+        assertListListEquals(
             expectedInterfaceEnds,
             modified.svgInterfaces.map { itf ->
                 itf.getEnds().map {
@@ -55,7 +55,7 @@ class SvgComponentTest {
         val interfaceEnds = view.model.svgInterfaces.map { itf ->
             itf.getEnds().map { it.xyIn(svgSystem) }
         }
-        assertEquals(
+        assertListListEquals(
             EXPECTED_INTERFACE_ENDS[SVG_PATH]!!,
             interfaceEnds,
             delta = 1e-5
@@ -79,7 +79,7 @@ class SvgComponentTest {
         val interfaceEnds = view.model.svgInterfaces.map { itf ->
             itf.getEnds().map { it.xyIn(svgSystem) }
         }
-        assertEquals(
+        assertListListEquals(
             EXPECTED_INTERFACE_ENDS[SVG_PATH]!!,
             interfaceEnds,
             delta = 1e-5
