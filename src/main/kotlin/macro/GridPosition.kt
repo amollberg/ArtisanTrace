@@ -1,14 +1,23 @@
+import coordinates.Coordinate
 import coordinates.System
 import org.openrndr.math.Vector2
+import kotlin.math.round
 
-data class GridPosition(val x: Int, val y: Int) {
+data class GridPosition(
+    val x: Int,
+    val y: Int,
+    private val gridSystem: System
+) {
     companion object {
-        fun from(xy: Vector2): GridPosition =
-            GridPosition(xy.x.toInt(), xy.y.toInt())
+        fun from(coordinate: Coordinate, gridSystem: System) =
+            GridPosition(coordinate.xyIn(gridSystem), gridSystem)
     }
 
-    fun coord(system: System) =
-        system.coord(Vector2(x.toDouble(), y.toDouble()))
+    constructor(xy: Vector2, gridSystem: System) :
+            this(round(xy.x).toInt(), round(xy.y).toInt(), gridSystem)
+
+    val coordinate: Coordinate
+        get() = gridSystem.coord(Vector2(x.toDouble(), y.toDouble()))
 
     fun neighbor(direction: Direction): GridPosition {
         val xOffset = when (direction.angle45) {
@@ -33,7 +42,7 @@ data class GridPosition(val x: Int, val y: Int) {
             7 -> 1
             else -> throw RuntimeException("Invalid angle")
         }
-        return GridPosition(x + xOffset, y + yOffset)
+        return GridPosition(x + xOffset, y + yOffset, gridSystem)
     }
 }
 

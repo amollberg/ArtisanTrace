@@ -3,12 +3,22 @@ import coordinates.System
 import org.openrndr.math.Vector2
 
 interface Grid {
+    val system: System
+
     fun hasVisited(position: GridPosition): Boolean
 
     fun isInBounds(position: GridPosition): Boolean
 
     fun visit(position: GridPosition)
 }
+
+fun Grid.position(coordinate: Coordinate) =
+    GridPosition.from(coordinate, system)
+
+fun Grid.position(xy: Vector2) = GridPosition(xy, system)
+
+fun Grid.position(x: Int, y: Int) =
+    position(Vector2(x.toDouble(), y.toDouble()))
 
 abstract class ArrayGrid(dimensions: Vector2) : Grid {
     private val grid: Array<Array<Boolean>> =
@@ -42,16 +52,10 @@ class ArrayPolyGrid(
     val poly: Poly,
     private val cellSize: Double
 ) : ArrayGrid(cellBounds(poly, cellSize)) {
-    val system = gridSystem(poly, cellSize)
+    override val system = gridSystem(poly, cellSize)
 
     override fun isInBounds(position: GridPosition) =
-        poly.contains(position.coord(system))
-
-    fun gridPosition(coordinate: Coordinate) =
-        GridPosition.from(coordinate.xyIn(system))
-
-    fun coordinate(gridPosition: GridPosition) =
-        gridPosition.coord(system)
+        poly.contains(position.coordinate)
 }
 
 fun create2dBooleanArray(dimensions: Vector2) =

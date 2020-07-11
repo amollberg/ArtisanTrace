@@ -16,39 +16,35 @@ data class SelfContainedTraceMacro(
         val grid = ArrayPolyGrid(area, cellSize)
         val walker = SpiralWalker(
             grid,
-            grid.gridPosition(startPoint),
+            grid.position(startPoint),
             startDirection,
             LEFT
         )
         val path = walker.generate()
 
         if (path.positions.isNotEmpty())
-            createTrace(previewModel, path, grid, startVia, endVia)
+            createTrace(previewModel, path, startVia, endVia)
         return previewModel
     }
 
     private fun createTrace(
         previewModel: ModelAdditions,
         path: Path,
-        grid: ArrayPolyGrid,
         startVia: SvgComponent,
         endVia: SvgComponent
     ): Trace {
         startVia.move(
             startVia.interfaces.first(),
-            path.positions.first().coord(grid.system)
+            path.positions.first().coordinate
         )
         endVia.move(
             endVia.interfaces.first(),
-            path.positions.last().coord(grid.system)
+            path.positions.last().coordinate
         )
         val trace = trace(previewModel.system) {
             terminals(Terminals(startVia.interfaces.first(), 0..0))
             path.positions.drop(1).dropLast(1).forEach { gridPosition ->
-                val position =
-                    gridPosition.coord(grid.system)
-                        .relativeTo(previewModel.system)
-                val itf = Interface(position, 0.0, 10.0, 1)
+                val itf = Interface(gridPosition.coordinate, 0.0, 10.0, 1)
                 previewModel.addInterface(itf)
                 terminals(Terminals(itf, 0..0))
             }
