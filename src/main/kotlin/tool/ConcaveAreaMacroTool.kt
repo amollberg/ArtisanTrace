@@ -7,8 +7,9 @@ class ConcaveAreaMacroTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val areaSelector = MouseHoverPolySelector(viewModel)
     private var startDirection = Direction(0)
     private var selectedWalker = 0
+    private var cellSize = 7.0
 
-    val macro = SelfContainedTraceMacro(viewModel.model, 7.0)
+    val macro = SelfContainedTraceMacro(viewModel.model)
 
     override fun mouseClicked(position: Coordinate) {
         val area = areaSelector.getPoly() ?: return
@@ -20,6 +21,9 @@ class ConcaveAreaMacroTool(viewModel: ViewModel) : BaseTool(viewModel) {
     override fun mouseScrolled(mouse: MouseEvent) {
         if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
             selectedWalker += mouse.rotation.y.toInt()
+        } else if (mouse.modifiers.contains(KeyModifier.ALT)) {
+            cellSize = (cellSize + mouse.rotation.y.toInt())
+                .coerceAtLeast(2.0)
         } else {
             startDirection += -mouse.rotation.y.toInt()
         }
@@ -36,7 +40,7 @@ class ConcaveAreaMacroTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private fun walker(area: Poly, startPoint: Coordinate): Walker {
         val grid = ArrayPolyGrid(
             area.rotated(startDirection.angle45 * 45.0),
-            7.0
+            cellSize
         )
         val walkers = listOf(
             ZigZagWalker(
