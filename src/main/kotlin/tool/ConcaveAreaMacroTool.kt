@@ -1,9 +1,12 @@
 import coordinates.Coordinate
+import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
+import java.lang.Math.floorMod
 
 class ConcaveAreaMacroTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private val areaSelector = MouseHoverPolySelector(viewModel)
     private var startDirection = Direction(0)
+    private var selectedWalker = 0
 
     val macro = SelfContainedTraceMacro(viewModel.model, 7.0)
 
@@ -15,7 +18,11 @@ class ConcaveAreaMacroTool(viewModel: ViewModel) : BaseTool(viewModel) {
     }
 
     override fun mouseScrolled(mouse: MouseEvent) {
-        startDirection += -mouse.rotation.y.toInt()
+        if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
+            selectedWalker += mouse.rotation.y.toInt()
+        } else {
+            startDirection += -mouse.rotation.y.toInt()
+        }
     }
 
     override fun draw(drawer: OrientedDrawer) {
@@ -31,10 +38,18 @@ class ConcaveAreaMacroTool(viewModel: ViewModel) : BaseTool(viewModel) {
             area.rotated(startDirection.angle45 * 45.0),
             7.0
         )
-        return SpiralWalker(
-            grid,
-            grid.position(startPoint),
-            TurnDirection.LEFT
+        val walkers = listOf(
+            ZigZagWalker(
+                grid,
+                grid.position(startPoint),
+                TurnDirection.LEFT
+            ),
+            SpiralWalker(
+                grid,
+                grid.position(startPoint),
+                TurnDirection.LEFT
+            )
         )
+        return walkers[floorMod(selectedWalker, walkers.size)]
     }
 }
