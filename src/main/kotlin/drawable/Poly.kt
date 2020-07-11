@@ -53,6 +53,12 @@ data class Poly(
     fun contains(point: Coordinate) =
         contour(point.system).contains(point.xy())
 
+    fun rotated(angleDegrees: Double): Poly {
+        val newSystem =
+            system?.createRotated(angleDegrees) ?: return Poly(emptyList())
+        return Poly(points.map { it.relativeTo(newSystem) })
+    }
+
     val convexHull get() = convexHull(this)
 
     val concaveAreas

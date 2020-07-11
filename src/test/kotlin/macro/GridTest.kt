@@ -12,21 +12,21 @@ class GridTest {
         val poly = Poly.rect(system, 20, 10)
         val grid = ArrayPolyGrid(poly, 10.0)
 
-        assertFalse(grid.isInBounds(GridPosition(-1, 0)))
-        assertTrue(grid.isInBounds(GridPosition(0, 0)))
-        assertTrue(grid.isInBounds(GridPosition(1, 0)))
-        assertTrue(grid.isInBounds(GridPosition(2, 0)))
-        assertFalse(grid.isInBounds(GridPosition(3, 0)))
+        assertFalse(grid.isInBounds(grid.position(-1, 0)))
+        assertTrue(grid.isInBounds(grid.position(0, 0)))
+        assertTrue(grid.isInBounds(grid.position(1, 0)))
+        assertTrue(grid.isInBounds(grid.position(2, 0)))
+        assertFalse(grid.isInBounds(grid.position(3, 0)))
 
-        assertFalse(grid.isInBounds(GridPosition(-1, 1)))
-        assertTrue(grid.isInBounds(GridPosition(0, 1)))
-        assertTrue(grid.isInBounds(GridPosition(1, 1)))
-        assertTrue(grid.isInBounds(GridPosition(2, 1)))
-        assertFalse(grid.isInBounds(GridPosition(3, 1)))
+        assertFalse(grid.isInBounds(grid.position(-1, 1)))
+        assertTrue(grid.isInBounds(grid.position(0, 1)))
+        assertTrue(grid.isInBounds(grid.position(1, 1)))
+        assertTrue(grid.isInBounds(grid.position(2, 1)))
+        assertFalse(grid.isInBounds(grid.position(3, 1)))
 
         poly.points.forEach {
             // Make sure it is within bounds of the underlying array
-            grid.visit(grid.gridPosition(it))
+            grid.visit(grid.position(it))
         }
     }
 
@@ -43,7 +43,7 @@ class GridTest {
 
         poly.points.forEach {
             // Make sure it is within bounds of the underlying array
-            grid.visit(grid.gridPosition(it))
+            grid.visit(grid.position(it))
         }
     }
 }

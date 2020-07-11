@@ -8,6 +8,7 @@ import kotlinx.serialization.UseSerializers
 import org.openrndr.math.Matrix33
 import org.openrndr.math.Vector2
 import org.openrndr.math.Vector3
+import kotlin.math.PI
 
 @Serializable
 data class System(
@@ -47,12 +48,15 @@ data class System(
         origin: Vector2 = Vector2.ZERO, axes: Matrix22 = Matrix22.IDENTITY
     ) = System(this, origin, axes)
 
+    // Get the indicated point as a coordinate in this system
     fun get(coordinate: Coordinate) =
         Coordinate(internalGet(coordinate.three(), coordinate.system), this)
 
     fun get(length: Length) =
         Length(internalGet(length.three(), length.system), this)
 
+    // Get the xy in this system that corresponds to the indicated vector in
+    // the indicated coordinate system
     private fun internalGet(three: Vector3, system: System): Vector2 {
         if (system == this) {
             return three.xy
@@ -80,6 +84,14 @@ data class System(
     fun derivesFrom(other: System): Boolean {
         if (this === other) return true
         return reference?.derivesFrom(other) ?: return false
+    }
+
+    fun createRotated(angleDegrees: Double): System {
+        return copy(
+            reference = this,
+            origin = Vector2.ZERO,
+            axes = Matrix22.rotation(angleDegrees * PI / 180)
+        )
     }
 }
 

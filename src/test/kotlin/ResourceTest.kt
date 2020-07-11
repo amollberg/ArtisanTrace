@@ -1,4 +1,4 @@
-import TestUtils.Companion.assertEquals
+import TestUtils.Companion.assertListListEquals
 import TestUtils.Companion.dropFiles
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
@@ -26,7 +26,7 @@ class ResourceTest : WithImplicitView() {
             view,
             DropEvent(Vector2.ZERO, listOf(File(path)))
         )
-        assertEquals(
+        assertListListEquals(
             EXPECTED_INTERFACE_ENDS[path]!!,
             view.model.svgComponents.first().interfaces.map {
                 it.getEnds().map { it.xyIn(view.root) }
