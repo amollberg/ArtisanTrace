@@ -22,7 +22,7 @@ fun projectOrthogonal(position: Coordinate, terminals: Terminals):
 }
 
 fun getCenter(terminals: Terminals): Coordinate {
-    val count = terminals.count()
+    val count = terminals.count
     return when (count % 2 == 0) {
         // Even number of terminals, take average of the middle two
         true -> positionOf(terminals, count / 2).lerp(

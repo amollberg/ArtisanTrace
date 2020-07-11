@@ -5,7 +5,7 @@ import kotlinx.serialization.UseSerializers
 
 @Serializable
 data class Terminals(val hostInterface: Interface, var range: IntProgression) {
-    fun count() = range.count()
+    val count get() = range.count()
 
     /** IntRange is subclass of IntProgression but does not compare equal to
      *  an IntProgression with the same elements. So to facilitate
