@@ -10,7 +10,6 @@ class SpiralWalkerTest {
         val walker = SpiralWalker(
             grid,
             grid.position(Vector2.ZERO),
-            Direction(0),
             TurnDirection.LEFT
         )
         assertEquals(

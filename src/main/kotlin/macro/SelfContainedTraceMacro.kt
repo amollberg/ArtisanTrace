@@ -13,11 +13,14 @@ data class SelfContainedTraceMacro(
         val startVia = previewModel.addSvg(viaFile, startPoint)
         val endVia = previewModel.addSvg(viaFile, startPoint)
 
-        val grid = ArrayPolyGrid(area, cellSize)
+        val grid =
+            ArrayPolyGrid(
+                area.rotated(-startDirection.angle45 * 45.0),
+                cellSize
+            )
         val walker = SpiralWalker(
             grid,
             grid.position(startPoint),
-            startDirection,
             LEFT
         )
         val path = walker.generate()

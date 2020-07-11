@@ -11,7 +11,6 @@ class ZigZagWalkerTest {
         val walker = ZigZagWalker(
             grid,
             grid.position(2, 0),
-            Direction(0),
             TurnDirection.RIGHT
         )
         assertEquals(
@@ -37,7 +36,6 @@ class ZigZagWalkerTest {
         val walker = ZigZagWalker(
             grid,
             grid.position(0, 0),
-            Direction(0),
             TurnDirection.RIGHT
         )
         assertEquals(

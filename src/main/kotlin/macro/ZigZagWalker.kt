@@ -4,7 +4,6 @@ import TurnDirection.RIGHT
 class ZigZagWalker(
     val grid: Grid,
     val startPosition: GridPosition,
-    val startDirection: Direction,
     val startingTurnDirection: TurnDirection
 ) {
     fun generate(): Path {
@@ -14,7 +13,7 @@ class ZigZagWalker(
         grid.visit(startPosition)
         path.positions.add(startPosition)
         var position = startPosition
-        var direction = startDirection
+        var direction = Direction(0)
         fun canGo(relativeDirection: Int) =
             position.neighbor(relativeDirection + direction).let { neighbor ->
                 grid.isInBounds(neighbor) && !grid.hasVisited(neighbor)
