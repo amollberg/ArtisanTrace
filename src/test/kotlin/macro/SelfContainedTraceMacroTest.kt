@@ -4,33 +4,40 @@ import org.openrndr.math.Vector2
 
 class SelfContainedTraceMacroTest : WithImplicitView() {
     @Test
-    fun threeByThreeRect() {
+    fun threePointsWalked() {
         // Note: Indicating positive Y start direction
-        val macro = SelfContainedTraceMacro(view.model, 10.0, Direction(-2))
-        val surface = Surface(Poly.rect(view.root, 20, 20), emptySet())
+        val macro = SelfContainedTraceMacro(view.model)
+        val walker = object : Walker {
+            override fun generate() =
+                Path(
+                    listOf(
+                        Vector2(10.0, 10.0),
+                        Vector2(20.0, 10.0),
+                        Vector2(20.0, 0.0)
+                    ).map { GridPosition(it, view.root) }.toMutableList()
+                )
+        }
+        macro.generate(walker).commit()
 
-        macro.generate(surface.poly, view.root.coord(Vector2(10.0, 10.0)))
-            .commit()
-
-        // The leftward spiral prefers going left over straight ahead so it
-        // will go in positive X
         assertListEquals(
             listOf(
                 Vector2(10.0, 10.0),
                 Vector2(20.0, 10.0),
-                Vector2(20.0, 0.0),
-                Vector2(0.0, 0.0),
-                Vector2(0.0, 20.0),
-                Vector2(20.0, 20.0)
+                Vector2(20.0, 0.0)
             ), view.model.traces.first().terminals
-                .map { it.hostInterface.center.xyIn(view.root) },
-            delta = 1e-8
+                .map { it.hostInterface.center.xyIn(view.root) }
         )
+        assertListEquals(
+            listOf(
+                Vector2(10.0, 10.0),
+                Vector2(20.0, 0.0)
+            ),
+            view.model.svgInterfaces.map { it.center.xyIn(view.root) })
     }
 
     @Test
     fun irregularQuad() {
-        val macro = SelfContainedTraceMacro(view.model, 10.0, Direction(0))
+        val macro = SelfContainedTraceMacro(view.model)
         val surface = Surface(Poly(
             listOf(
                 Vector2(30.0, 20.0),
@@ -39,9 +46,11 @@ class SelfContainedTraceMacroTest : WithImplicitView() {
                 Vector2(50.0, 0.0)
             ).map { view.root.coord(it) }
         ), emptySet())
+        val grid = ArrayPolyGrid(surface.poly, 10.0)
+        val walker =
+            ZigZagWalker(grid, grid.position(2, 0), TurnDirection.RIGHT)
 
         // Does not throw an exception
-        macro.generate(surface.poly, view.root.coord(Vector2(32.0, 21.0)))
-            .commit()
+        macro.generate(walker).commit()
     }
 }
