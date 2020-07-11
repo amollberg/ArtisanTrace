@@ -44,7 +44,7 @@ data class SelfContainedTraceMacro(
         val trace = trace(previewModel.system) {
             terminals(Terminals(startVia.interfaces.first(), 0..0))
             path.positions.drop(1).dropLast(1).forEach { gridPosition ->
-                val itf = Interface(gridPosition.coordinate, 0.0, 10.0, 1)
+                val itf = Interface(gridPosition.coordinate, 0.0, 0.01, 1)
                 previewModel.addInterface(itf)
                 terminals(Terminals(itf, 0..0))
             }
