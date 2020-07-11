@@ -2,8 +2,8 @@ data class SpiralWalker(
     val grid: Grid,
     val startPosition: GridPosition,
     val turnDirection: TurnDirection
-) {
-    fun generate(): Path {
+) : Walker {
+    override fun generate(): Path {
         val path = Path(mutableListOf())
 
         if (!grid.isInBounds(startPosition)) return path
