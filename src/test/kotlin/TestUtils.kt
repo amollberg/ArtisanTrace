@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.openrndr.*
 import org.openrndr.math.Vector2
+import java.io.File
 
 open class WithImplicitView {
     protected var view = ViewModel(Model(root())).let {
@@ -144,6 +145,14 @@ class TestUtils {
         ) {
             view.keyDown(KeyEvent(KeyEventType.KEY_DOWN, 0, name, modifiers))
             view.keyUp(KeyEvent(KeyEventType.KEY_UP, 0, name, modifiers))
+        }
+
+        fun tempAtgFile(content: String): File {
+            val tmpFile =
+                File.createTempFile("tempAtgFile", ".atg", File("build"))
+            tmpFile.deleteOnExit()
+            tmpFile.writeText(content)
+            return tmpFile
         }
 
         private fun toList(model: Model) =
