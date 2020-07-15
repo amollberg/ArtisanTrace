@@ -32,6 +32,7 @@ class SvgMacroTest : WithImplicitView() {
         )
 
         assertEquals(1, view.model.svgComponents.size)
+        assertEquals(2, view.model.svgComponents.first().interfaces.size)
     }
 
     @Test

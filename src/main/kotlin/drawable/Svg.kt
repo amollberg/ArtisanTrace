@@ -55,3 +55,4 @@ fun sameRGB(a: ColorRGBa?, b: ColorRGBa?) =
     }
 
 val FUCHSIA = ColorRGBa.fromHex(0xff00ff)
+val INTERFACE_KEY_COLOR = FUCHSIA
