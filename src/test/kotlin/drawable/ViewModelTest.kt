@@ -5,6 +5,7 @@ import TestUtils.Companion.clickMouse
 import TestUtils.Companion.createViewModel
 import TestUtils.Companion.dropFiles
 import TestUtils.Companion.scrollMouse
+import TestUtils.Companion.tempAtgFile
 import coordinates.System
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -23,6 +24,7 @@ class ViewModelTest {
 
         val ORIGINAL_COMP1_ORIGIN = Vector2(70.0, 200.0)
         val COMP2_ORIGIN = Vector2(200.0, 100.0)
+        val SVGMACRO_ORIGIN = Vector2(200.0, 140.0)
     }
 
     @Test
@@ -129,11 +131,23 @@ class ViewModelTest {
         original.changeTool(GroupAssignTool(original))
         clickMouse(original, at(original, COMP2_ORIGIN))
 
+        dropFiles(
+            original,
+            DropEvent(
+                SVGMACRO_ORIGIN,
+                listOf(
+                    tempAtgFile(
+                        """{"type": "SvgMacro.VerticalPins", "pins":2}"""
+                    )
+                )
+            )
+        )
+
         // Exit the active tool to commit any pending changes
         original.activeTool = EmptyTool(original)
 
         assertEquals(2, original.model.sketchComponents.size)
-        assertEquals(1, original.model.svgComponents.size)
+        assertEquals(2, original.model.svgComponents.size)
         return original.model
     }
 
