@@ -10,23 +10,25 @@ import kotlin.math.round
 data class InferredInterface(val ends: List<Vector2>, val terminalCount: Int)
 
 data class Svg(
-    var composition: Composition? = null, override var
-    backingFile: File
+    var composition: Composition? = null,
+    override var backingFile: File
 ) : FileBacked {
+
+    val interfaces = inferredInterfaces(composition)
 
     companion object {
         fun fromFile(file: File): Svg {
             var svgText = file.readText()
             svgText = "(\\d)px;".toRegex().replace(svgText, "\\1;")
             val svg = Svg(loadSVG(svgText), file)
+            svg.hideInterfaceShapes()
             return svg
         }
-    }
 
-    val interfaces: List<InferredInterface>
-        get() {
-            val c = composition ?: return listOf()
-            return c.findShapes()
+        private fun inferredInterfaces(composition: Composition?):
+                List<InferredInterface> {
+            if (composition == null) return emptyList()
+            return composition.findShapes()
                 .filter { sameRGB(it.effectiveStroke, FUCHSIA) }
                 .filter { it.effectiveStroke?.let { it.a > 0.0 } ?: false }
                 .flatMap { shapeNode ->
@@ -40,6 +42,7 @@ data class Svg(
                     }
                 }
         }
+    }
 
     fun hideInterfaceShapes() {
         val c = composition ?: return
