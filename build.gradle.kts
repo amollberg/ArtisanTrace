@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.internal.os.OperatingSystem
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /* the name of this project, default is the template version but you are free to change these */
 group = "org.openrndr.template"
@@ -53,8 +53,9 @@ val openrndrFeatures = setOf(
 )
 
 /*  Which version of OPENRNDR and ORX should be used? */
-val openrndrUseSnapshot = false
-val openrndrVersion = if (openrndrUseSnapshot) "0.4.0-SNAPSHOT" else "0.3.42"
+val openrndrUseSnapshot = true
+val openrndrVersion =
+    if (openrndrUseSnapshot) "0.4.0-dev.3+fix.svg.stroke.opacity.loading.cf5c951" else "0.3.42"
 
 val orxUseSnapshot = false
 val orxVersion = if (orxUseSnapshot) "0.4.0-SNAPSHOT" else "0.3.51"
