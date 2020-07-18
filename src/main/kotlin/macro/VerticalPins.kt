@@ -39,7 +39,7 @@ fun SvgMacro.VerticalPins.draw(drawer: CompositionDrawer) {
     }, pinSize / 2.0)
 
     // Interfaces
-    drawer.stroke = INTERFACE_KEY_COLOR
+    drawer.stroke = interfaceKeyColor(pins)
     var itfVec = Vector2(innerRect.x, 0.0)
     val ySide = Vector2(0.0, innerRect.y)
     drawer.lineSegment(Vector2.ZERO, itfVec)

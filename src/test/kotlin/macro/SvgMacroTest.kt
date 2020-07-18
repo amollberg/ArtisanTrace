@@ -36,6 +36,23 @@ class SvgMacroTest : WithImplicitView() {
     }
 
     @Test
+    fun loadVerticalPinsWithCorrectTerminalCounts() {
+        dropFiles(
+            view, DropEvent(
+                Vector2.ZERO, listOf(
+                    tempAtgFile(
+                        """{"type": "SvgMacro.VerticalPins", "pins":5}"""
+                    )
+                )
+            )
+        )
+
+        assertEquals(1, view.model.svgComponents.size)
+        assertEquals(listOf(5, 5), view.model.svgComponents.first().interfaces
+            .map { it.terminalCount })
+    }
+
+    @Test
     fun loadRectGridViaView() {
         dropFiles(
             view, DropEvent(
