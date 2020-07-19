@@ -14,7 +14,7 @@ import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 
-val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
+private val json = Json(JsonConfiguration.Stable.copy(prettyPrint = true))
 
 @Serializable
 class Model(@Transient val system: System = root()) : FileBacked {

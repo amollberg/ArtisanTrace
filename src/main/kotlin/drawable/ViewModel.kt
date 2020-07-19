@@ -7,10 +7,13 @@ import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyEvent
 import org.openrndr.KeyEventType
 import org.openrndr.color.ColorRGBa
+import org.openrndr.color.ColorRGBa.Companion.BLACK
+import org.openrndr.color.ColorRGBa.Companion.GREEN
 import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import org.openrndr.shape.CompositionDrawer
+import org.openrndr.svg.writeSVG
 import tool.ColorPickTool
 import java.io.File
 import java.io.FileNotFoundException
@@ -137,6 +140,11 @@ class ViewModel(internal var model: Model) {
             when (droppedFile.extension) {
                 "svg" ->
                     handleDroppedSvgFile(droppedFile, root.coord(drop.position))
+                "atg" ->
+                    handleDroppedSvgMacroFile(
+                        droppedFile,
+                        root.coord(drop.position)
+                    )
                 else ->
                     // Treat as a sketch file containing a model
                     handleDroppedSketchFile(
@@ -144,6 +152,32 @@ class ViewModel(internal var model: Model) {
                         root.coord(drop.position)
                     )
             }
+        }
+    }
+
+    private fun handleDroppedSvgMacroFile(
+        droppedFile: File,
+        coord: Coordinate
+    ) {
+        val content = droppedFile.readText()
+        val obj = maybeMuteExceptions {
+            SvgMacro.json.parse(SvgMacro.serializer(), content)
+        }
+        obj?.ifPresent {
+            val svgFile = File(droppedFile.absoluteFile.path + ".svg")
+            val cd = CompositionDrawer()
+            cd.stroke = GREEN
+            cd.fill = BLACK
+            when (obj) {
+                is SvgMacro.RectGrid -> obj.draw(cd)
+                is SvgMacro.VerticalPins -> obj.draw(cd)
+                is SvgMacro.IntegratedCircuit -> obj.draw(cd)
+                is SvgMacro.MicroController -> obj.draw(cd)
+                is SvgMacro.ZigZagEnd -> obj.draw(cd)
+            }
+            val svgText = writeSVG(cd.composition)
+            svgFile.writeText(svgText)
+            model.addSvg(svgFile, coord)
         }
     }
 

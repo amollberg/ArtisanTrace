@@ -29,8 +29,8 @@ class SvgComponentTest {
         val modified = modifyModel(deserialized)
 
         // check that the interfaces are in the right place
-        val expectedInterfaceEnds = EXPECTED_INTERFACE_ENDS[SVG_PATH]!!.map {
-            it.map { coord -> coord + MOVED_ORIGIN }
+        val expectedInterfaceEnds = EXPECTED_INTERFACES[SVG_PATH]!!.map {
+            it.ends.map { coord -> coord + MOVED_ORIGIN }
         }
         assertListListEquals(
             expectedInterfaceEnds,
@@ -56,7 +56,7 @@ class SvgComponentTest {
             itf.getEnds().map { it.xyIn(svgSystem) }
         }
         assertListListEquals(
-            EXPECTED_INTERFACE_ENDS[SVG_PATH]!!,
+            EXPECTED_INTERFACES[SVG_PATH]!!.map { it.ends },
             interfaceEnds,
             delta = 1e-5
         )
@@ -80,7 +80,7 @@ class SvgComponentTest {
             itf.getEnds().map { it.xyIn(svgSystem) }
         }
         assertListListEquals(
-            EXPECTED_INTERFACE_ENDS[SVG_PATH]!!,
+            EXPECTED_INTERFACES[SVG_PATH]!!.map { it.ends },
             interfaceEnds,
             delta = 1e-5
         )
@@ -108,7 +108,7 @@ class SvgComponentTest {
         model.groups.add(group)
 
         assertEquals(
-            EXPECTED_INTERFACE_ENDS[SVG_PATH]!!.size,
+            EXPECTED_INTERFACES[SVG_PATH]!!.size,
             group.surface.interfaces.size
         )
     }

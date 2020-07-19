@@ -52,7 +52,8 @@ data class SvgComponent(
         ).relativeTo(toSystem)
 
     fun inferInterfaces() {
-        svg.interfaceEnds.forEachIndexed { i, (start, end) ->
+        svg.interfaces.forEachIndexed { i, inferred ->
+            val (start, end) = inferred.ends
             val center = (start + end) * 0.5
             val line = end - start
             val angle = 180 / PI * atan2(line.y, line.x)
@@ -62,13 +63,14 @@ data class SvgComponent(
                 itf.center = system.coord(center)
                 itf.angle = angle
                 itf.length = line.length
+                itf.terminalCount = inferred.terminalCount
             } else {
                 // Create a new interface
                 val itf = Interface(
                     system.coord(center),
                     angle,
                     line.length,
-                    2
+                    inferred.terminalCount
                 )
                 interfaces.add(itf)
             }
