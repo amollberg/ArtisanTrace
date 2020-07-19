@@ -1,0 +1,8 @@
+{
+    "type": "SvgMacro.IntegratedCircuit",
+    "pinsPerSide": 3,
+    "pinPitch": 8.0,
+    "pinLength": 4.0,
+    "pinCornerMargin": 0.6666666666666666,
+    "width": 11.0
+}

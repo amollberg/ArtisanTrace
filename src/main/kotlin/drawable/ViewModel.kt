@@ -1,3 +1,4 @@
+import SvgUtils.Companion.addBlackBackground
 import coordinates.Coordinate
 import coordinates.Oriented
 import kotlinx.serialization.SerializationException
@@ -175,7 +176,7 @@ class ViewModel(internal var model: Model) {
                 is SvgMacro.MicroController -> obj.draw(cd)
                 is SvgMacro.ZigZagEnd -> obj.draw(cd)
             }
-            val svgText = writeSVG(cd.composition)
+            val svgText = addBlackBackground(writeSVG(cd.composition))
             svgFile.writeText(svgText)
             model.addSvg(svgFile, coord)
         }
