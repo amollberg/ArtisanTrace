@@ -1,4 +1,4 @@
-import org.junit.jupiter.api.Assertions.assertEquals
+import TestUtils.Companion.assertListListEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.math.Vector2
 import org.openrndr.shape.CompositionDrawer
@@ -22,10 +22,10 @@ class IntegratedCircuitTest {
                 Vector2(-3.0, 7.5)
             ),
             listOf(
-                Vector2(13.0, 1.5),
-                Vector2(13.0, 3.5),
+                Vector2(13.0, 7.5),
                 Vector2(13.0, 5.5),
-                Vector2(13.0, 7.5)
+                Vector2(13.0, 3.5),
+                Vector2(13.0, 1.5)
             )
         )
         val drawer = CompositionDrawer()
@@ -42,6 +42,6 @@ class IntegratedCircuitTest {
         val terminalPositions = interfaces.map {
             Segment(it.ends.first(), it.ends.last()).equidistantPositions(4)
         }
-        assertEquals(expectedTerminalPositions, terminalPositions)
+        assertListListEquals(expectedTerminalPositions, terminalPositions, 1e-7)
     }
 }
