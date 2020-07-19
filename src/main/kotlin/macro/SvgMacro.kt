@@ -48,4 +48,9 @@ sealed class SvgMacro {
         var pinLength: Double = 4.0,
         var pinCornerMargin: Double = 2 / 3.0
     ) : SvgMacro()
+
+    @Serializable
+    data class ZigZagEnd(
+        var terminals: Int = 4
+    ) : SvgMacro()
 }

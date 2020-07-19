@@ -7,6 +7,8 @@ import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyEvent
 import org.openrndr.KeyEventType
 import org.openrndr.color.ColorRGBa
+import org.openrndr.color.ColorRGBa.Companion.BLACK
+import org.openrndr.color.ColorRGBa.Companion.GREEN
 import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
@@ -169,6 +171,7 @@ class ViewModel(internal var model: Model) {
                 is SvgMacro.VerticalPins -> obj.draw(cd)
                 is SvgMacro.IntegratedCircuit -> obj.draw(cd)
                 is SvgMacro.MicroController -> obj.draw(cd)
+                is SvgMacro.ZigZagEnd -> obj.draw(cd)
             }
             val svgText = writeSVG(cd.composition)
             svgFile.writeText(svgText)
