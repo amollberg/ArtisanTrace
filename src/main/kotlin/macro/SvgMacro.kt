@@ -40,4 +40,12 @@ sealed class SvgMacro {
         var pinCornerMargin: Double = 2 / 3.0,
         var width: Double = 11.0
     ) : SvgMacro()
+
+    @Serializable
+    data class MicroController(
+        var pinsPerSide: Int = 8,
+        var pinPitch: Double = 2.0,
+        var pinLength: Double = 4.0,
+        var pinCornerMargin: Double = 2 / 3.0
+    ) : SvgMacro()
 }

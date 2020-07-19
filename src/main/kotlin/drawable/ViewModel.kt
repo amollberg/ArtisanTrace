@@ -168,6 +168,7 @@ class ViewModel(internal var model: Model) {
                 is SvgMacro.RectGrid -> obj.draw(cd)
                 is SvgMacro.VerticalPins -> obj.draw(cd)
                 is SvgMacro.IntegratedCircuit -> obj.draw(cd)
+                is SvgMacro.MicroController -> obj.draw(cd)
             }
             val svgText = writeSVG(cd.composition)
             svgFile.writeText(svgText)
