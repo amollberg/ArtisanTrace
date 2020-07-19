@@ -1,0 +1,9 @@
+{
+    "type": "SvgMacro.RectGrid",
+    "width": 100.0,
+    "height": 100.0,
+    "circleRadius": 2.0,
+    "countX": 2,
+    "countY": 2,
+    "margin": 0.05
+}

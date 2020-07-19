@@ -12,3 +12,5 @@
 application.log
 build
 out
+components/*
+!components/*_default.atg

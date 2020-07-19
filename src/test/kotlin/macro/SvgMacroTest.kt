@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
 import org.openrndr.math.Vector2
+import java.io.File
 
 class SvgMacroTest : WithImplicitView() {
 
@@ -65,5 +66,19 @@ class SvgMacroTest : WithImplicitView() {
         )
 
         assertEquals(1, view.model.svgComponents.size)
+    }
+
+    // Writes ATG files to components/ which will show up in the diff if changed
+    @Test
+    fun generateAllDefaults() {
+        listOf(
+            SvgMacro.IntegratedCircuit(), SvgMacro.MicroController(),
+            SvgMacro.RectGrid(), SvgMacro.VerticalPins(), SvgMacro.ZigZagEnd()
+        ).forEach {
+            val className = it::class.simpleName!!.toLowerCase()
+            File("components/${className}_default.atg").writeText(
+                it.serialize()
+            )
+        }
     }
 }

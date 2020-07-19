@@ -1,0 +1,7 @@
+{
+    "type": "SvgMacro.MicroController",
+    "pinsPerSide": 8,
+    "pinPitch": 2.0,
+    "pinLength": 4.0,
+    "pinCornerMargin": 0.6666666666666666
+}
