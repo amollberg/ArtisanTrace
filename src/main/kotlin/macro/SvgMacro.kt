@@ -31,4 +31,13 @@ sealed class SvgMacro {
         var pinSize: Double = 6.0,
         var margin: Double = 1.2
     ) : SvgMacro()
+
+    @Serializable
+    data class IntegratedCircuit(
+        var pinsPerSide: Int = 3,
+        var pinPitch: Double = 8.0,
+        var pinLength: Double = 4.0,
+        var pinCornerMargin: Double = 2 / 3.0,
+        var width: Double = 11.0
+    ) : SvgMacro()
 }
