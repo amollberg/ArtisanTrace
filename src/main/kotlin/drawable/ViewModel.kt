@@ -166,6 +166,8 @@ class ViewModel(internal var model: Model) {
         obj?.ifPresent {
             val svgFile = File(droppedFile.absoluteFile.path + ".svg")
             val cd = CompositionDrawer()
+            cd.stroke = GREEN
+            cd.fill = BLACK
             when (obj) {
                 is SvgMacro.RectGrid -> obj.draw(cd)
                 is SvgMacro.VerticalPins -> obj.draw(cd)
