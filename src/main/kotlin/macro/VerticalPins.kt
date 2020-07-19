@@ -1,6 +1,7 @@
 import org.openrndr.color.ColorRGBa
 import org.openrndr.math.Vector2
 import org.openrndr.shape.CompositionDrawer
+import org.openrndr.shape.LineSegment
 import org.openrndr.shape.contour
 import kotlin.math.PI
 
@@ -39,9 +40,8 @@ fun SvgMacro.VerticalPins.draw(drawer: CompositionDrawer) {
     }, pinSize / 2.0)
 
     // Interfaces
-    drawer.stroke = interfaceKeyColor(pins)
     var itfVec = Vector2(innerRect.x, 0.0)
     val ySide = Vector2(0.0, innerRect.y)
-    drawer.lineSegment(Vector2.ZERO, itfVec)
-    drawer.lineSegment(ySide, ySide + itfVec)
+    drawSvgInterface(drawer, LineSegment(Vector2.ZERO, itfVec), pins)
+    drawSvgInterface(drawer, LineSegment(ySide, ySide + itfVec), pins)
 }
