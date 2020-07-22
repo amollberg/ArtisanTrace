@@ -53,4 +53,10 @@ sealed class SvgMacro {
     data class ZigZagEnd(
         var terminals: Int = 4
     ) : SvgMacro()
+
+    @Serializable
+    data class ViaArray(
+        var terminals: Int = 2,
+        var pitch: Double = 13.0
+    ) : SvgMacro()
 }

@@ -175,6 +175,7 @@ class ViewModel(internal var model: Model) {
                 is SvgMacro.IntegratedCircuit -> obj.draw(cd)
                 is SvgMacro.MicroController -> obj.draw(cd)
                 is SvgMacro.ZigZagEnd -> obj.draw(cd)
+                is SvgMacro.ViaArray -> obj.draw(cd)
             }
             val svgText = addBlackBackground(writeSVG(cd.composition))
             svgFile.writeText(svgText)
