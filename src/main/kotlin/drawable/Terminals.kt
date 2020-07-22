@@ -14,4 +14,7 @@ data class Terminals(val hostInterface: Interface, var range: IntProgression) {
      */
     constructor(hostInterface: Interface, range: IntRange) :
             this(hostInterface, toProgression(range.toList()))
+
+    constructor(hostInterface: Interface, terminal: Int) :
+            this(hostInterface, terminal..terminal)
 }
