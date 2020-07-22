@@ -1,0 +1,6 @@
+{
+    "type": "SketchMacro.ObverseIcTrace",
+    "pinsPerSide": 3,
+    "pinPitch": 16.0,
+    "width": 18.0
+}

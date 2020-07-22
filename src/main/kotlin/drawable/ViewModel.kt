@@ -2,7 +2,10 @@ import SvgUtils.Companion.addBlackBackground
 import coordinates.Coordinate
 import coordinates.Oriented
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
+import kotlinx.serialization.json.contentOrNull
 import org.openrndr.DropEvent
 import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyEvent
@@ -142,7 +145,7 @@ class ViewModel(internal var model: Model) {
                 "svg" ->
                     handleDroppedSvgFile(droppedFile, root.coord(drop.position))
                 "atg" ->
-                    handleDroppedSvgMacroFile(
+                    handleDroppedMacroFile(
                         droppedFile,
                         root.coord(drop.position)
                     )
@@ -153,6 +156,19 @@ class ViewModel(internal var model: Model) {
                         root.coord(drop.position)
                     )
             }
+        }
+    }
+
+    private fun handleDroppedMacroFile(droppedFile: File, coord: Coordinate) {
+        val jsonRoot = Json(JsonConfiguration.Default)
+            .parseJson(droppedFile.readText())
+        val obj = jsonRoot.jsonObject
+        val ob = obj.content["type"]
+        val typeString = ob?.contentOrNull.orEmpty()
+        println("$obj, $ob, $typeString")
+        when (typeString.split('.')[0]) {
+            "SvgMacro" -> handleDroppedSvgMacroFile(droppedFile, coord)
+            "SketchMacro" -> handleDroppedSketchMacroFile(droppedFile, coord)
         }
     }
 
@@ -186,6 +202,25 @@ class ViewModel(internal var model: Model) {
     private fun handleDroppedSvgFile(droppedFile: File, position: Coordinate) {
         // Add the svg from the file as a subcomponent
         maybeMuteExceptions { model.addSvg(droppedFile, position) }
+    }
+
+    private fun handleDroppedSketchMacroFile(
+        droppedFile: File, coord: Coordinate
+    ) {
+        val content = droppedFile.readText()
+        val obj = maybeMuteExceptions {
+            SketchMacro.json.parse(SketchMacro.serializer(), content)
+        }
+        obj?.ifPresent {
+            val sketchFile = File(droppedFile.absoluteFile.path + ".ats")
+            val sketchModel = Model()
+            sketchModel.backingFile = sketchFile
+            when (obj) {
+                is SketchMacro.ObverseIcTrace -> obj.create(sketchModel)
+            }
+            sketchModel.saveToFile()
+            model.addSketch(sketchFile, coord)!!
+        }
     }
 
     private fun handleDroppedSketchFile(
