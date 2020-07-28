@@ -1,7 +1,7 @@
 import coordinates.Coordinate
 import coordinates.Length
-import org.openrndr.KEY_LEFT_SHIFT
-import org.openrndr.KeyModifier
+import org.openrndr.KeyModifier.ALT
+import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.MouseEvent
 import org.openrndr.math.Vector2
 import kotlin.math.max
@@ -31,9 +31,9 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     override fun mouseScrolled(mouse: MouseEvent) {
         val itf = selectedItf ?: return
 
-        if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
+        if (mouse.modifiers.contains(SHIFT)) {
             itf.length += 4 * mouse.rotation.y
-        } else if (mouse.modifiers.contains(KeyModifier.ALT)) {
+        } else if (mouse.modifiers.contains(ALT)) {
             var count = itf.terminalCount
             count += mouse.rotation.y.toInt()
             count = max(1, count)
@@ -66,9 +66,7 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
             // needs to be untouched while projectOrthogonal is called below
             var newCenter = viewModel.mousePoint - mouseOffset
             // Restrict the new interface position if shift is held
-            if (viewModel.modifierKeysHeld
-                    .getOrDefault(KEY_LEFT_SHIFT, false)
-            ) {
+            if (SHIFT in viewModel.modifierKeysHeld) {
                 newCenter = projectOrthogonal(newCenter, itf.getTerminals())
             }
             itf.center = newCenter

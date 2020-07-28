@@ -1,6 +1,6 @@
 import coordinates.Coordinate
-import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyModifier
+import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.MouseEvent
 import org.openrndr.math.clamp
 
@@ -82,11 +82,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
     private fun update() {
         itf.center = viewModel.mousePoint
         // Restrict the new interface position if shift is held
-        if (viewModel.modifierKeysHeld.getOrDefault(
-                KEY_LEFT_SHIFT,
-                false
-            )
-        ) {
+        if (SHIFT in viewModel.modifierKeysHeld) {
             itf.center = projectOrthogonal(itf.center, previousTerminals!!)
         }
     }

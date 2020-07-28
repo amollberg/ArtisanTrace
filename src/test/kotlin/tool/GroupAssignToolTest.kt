@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
-import org.openrndr.KEY_LEFT_SHIFT
+import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.math.Vector2
 import java.io.File
 
@@ -15,7 +15,7 @@ class GroupAssignToolTest : WithImplicitView() {
     fun addSketchComponentToGroup() {
         dropFiles(
             DropEvent(Vector2(30.0, 40.0), listOf(File(SKETCH_PATH))),
-            setOf(KEY_LEFT_SHIFT)
+            setOf(SHIFT)
         )
         assertEquals(0, view.model.groups.size)
 

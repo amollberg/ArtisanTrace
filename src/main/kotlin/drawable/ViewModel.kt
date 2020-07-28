@@ -7,9 +7,9 @@ import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
 import kotlinx.serialization.json.contentOrNull
 import org.openrndr.DropEvent
-import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyEvent
-import org.openrndr.KeyEventType
+import org.openrndr.KeyModifier
+import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.color.ColorRGBa
 import org.openrndr.color.ColorRGBa.Companion.BLACK
 import org.openrndr.color.ColorRGBa.Companion.GREEN
@@ -32,8 +32,7 @@ class ViewModel(internal var model: Model) {
     // For unit testing and debugging
     var muteSerializationExceptions = true
 
-    // Map KEY_CODE to whether the key is held or not
-    var modifierKeysHeld = HashMap<Int, Boolean>()
+    var modifierKeysHeld = setOf<KeyModifier>()
 
     companion object {
         val DEFAULT_STYLE = Style(
@@ -136,7 +135,7 @@ class ViewModel(internal var model: Model) {
     }
 
     private fun updateModifiers(key: KeyEvent) {
-        modifierKeysHeld[key.key] = key.type == KeyEventType.KEY_DOWN
+        modifierKeysHeld = key.modifiers.toMutableSet()
     }
 
     fun fileDrop(drop: DropEvent) {
@@ -227,7 +226,7 @@ class ViewModel(internal var model: Model) {
         droppedFile: File,
         position: Coordinate
     ) {
-        if (modifierKeysHeld.getOrDefault(KEY_LEFT_SHIFT, false)) {
+        if (SHIFT in modifierKeysHeld) {
             // Add the model from the file as a subcomponent
             maybeMuteExceptions { model.addSketch(droppedFile, position) }
         } else {

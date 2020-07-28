@@ -1,5 +1,6 @@
 import coordinates.Coordinate
 import org.openrndr.KeyModifier
+import org.openrndr.KeyModifier.ALT
 import org.openrndr.MouseEvent
 import kotlin.math.max
 
@@ -13,7 +14,7 @@ class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
     override fun mouseScrolled(mouse: MouseEvent) {
         if (mouse.modifiers.contains(KeyModifier.SHIFT)) {
             itf.length += 4 * mouse.rotation.y
-        } else if (mouse.modifiers.contains(KeyModifier.ALT)) {
+        } else if (mouse.modifiers.contains(ALT)) {
             itf.terminalCount += mouse.rotation.y.toInt()
             itf.terminalCount = max(1, itf.terminalCount)
         } else {
