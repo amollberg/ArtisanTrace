@@ -143,18 +143,33 @@ fun trace(system: System, f: TraceBuilder.() -> Unit): Trace {
 }
 
 class TraceBuilder(val system: System) {
+    internal data class TerminalsWithConfig(
+        val terminals: Terminals,
+        val reverseKnee: Boolean
+    )
 
-    internal val terminalsList: MutableList<Terminals> = mutableListOf()
+    private val terminalsList: MutableList<TerminalsWithConfig> =
+        mutableListOf()
+    private var reverseKnee = false
 
     fun terminals(terminals: Terminals) {
-        terminalsList.add(terminals)
+        terminalsList.add(TerminalsWithConfig(terminals, reverseKnee))
+    }
+
+    fun reverseKnee(value: Boolean) {
+        reverseKnee = value
     }
 
     val result: Trace
         get() = Trace(
             system,
-            terminalsList.windowed(2) { (start: Terminals, end: Terminals) ->
-                TraceSegment(start, end, Angle.OBTUSE, false)
+            terminalsList.windowed(2) { (start: TerminalsWithConfig, end: TerminalsWithConfig) ->
+                TraceSegment(
+                    start.terminals,
+                    end.terminals,
+                    Angle.OBTUSE,
+                    end.reverseKnee
+                )
             }.toMutableList()
         )
 }

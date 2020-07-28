@@ -72,8 +72,12 @@ class SvgMacroTest : WithImplicitView() {
     @Test
     fun generateAllDefaults() {
         listOf(
-            SvgMacro.IntegratedCircuit(), SvgMacro.MicroController(),
-            SvgMacro.RectGrid(), SvgMacro.VerticalPins(), SvgMacro.ZigZagEnd()
+            SvgMacro.IntegratedCircuit(),
+            SvgMacro.MicroController(),
+            SvgMacro.RectGrid(),
+            SvgMacro.VerticalPins(),
+            SvgMacro.ZigZagEnd(),
+            SvgMacro.ViaArray()
         ).forEach {
             val className = it::class.simpleName!!.toLowerCase()
             File("components/${className}_default.atg").writeText(
