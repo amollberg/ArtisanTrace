@@ -84,7 +84,7 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
                 selectedSnapTarget?.ifPresent { groupMember ->
                     newCenter = itf.center + snappedTo(
                         itf.bounds,
-                        groupMember.bounds,
+                        offsetOutwards(groupMember.bounds, 6.0),
                         viewModel.mousePoint
                     )
                 }
@@ -124,3 +124,9 @@ fun nearestSegment(poly: Poly, point: Coordinate) =
     poly.segmentPointers.minBy {
         it.segment(point.system).project(point.xy()).distance
     }
+
+fun offsetOutwards(poly: Poly, distance: Double): Poly {
+    return listOf(distance, -distance).map { offset ->
+        poly.offsetBounds(offset)
+    }.minBy { countOverlappingPoints(it, poly) }!!
+}

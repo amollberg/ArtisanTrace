@@ -41,6 +41,9 @@ class InterfaceMoveToolTest : WithImplicitView() {
         clickMouse(startItf.center)
         clickMouse(at(view, boundaryX + 13, 20), setOf(ALT))
 
-        assertEquals(at(view, boundaryX - 5, 20), startItf.center)
+        val expectedCenterX = (boundaryX
+                - startItf.length / 2
+                - InterfaceSnapSubtool.MARGIN_DISTANCE)
+        assertEquals(at(view, expectedCenterX, 20.0), startItf.center)
     }
 }

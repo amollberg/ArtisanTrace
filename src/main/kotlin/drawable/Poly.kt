@@ -3,6 +3,7 @@ import coordinates.Length
 import coordinates.System
 import coordinates.System.Companion.root
 import org.openrndr.math.Vector2
+import org.openrndr.shape.SegmentJoin.MITER
 import org.openrndr.shape.ShapeContour
 import org.openrndr.shape.Triangle
 import org.openrndr.shape.compound
@@ -17,6 +18,11 @@ data class Poly(
     val system: System? get() = points.firstOrNull()?.system
 
     override val bounds get() = this
+
+    fun offsetBounds(distance: Double) =
+        system?.ifPresent {
+            from(contour(it).offset(distance, MITER), it)
+        } ?: Poly(emptyList())
 
     fun contour(system: System): ShapeContour = contour {
         points.forEach { moveOrLineTo(it.xyIn(system)) }
