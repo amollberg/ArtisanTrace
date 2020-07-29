@@ -102,18 +102,17 @@ fun snappedTo(movingPoly: Poly, poly: Poly, target: Coordinate):
             snapSegment.segment(target.system).project(target.xy()).point
         )
     // Assuming for now that the projection of target is on the snapSegment
-    val movingPoint = if (poly.contains(target)) {
-        movingPoly.points.minBy { movingPoint ->
-            (movingPoint - target).lengthIn(movingPoint.system)
-        }
-    } else {
-        movingPoly.points.maxBy { movingPoint ->
-            (movingPoint - target).lengthIn(movingPoint.system)
-        }
+
+    val movingPoint = movingPoly.points.minBy { movingPoint ->
+        countOverlappingPoints(movingPoly.moved(snapPoint - movingPoint), poly)
     } ?: return originToTarget
 
     return snapPoint - movingPoint
 }
+
+fun countOverlappingPoints(a: Poly, b: Poly) =
+    a.points.filter { b.contains(it) }.count() +
+            b.points.filter { a.contains(it) }.count()
 
 fun nearestSegment(poly: Poly, point: Coordinate) =
     poly.segmentPointers.minBy {

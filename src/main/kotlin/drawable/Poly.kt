@@ -1,4 +1,5 @@
 import coordinates.Coordinate
+import coordinates.Length
 import coordinates.System
 import coordinates.System.Companion.root
 import org.openrndr.math.Vector2
@@ -61,6 +62,10 @@ data class Poly(
         val newSystem =
             system?.createRotated(angleDegrees) ?: return Poly(emptyList())
         return Poly(points.map { it.relativeTo(newSystem) })
+    }
+
+    fun moved(length: Length): Poly {
+        return this.copy(points = points.map { it + length })
     }
 
     val convexHull get() = convexHull(this)
