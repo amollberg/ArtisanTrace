@@ -4,7 +4,6 @@ import org.openrndr.KeyModifier.ALT
 import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.MouseEvent
 import org.openrndr.math.Vector2
-import kotlin.Double.Companion.POSITIVE_INFINITY
 import kotlin.math.max
 
 class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
@@ -13,6 +12,7 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     internal val interfaceSelector = MouseHoverInterfaceSelector(viewModel)
     internal val groupMemberSelector = MouseHoverGroupMemberSelector(viewModel)
     var hasSelectedItf = false
+    var selectedSnapTarget: GroupMember? = null
 
     override fun mouseClicked(position: Coordinate) {
         if (!hasSelectedItf) {
@@ -72,14 +72,18 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
                 newCenter = projectOrthogonal(newCenter, itf.getTerminals())
             }
             // Snap the interface to a group member bound if alt is held
-            else if (ALT in viewModel.modifierKeysHeld) {
-                groupMemberSelector.getGroupMember(itf)
-                    ?.ifPresent { groupMember ->
-                        newCenter = itf.center + snappedTo(
-                            itf.bounds, groupMember.bounds,
-                            newCenter - itf.center
-                        )
-                    }
+            if (ALT in viewModel.modifierKeysHeld) {
+                if (selectedSnapTarget == null)
+                    selectedSnapTarget = groupMemberSelector.getGroupMember(itf)
+                selectedSnapTarget?.ifPresent { groupMember ->
+                    newCenter = itf.center + snappedTo(
+                        itf.bounds,
+                        groupMember.bounds,
+                        viewModel.mousePoint
+                    )
+                }
+            } else {
+                selectedSnapTarget = null
             }
             itf.center = newCenter
         }
@@ -88,17 +92,27 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
 
 // Returns the Length to move the movingPoly so that it borders the poly
 // while trying to approach the targetPosition
-fun snappedTo(movingPoly: Poly, poly: Poly, targetMovement: Length): Length {
-    val (movingPoint, projection) = movingPoly.points.map { movingPoint ->
-        Pair(movingPoint,
-            nearestSegment(poly, movingPoint)?.ifPresent {
-                it.segment(movingPoint.system).project(movingPoint.xy())
-            })
-    }.minBy { (_, projection) ->
-        projection?.ifPresent { it.distance } ?: POSITIVE_INFINITY
-    } ?: return targetMovement
+fun snappedTo(movingPoly: Poly, poly: Poly, target: Coordinate):
+        Length {
+    val originToTarget = target - movingPoly.system!!.originCoord
+    val snapSegment = nearestSegment(poly, target)
+        ?: return originToTarget
+    val snapPoint =
+        target.system.coord(
+            snapSegment.segment(target.system).project(target.xy()).point
+        )
+    // Assuming for now that the projection of target is on the snapSegment
+    val movingPoint = if (poly.contains(target)) {
+        movingPoly.points.minBy { movingPoint ->
+            (movingPoint - target).lengthIn(movingPoint.system)
+        }
+    } else {
+        movingPoly.points.maxBy { movingPoint ->
+            (movingPoint - target).lengthIn(movingPoint.system)
+        }
+    } ?: return originToTarget
 
-    return targetMovement.system.length(projection!!.point - movingPoint.xy())
+    return snapPoint - movingPoint
 }
 
 fun nearestSegment(poly: Poly, point: Coordinate) =
