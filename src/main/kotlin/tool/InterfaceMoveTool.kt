@@ -73,8 +73,14 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
             }
             // Snap the interface to a group member bound if alt is held
             if (ALT in viewModel.modifierKeysHeld) {
-                if (selectedSnapTarget == null)
-                    selectedSnapTarget = groupMemberSelector.getGroupMember(itf)
+                if (selectedSnapTarget == null) {
+                    val connectedTraces =
+                        itf.getConnectedTraces(viewModel.model)
+                    selectedSnapTarget = groupMemberSelector.getGroupMember(
+                        ignore = listOf(itf) + itf.getConnectedTraces(viewModel.model)
+                    )
+                }
+
                 selectedSnapTarget?.ifPresent { groupMember ->
                     newCenter = itf.center + snappedTo(
                         itf.bounds,

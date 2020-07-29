@@ -55,12 +55,19 @@ data class Interface(
         }
     }
 
+    fun getConnectedTraces(model: Model) =
+        model.getTracesRecursively().filter {
+            it.segments.any {
+                it.start.hostInterface === this || it.end.hostInterface === this
+            }
+        }
+
     fun getConnectedSegments(terminalIndex: Int, model: Model) =
         model.getTracesRecursively().flatMap {
             it.segments.filter {
-                (it.start.hostInterface == this && it.start.range.contains(
+                (it.start.hostInterface === this && it.start.range.contains(
                     terminalIndex
-                )) || (it.end.hostInterface == this && it.end.range.contains(
+                )) || (it.end.hostInterface === this && it.end.range.contains(
                     terminalIndex
                 ))
             }
