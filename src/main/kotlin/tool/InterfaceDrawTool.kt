@@ -5,6 +5,8 @@ import org.openrndr.MouseEvent
 import kotlin.math.max
 
 class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
+    internal val snapper = InterfaceSnapSubtool(viewModel)
+
     override fun mouseClicked(position: Coordinate) {
         updatePosition()
         viewModel.model.interfaces.add(itf)
@@ -29,5 +31,11 @@ class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
 
     private fun updatePosition() {
         itf.center = viewModel.mousePoint
+        // Snap the interface to a group member bound if alt is held
+        val doSnap = ALT in viewModel.modifierKeysHeld
+        snapper.updateSnapTarget(itf, doSnap)
+        if (doSnap) {
+            itf.center = snapper.getSnappedPosition(itf)
+        }
     }
 }
