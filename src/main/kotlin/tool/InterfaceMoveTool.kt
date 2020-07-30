@@ -4,12 +4,14 @@ import org.openrndr.KeyModifier.ALT
 import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.MouseEvent
 import org.openrndr.math.Vector2
+import kotlin.Double.Companion.POSITIVE_INFINITY
 import kotlin.math.max
 
 class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     var selectedItf: Interface? = null
     var mouseOffset = Length(Vector2(0.0, 0.0), viewModel.root)
     internal val interfaceSelector = MouseHoverInterfaceSelector(viewModel)
+    internal val groupMemberSelector = MouseHoverGroupMemberSelector(viewModel)
     var hasSelectedItf = false
 
     override fun mouseClicked(position: Coordinate) {
@@ -58,7 +60,7 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
         itf.draw(drawer)
     }
 
-    private fun update(itf: Interface) {
+    internal fun update(itf: Interface) {
         // Interfaces that are in SVG component systems shall not be movable
         // with this tool
         if (itf.center.system == viewModel.root) {
@@ -69,7 +71,37 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
             if (SHIFT in viewModel.modifierKeysHeld) {
                 newCenter = projectOrthogonal(newCenter, itf.getTerminals())
             }
+            // Snap the interface to a group member bound if alt is held
+            else if (ALT in viewModel.modifierKeysHeld) {
+                groupMemberSelector.getGroupMember(itf)
+                    ?.ifPresent { groupMember ->
+                        newCenter = itf.center + snappedTo(
+                            itf.bounds, groupMember.bounds,
+                            newCenter - itf.center
+                        )
+                    }
+            }
             itf.center = newCenter
         }
     }
 }
+
+// Returns the Length to move the movingPoly so that it borders the poly
+// while trying to approach the targetPosition
+fun snappedTo(movingPoly: Poly, poly: Poly, targetMovement: Length): Length {
+    val (movingPoint, projection) = movingPoly.points.map { movingPoint ->
+        Pair(movingPoint,
+            nearestSegment(poly, movingPoint)?.ifPresent {
+                it.segment(movingPoint.system).project(movingPoint.xy())
+            })
+    }.minBy { (_, projection) ->
+        projection?.ifPresent { it.distance } ?: POSITIVE_INFINITY
+    } ?: return targetMovement
+
+    return targetMovement.system.length(projection!!.point - movingPoint.xy())
+}
+
+fun nearestSegment(poly: Poly, point: Coordinate) =
+    poly.segmentPointers.minBy {
+        it.segment(point.system).project(point.xy()).distance
+    }
