@@ -10,9 +10,8 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     var selectedItf: Interface? = null
     var mouseOffset = Length(Vector2(0.0, 0.0), viewModel.root)
     internal val interfaceSelector = MouseHoverInterfaceSelector(viewModel)
-    internal val groupMemberSelector = MouseHoverGroupMemberSelector(viewModel)
+    internal val snapper = InterfaceSnapSubtool(viewModel)
     var hasSelectedItf = false
-    var selectedSnapTarget: GroupMember? = null
 
     override fun mouseClicked(position: Coordinate) {
         if (!hasSelectedItf) {
@@ -64,34 +63,22 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
         // Interfaces that are in SVG component systems shall not be movable
         // with this tool
         if (itf.center.system == viewModel.root) {
-            // Note: A temporary variable is created here because itf.center
-            // needs to be untouched while projectOrthogonal is called below
-            var newCenter = viewModel.mousePoint - mouseOffset
-            // Restrict the new interface position if shift is held
-            if (SHIFT in viewModel.modifierKeysHeld) {
-                newCenter = projectOrthogonal(newCenter, itf.getTerminals())
-            }
             // Snap the interface to a group member bound if alt is held
-            if (ALT in viewModel.modifierKeysHeld) {
-                if (selectedSnapTarget == null) {
-                    val connectedTraces =
-                        itf.getConnectedTraces(viewModel.model)
-                    selectedSnapTarget = groupMemberSelector.getGroupMember(
-                        ignore = listOf(itf) + itf.getConnectedTraces(viewModel.model)
-                    )
-                }
-
-                selectedSnapTarget?.ifPresent { groupMember ->
-                    newCenter = itf.center + snappedTo(
-                        itf.bounds,
-                        offsetOutwards(groupMember.bounds, 6.0),
-                        viewModel.mousePoint
-                    )
-                }
-            } else {
-                selectedSnapTarget = null
+            val doSnap = ALT in viewModel.modifierKeysHeld
+            snapper.updateSnapTarget(itf, doSnap)
+            if (doSnap) {
+                itf.center = snapper.getSnappedPosition(itf)
             }
-            itf.center = newCenter
+            // Restrict the new interface position if shift is held
+            else if (SHIFT in viewModel.modifierKeysHeld) {
+                // Note: A temporary variable is created here because itf.center
+                // needs to be untouched while projectOrthogonal is called below
+                var newCenter = viewModel.mousePoint - mouseOffset
+                newCenter = projectOrthogonal(newCenter, itf.getTerminals())
+                itf.center = newCenter
+            } else {
+                itf.center = viewModel.mousePoint - mouseOffset
+            }
         }
     }
 }
