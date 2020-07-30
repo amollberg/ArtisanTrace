@@ -1,3 +1,4 @@
+import Poly.Companion.overlap
 import coordinates.Coordinate
 import coordinates.Length
 
@@ -13,7 +14,7 @@ fun snappedTo(movingPoly: Poly, poly: Poly, target: Coordinate): Length {
         )
 
     val movingPoint = movingPoly.points.minBy { movingPoint ->
-        countOverlappingPoints(
+        measureOverlappingArea(
             movingPoly.moved(pointOnBound - movingPoint),
             poly
         )
@@ -22,9 +23,8 @@ fun snappedTo(movingPoly: Poly, poly: Poly, target: Coordinate): Length {
     return pointOnBound - movingPoint
 }
 
-fun countOverlappingPoints(a: Poly, b: Poly) =
-    a.points.filter { b.contains(it) }.count() +
-            b.points.filter { a.contains(it) }.count()
+fun measureOverlappingArea(a: Poly, b: Poly) =
+    overlap(a, b).sumByDouble { it.area }
 
 fun nearestSegment(poly: Poly, point: Coordinate) =
     poly.segmentPointers.minBy {
@@ -34,5 +34,5 @@ fun nearestSegment(poly: Poly, point: Coordinate) =
 fun offsetOutwards(poly: Poly, distance: Double): Poly {
     return listOf(distance, -distance).map { offset ->
         poly.offsetBounds(offset)
-    }.minBy { countOverlappingPoints(it, poly) }!!
+    }.maxBy { it.area }!!
 }

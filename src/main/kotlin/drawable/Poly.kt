@@ -170,6 +170,18 @@ data class Poly(
 
             )
         }
+
+        fun overlap(a: Poly, b: Poly): List<Poly> {
+            val system = a.system ?: b.system ?: return emptyList()
+            return compound {
+                intersection {
+                    shape(a.contour(system))
+                    shape(b.contour(system))
+                }
+            }.flatMap {
+                it.contours.map { Poly.from(it, system) }
+            }
+        }
     }
 }
 
