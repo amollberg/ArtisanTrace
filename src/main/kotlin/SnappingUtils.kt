@@ -8,16 +8,19 @@ fun snappedTo(movingPoly: Poly, poly: Poly, target: Coordinate):
     val originToTarget = target - movingPoly.system!!.originCoord
     val snapSegment = nearestSegment(poly, target)
         ?: return originToTarget
-    val snapPoint =
+    val pointOnBound =
         target.system.coord(
             snapSegment.lineSegment(target.system).nearest(target.xy())
         )
 
     val movingPoint = movingPoly.points.minBy { movingPoint ->
-        countOverlappingPoints(movingPoly.moved(snapPoint - movingPoint), poly)
+        countOverlappingPoints(
+            movingPoly.moved(pointOnBound - movingPoint),
+            poly
+        )
     } ?: return originToTarget
 
-    return snapPoint - movingPoint
+    return pointOnBound - movingPoint
 }
 
 fun countOverlappingPoints(a: Poly, b: Poly) =
