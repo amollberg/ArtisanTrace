@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.openrndr.*
+import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.math.Vector2
 import java.io.File
 
@@ -109,7 +110,7 @@ class ViewModelTest {
                 ORIGINAL_COMP1_ORIGIN,
                 listOf(File("src/test/resources/IC1.ats"))
             ),
-            setOf(KEY_LEFT_SHIFT)
+            setOf(SHIFT)
         )
 
         dropFiles(
@@ -118,7 +119,7 @@ class ViewModelTest {
                 COMP2_ORIGIN,
                 listOf(File("src/test/resources/IC1.ats"))
             ),
-            setOf(KEY_LEFT_SHIFT)
+            setOf(SHIFT)
         )
 
         // Draw a trace between the components

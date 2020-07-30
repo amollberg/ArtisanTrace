@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
-import org.openrndr.KEY_LEFT_SHIFT
+import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.math.Vector2
 import java.io.File
 
@@ -17,7 +17,7 @@ class ComponentEraseToolTest : WithImplicitView() {
     fun eraseSketchComponentWithConnectedTrace() {
         dropFiles(
             DropEvent(COMPONENT_ORIGIN, listOf(File(SKETCH_PATH))),
-            setOf(KEY_LEFT_SHIFT)
+            setOf(SHIFT)
         )
         assertEquals(1, view.model.sketchComponents.size)
 

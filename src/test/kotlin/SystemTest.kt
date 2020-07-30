@@ -2,7 +2,7 @@ import TestUtils.Companion.dropFiles
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
-import org.openrndr.KEY_LEFT_SHIFT
+import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.math.Vector2
 import java.io.File
 
@@ -30,7 +30,7 @@ class SystemTest : WithImplicitView() {
             openFile(topFile)
             dropFiles(
                 DropEvent(Vector2(31.0, 22.0), listOf(componentFile)),
-                setOf(KEY_LEFT_SHIFT)
+                setOf(SHIFT)
             )
 
             view.changeTool(ComponentMoveTool(view))

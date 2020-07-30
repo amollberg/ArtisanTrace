@@ -1,4 +1,5 @@
 import TestUtils.Companion.sendKey
+import TestUtils.Companion.withModifiers
 import coordinates.Coordinate
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,12 +22,17 @@ open class WithImplicitView {
 
     fun at(xy: Vector2) = Coordinate(xy, view.root)
 
-    protected fun clickMouse(position: Coordinate) {
+    protected fun clickMouse(
+        position: Coordinate,
+        modifiers: Set<KeyModifier> = emptySet()
+    ) {
         moveMouse(position)
-        view.activeTool.mouseClicked(view.mousePoint)
+        withModifiers(view, modifiers) {
+            view.activeTool.mouseClicked(view.mousePoint)
+        }
     }
 
-    fun dropFiles(dropEvent: DropEvent, modifiers: Set<Int> = setOf()) {
+    fun dropFiles(dropEvent: DropEvent, modifiers: Set<KeyModifier> = setOf()) {
         TestUtils.dropFiles(view, dropEvent, modifiers)
     }
 
@@ -118,24 +124,32 @@ class TestUtils {
 
         fun clickMouse(
             view: ViewModel,
-            position: Coordinate
+            position: Coordinate,
+            modifiers: Set<KeyModifier> = emptySet()
         ) {
-            view.mousePoint = position.relativeTo(view.root)
-            view.activeTool.mouseClicked(view.mousePoint)
+            withModifiers(view, modifiers) {
+                view.mousePoint = position.relativeTo(view.root)
+                view.activeTool.mouseClicked(view.mousePoint)
+            }
         }
 
         fun dropFiles(
             view: ViewModel,
             dropEvent: DropEvent,
-            modifiers: Set<Int> = setOf()
+            modifiers: Set<KeyModifier> = setOf()
         ) {
-            modifiers.forEach {
-                view.modifierKeysHeld[it] = true
+            withModifiers(view, modifiers) {
+                view.fileDrop(dropEvent)
             }
-            view.fileDrop(dropEvent)
-            modifiers.forEach {
-                view.modifierKeysHeld[it] = false
-            }
+        }
+
+        fun withModifiers(
+            view: ViewModel, modifiers: Set<KeyModifier>, fn: () -> Unit
+        ) {
+            val oldModifiers = view.modifierKeysHeld.toSet()
+            view.modifierKeysHeld += modifiers
+            fn()
+            view.modifierKeysHeld = oldModifiers
         }
 
         fun sendKey(

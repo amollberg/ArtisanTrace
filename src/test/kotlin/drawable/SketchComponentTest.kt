@@ -5,7 +5,7 @@ import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
-import org.openrndr.KEY_LEFT_SHIFT
+import org.openrndr.KeyModifier.SHIFT
 import java.io.File
 import kotlin.math.PI
 
@@ -34,7 +34,7 @@ class SketchComponentTest {
         dropFiles(
             view,
             DropEvent(DROP_ORIGIN, listOf(File(SKETCH_PATH))),
-            setOf(KEY_LEFT_SHIFT)
+            setOf(SHIFT)
         )
 
         return view.model

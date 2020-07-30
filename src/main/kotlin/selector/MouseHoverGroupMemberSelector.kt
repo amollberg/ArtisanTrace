@@ -4,8 +4,8 @@ import org.openrndr.shape.ShapeContour
 
 class MouseHoverGroupMemberSelector(private val viewModel: ViewModel) {
 
-    fun getGroupMember(): GroupMember? =
-        viewModel.model.groupMembers.minBy {
+    fun getGroupMember(ignore: List<GroupMember> = emptyList()): GroupMember? =
+        viewModel.model.groupMembers.filterNot { it in ignore }.minBy {
             distanceTo(
                 it.bounds.contour(viewModel.mousePoint.system),
                 viewModel.mousePoint.xy()

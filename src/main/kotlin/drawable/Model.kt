@@ -176,7 +176,8 @@ class Model(@Transient val system: System = root()) : FileBacked {
                 sketchComponents +
                 svgComponents +
                 interfaces +
-                traces
+                traces +
+                polys
 
     val workingDir: Path
         get() = (backingFile.toPath().toAbsolutePath().parent.toFile()

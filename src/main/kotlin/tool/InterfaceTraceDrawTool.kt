@@ -1,6 +1,7 @@
 import coordinates.Coordinate
-import org.openrndr.KEY_LEFT_SHIFT
 import org.openrndr.KeyModifier
+import org.openrndr.KeyModifier.ALT
+import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.MouseEvent
 import org.openrndr.math.clamp
 
@@ -9,9 +10,11 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
     private val trace = Trace(viewModel.root)
     private var previousTerminals: Terminals? = null
     internal val terminalSelector = MouseHoverTerminalSelector(viewModel)
+    internal val snapper = InterfaceSnapSubtool(viewModel)
     private val angle = Angle.OBTUSE
     private var hasPlacedStart = false
     private var reverseKnee = false
+
 
     override fun mouseClicked(position: Coordinate) {
         if (!hasPlacedStart) {
@@ -81,12 +84,14 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
 
     private fun update() {
         itf.center = viewModel.mousePoint
+        // Snap the interface to a group member bound if alt is held
+        val doSnap = ALT in viewModel.modifierKeysHeld
+        snapper.updateSnapTarget(itf, doSnap)
+        if (doSnap) {
+            itf.center = snapper.getSnappedPosition(itf)
+        }
         // Restrict the new interface position if shift is held
-        if (viewModel.modifierKeysHeld.getOrDefault(
-                KEY_LEFT_SHIFT,
-                false
-            )
-        ) {
+        else if (SHIFT in viewModel.modifierKeysHeld) {
             itf.center = projectOrthogonal(itf.center, previousTerminals!!)
         }
     }

@@ -1,7 +1,9 @@
 import coordinates.Coordinate
+import coordinates.Length
 import coordinates.System
 import coordinates.System.Companion.root
 import org.openrndr.math.Vector2
+import org.openrndr.shape.SegmentJoin.MITER
 import org.openrndr.shape.ShapeContour
 import org.openrndr.shape.Triangle
 import org.openrndr.shape.compound
@@ -9,9 +11,18 @@ import org.openrndr.shape.contour
 import kotlin.math.abs
 
 data class Poly(
-    var points: List<Coordinate>
-) {
+    var points: List<Coordinate>,
+    override var groupId: Int = -1,
+    override var groupOrdinal: Int = -1
+) : GroupMember() {
     val system: System? get() = points.firstOrNull()?.system
+
+    override val bounds get() = this
+
+    fun offsetBounds(distance: Double) =
+        system?.ifPresent {
+            from(contour(it).offset(distance, MITER), it)
+        } ?: Poly(emptyList())
 
     fun contour(system: System): ShapeContour = contour {
         points.forEach { moveOrLineTo(it.xyIn(system)) }
@@ -32,7 +43,7 @@ data class Poly(
     // OpenRNDR does not accept building a contour with 0 segments
     val isTrivial get() = points.toSet().size <= 1
 
-    fun draw(drawer: OrientedDrawer) {
+    override fun draw(drawer: OrientedDrawer) {
         if (!isTrivial) {
             drawer.drawer.contour(contour(drawer.system))
         }
@@ -57,6 +68,10 @@ data class Poly(
         val newSystem =
             system?.createRotated(angleDegrees) ?: return Poly(emptyList())
         return Poly(points.map { it.relativeTo(newSystem) })
+    }
+
+    fun moved(length: Length): Poly {
+        return this.copy(points = points.map { it + length })
     }
 
     val convexHull get() = convexHull(this)
