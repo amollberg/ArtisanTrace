@@ -15,13 +15,17 @@ fun snappedTo(movingPoly: Poly, poly: Poly, target: Coordinate): Length {
 
     val movingPoint = movingPoly.points.minBy { movingPoint ->
         measureOverlappingArea(
-            movingPoly.moved(pointOnBound - movingPoint),
-            poly
+            ensureNonzeroArea(movingPoly.moved(pointOnBound - movingPoint)),
+            ensureNonzeroArea(poly)
         )
     } ?: return originToTarget
 
     return pointOnBound - movingPoint
 }
+
+private fun ensureNonzeroArea(poly: Poly) =
+    if (poly.area == 0.0) poly.expanded
+    else poly.copy()
 
 fun measureOverlappingArea(a: Poly, b: Poly) =
     overlap(a, b).sumByDouble { it.area }
