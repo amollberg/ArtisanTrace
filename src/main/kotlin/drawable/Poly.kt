@@ -33,6 +33,8 @@ data class Poly(
         close()
     }.clockwise
 
+    val expanded get() = offsetBounds(3.0)
+
     /** Return the area in this Polys own coordinate system */
     val area get() = system?.ifPresent { area(it) } ?: 0.0
 
