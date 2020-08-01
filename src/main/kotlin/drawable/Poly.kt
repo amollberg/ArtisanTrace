@@ -24,10 +24,14 @@ data class Poly(
             from(contour(it).offset(distance, MITER), it)
         } ?: Poly(emptyList())
 
-    fun contour(system: System): ShapeContour = contour {
+    /**
+     * Returns a contour which covers the same points as this Poly. The order
+     * of the points may be reversed to meet winding assumptions.
+     */
+    fun contour(system: System) = contour {
         points.forEach { moveOrLineTo(it.xyIn(system)) }
         close()
-    }
+    }.clockwise
 
     fun area(system: System): Double =
         contour(system).triangulation.sumByDouble { area(it) }
