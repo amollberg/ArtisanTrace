@@ -1,17 +1,21 @@
 import coordinates.Coordinate
 import coordinates.System
 
-interface Component {
-    var system: System
-    val bounds: Poly
+abstract class Component : GroupMember() {
+    abstract var system: System
+    abstract val interfaces: List<Interface>
 
-    fun clone(parentModel: Model): Component
-}
+    abstract fun clone(parentModel: Model): Component
 
-interface InterfaceComponent {
     // Move this InterfaceComponent so that the given interface (asserted to
     // belong to this) has its center at targetItfPosition
-    fun move(itf: Interface, targetItfPosition: Coordinate)
+    abstract fun move(itf: Interface, targetItfPosition: Coordinate)
 
-    val interfaces: List<Interface>
+    fun getConnectedTraces(model: Model): List<Trace> =
+        model.getTracesRecursively().filter {
+            it.segments.any {
+                it.start.hostInterface in interfaces
+                        || it.end.hostInterface in interfaces
+            }
+        }
 }

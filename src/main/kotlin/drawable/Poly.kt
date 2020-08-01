@@ -24,10 +24,19 @@ data class Poly(
             from(contour(it).offset(distance, MITER), it)
         } ?: Poly(emptyList())
 
-    fun contour(system: System): ShapeContour = contour {
+    /**
+     * Returns a contour which covers the same points as this Poly. The order
+     * of the points may be reversed to meet winding assumptions.
+     */
+    fun contour(system: System) = contour {
         points.forEach { moveOrLineTo(it.xyIn(system)) }
         close()
-    }
+    }.clockwise
+
+    val expanded get() = offsetBounds(3.0)
+
+    /** Return the area in this Polys own coordinate system */
+    val area get() = system?.ifPresent { area(it) } ?: 0.0
 
     fun area(system: System): Double =
         contour(system).triangulation.sumByDouble { area(it) }
@@ -169,6 +178,18 @@ data class Poly(
                         bRev.pointsAfter(bRevSeg.end)
 
             )
+        }
+
+        fun overlap(a: Poly, b: Poly): List<Poly> {
+            val system = a.system ?: b.system ?: return emptyList()
+            return compound {
+                intersection {
+                    shape(a.contour(system))
+                    shape(b.contour(system))
+                }
+            }.flatMap {
+                it.contours.map { Poly.from(it, system) }
+            }
         }
     }
 }

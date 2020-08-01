@@ -1,4 +1,3 @@
-import coordinates.System
 import org.openrndr.shape.Shape
 
 class MouseHoverComponentSelector(private val viewModel: ViewModel) {
@@ -8,7 +7,7 @@ class MouseHoverComponentSelector(private val viewModel: ViewModel) {
         drawer.drawer.shape(
             Shape(
                 listOf(
-                    expandedContour(component, drawer.system)
+                    component.bounds.expanded.contour(drawer.system)
                 )
             )
         )
@@ -17,10 +16,6 @@ class MouseHoverComponentSelector(private val viewModel: ViewModel) {
     fun getComponent(): Component? =
         // Get the interface under the mouse
         viewModel.model.components.firstOrNull {
-            expandedContour(it, viewModel.mousePoint.system)
-                .contains(viewModel.mousePoint.xy())
+            it.bounds.expanded.contains(viewModel.mousePoint)
         }
-
-    private fun expandedContour(component: Component, system: System) =
-        component.bounds.contour(system).offset(3.0)
 }

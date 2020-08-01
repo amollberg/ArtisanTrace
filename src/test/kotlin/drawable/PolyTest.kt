@@ -1,3 +1,4 @@
+import Poly.Companion.overlap
 import Poly.Companion.rect
 import coordinates.System.Companion.root
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -185,5 +186,58 @@ class PolyTest {
             ),
             a.segmentsOnConvexHull
         )
+    }
+
+    @Test
+    fun emptyOverlap() {
+        val a = rect(system, 10, 10)
+        val b = rect(system, 10, 10)
+            .moved(system.length(Vector2(100.0, 100.0)))
+        assertEqualPolys(emptyList(), overlap(a, b))
+    }
+
+    @Test
+    fun fullOverlap() {
+        val a = rect(system, 10, 10)
+        assertEqualPolys(listOf(a), overlap(a, a))
+    }
+
+    @Test
+    fun partialNonTrivialOverlap() {
+        val a = rect(system, 10, 10)
+        val b = rect(system, 20, 20)
+            .moved(system.length(Vector2(4.0, 7.0)))
+        assertEqualPolys(
+            listOf(rect(system, 6, 3).moved(system.length(Vector2(4.0, 7.0)))),
+            overlap(a, b)
+        )
+    }
+
+    @Test
+    fun trivialOverlap() {
+        val a = rect(system, 10, 17)
+        val b = rect(system, 15, 17)
+            .moved(system.length(Vector2(10.0, 0.0)))
+        assertEqualPolys(emptyList(), overlap(a, b))
+    }
+
+    private fun assertEqualPolys(expected: List<Poly>, actual: List<Poly>) {
+        assertEquals(expected.size, actual.size)
+        expected.zip(actual).forEach { (e, a) ->
+            assertEqualPoly(e, a)
+        }
+    }
+
+    // Ignoring which of the points is the start
+    private fun assertEqualPoly(expected: Poly, actual: Poly) {
+        val bestFitExpected = expected.points.map {
+            Poly(listOf(it) + expected.pointsAfter(it))
+        }.maxBy { expectedShifted ->
+            expectedShifted.points.zip(actual.points)
+                .count { (e, a) ->
+                    e == a
+                }
+        }
+        assertEquals(bestFitExpected, actual)
     }
 }

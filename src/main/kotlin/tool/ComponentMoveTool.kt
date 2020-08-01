@@ -8,6 +8,7 @@ import kotlin.math.PI
 class ComponentMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     var selectedComponent: Component? = null
     var mouseOffset: Length? = null
+    internal val snapper = ComponentSnapSubtool(viewModel)
     internal val componentSelector = MouseHoverComponentSelector(viewModel)
     var hasSelectedComponent = false
 
@@ -59,5 +60,11 @@ class ComponentMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
     private fun updatePosition() {
         val component = selectedComponent ?: return
         component.system.originCoord = viewModel.mousePoint - mouseOffset!!
+
+        val doSnap = KeyModifier.ALT in viewModel.modifierKeysHeld
+        snapper.updateSnapTarget(component, doSnap)
+        if (doSnap) {
+            component.system.originCoord = snapper.getSnappedPosition(component)
+        }
     }
 }
