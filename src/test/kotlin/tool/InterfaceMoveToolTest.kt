@@ -1,7 +1,9 @@
+import Poly.Companion.rect
 import TestUtils.Companion.assertEquals
 import TestUtils.Companion.at
 import org.junit.jupiter.api.Test
 import org.openrndr.KeyModifier.ALT
+import org.openrndr.math.Vector2
 
 class InterfaceMoveToolTest : WithImplicitView() {
 
@@ -23,14 +25,8 @@ class InterfaceMoveToolTest : WithImplicitView() {
     @Test
     fun snapToBoundsWhenAltHovering() {
         val boundaryX = 53
-        val area = Poly(
-            listOf(
-                at(view, boundaryX, 0),
-                at(view, boundaryX + 100, 0),
-                at(view, boundaryX + 100, 100),
-                at(view, boundaryX, 100)
-            )
-        )
+        val area = rect(view.root, 100, 100)
+            .moved(view.root.length(Vector2(boundaryX.toDouble(), 0.0)))
         view.model.polys.add(area)
 
         val startItf = Interface(at(x = 10), 0.0, 10.0, 4)
