@@ -33,6 +33,9 @@ data class Poly(
         close()
     }.clockwise
 
+    /** Return the area in this Polys own coordinate system */
+    val area get() = system?.ifPresent { area(it) } ?: 0.0
+
     fun area(system: System): Double =
         contour(system).triangulation.sumByDouble { area(it) }
 
