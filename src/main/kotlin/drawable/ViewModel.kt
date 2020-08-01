@@ -21,6 +21,7 @@ import org.openrndr.svg.writeSVG
 import tool.ColorPickTool
 import java.io.File
 import java.io.FileNotFoundException
+import kotlin.math.PI
 
 class ViewModel(internal var model: Model) {
     val root = model.system
@@ -173,7 +174,22 @@ class ViewModel(internal var model: Model) {
         component: Component,
         componentsToAvoid: List<Component>
     ) {
-        // move $component away from $componentsToAvoid
+        if (component in componentsToAvoid) throw IllegalArgumentException()
+        val radialDeltaPixels = 0.5
+        val axialDeltaDegrees = 10.0
+        val nPositionsToTry = 10000
+        val startPosition = component.system.originCoord
+        repeat(nPositionsToTry) { i ->
+            val angle = (i + componentsToAvoid.size) * axialDeltaDegrees
+            val offset =
+                Matrix22.rotation(angle * PI / 180)
+                    .times(Vector2.UNIT_X) * (radialDeltaPixels * i)
+            component.system.originCoord = startPosition + root.length(offset)
+            val noCollision = componentsToAvoid.all {
+                measureOverlappingArea(component.bounds, it.bounds) == 0.0
+            }
+            if (noCollision) return@moveToAvoidCollision
+        }
     }
 
     private fun handleDroppedMacroFile(
