@@ -3,8 +3,7 @@ import coordinates.Length
 
 // Returns the Length to move the movingPoly so that it borders the poly
 // while trying to approach the target coordinate
-fun snappedTo(movingPoly: Poly, poly: Poly, target: Coordinate):
-        Length {
+fun snappedTo(movingPoly: Poly, poly: Poly, target: Coordinate): Length {
     val originToTarget = target - movingPoly.system!!.originCoord
     val snapSegment = nearestSegment(poly, target)
         ?: return originToTarget
