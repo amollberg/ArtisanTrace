@@ -139,41 +139,69 @@ class ViewModel(internal var model: Model) {
     }
 
     fun fileDrop(drop: DropEvent) {
+        val previouslyAdded: MutableList<Component> = mutableListOf()
+        fun moveAddedComponent(component: Component) {
+            moveToAvoidCollision(component, previouslyAdded)
+            previouslyAdded += component
+        }
         drop.files.forEach { droppedFile ->
             when (droppedFile.extension) {
                 "svg" ->
-                    handleDroppedSvgFile(droppedFile, root.coord(drop.position))
+                    handleDroppedSvgFile(
+                        droppedFile,
+                        root.coord(drop.position),
+                        ::moveAddedComponent
+                    )
                 "atg" ->
                     handleDroppedMacroFile(
                         droppedFile,
-                        root.coord(drop.position)
+                        root.coord(drop.position),
+                        ::moveAddedComponent
                     )
                 else ->
                     // Treat as a sketch file containing a model
                     handleDroppedSketchFile(
                         droppedFile,
-                        root.coord(drop.position)
+                        root.coord(drop.position),
+                        ::moveAddedComponent
                     )
             }
         }
     }
 
-    private fun handleDroppedMacroFile(droppedFile: File, coord: Coordinate) {
+    private fun moveToAvoidCollision(
+        component: Component,
+        componentsToAvoid: List<Component>
+    ) {
+        // move $component away from $componentsToAvoid
+    }
+
+    private fun handleDroppedMacroFile(
+        droppedFile: File,
+        coord: Coordinate,
+        componentAddedAction: (component: Component) -> Unit
+    ) {
         val jsonRoot = Json(JsonConfiguration.Default)
             .parseJson(droppedFile.readText())
         val obj = jsonRoot.jsonObject
         val ob = obj.content["type"]
         val typeString = ob?.contentOrNull.orEmpty()
-        println("$obj, $ob, $typeString")
         when (typeString.split('.')[0]) {
-            "SvgMacro" -> handleDroppedSvgMacroFile(droppedFile, coord)
-            "SketchMacro" -> handleDroppedSketchMacroFile(droppedFile, coord)
+            "SvgMacro" -> handleDroppedSvgMacroFile(
+                droppedFile,
+                coord,
+                componentAddedAction
+            )
+            "SketchMacro" -> handleDroppedSketchMacroFile(
+                droppedFile, coord, componentAddedAction
+            )
         }
     }
 
     private fun handleDroppedSvgMacroFile(
         droppedFile: File,
-        coord: Coordinate
+        coord: Coordinate,
+        componentAddedAction: (component: Component) -> Unit
     ) {
         val content = droppedFile.readText()
         val obj = maybeMuteExceptions {
@@ -194,17 +222,25 @@ class ViewModel(internal var model: Model) {
             }
             val svgText = addBlackBackground(writeSVG(cd.composition))
             svgFile.writeText(svgText)
-            model.addSvg(svgFile, coord)
+            componentAddedAction(model.addSvg(svgFile, coord))
         }
     }
 
-    private fun handleDroppedSvgFile(droppedFile: File, position: Coordinate) {
+    private fun handleDroppedSvgFile(
+        droppedFile: File,
+        position: Coordinate,
+        componentAddedAction: (component: Component) -> Unit
+    ) {
         // Add the svg from the file as a subcomponent
-        maybeMuteExceptions { model.addSvg(droppedFile, position) }
+        maybeMuteExceptions {
+            componentAddedAction(model.addSvg(droppedFile, position))
+        }
     }
 
     private fun handleDroppedSketchMacroFile(
-        droppedFile: File, coord: Coordinate
+        droppedFile: File,
+        coord: Coordinate,
+        componentAddedAction: (component: Component) -> Unit
     ) {
         val content = droppedFile.readText()
         val obj = maybeMuteExceptions {
@@ -218,17 +254,21 @@ class ViewModel(internal var model: Model) {
                 is SketchMacro.ObverseIcTrace -> obj.create(sketchModel)
             }
             sketchModel.saveToFile()
-            model.addSketch(sketchFile, coord)!!
+            componentAddedAction(model.addSketch(sketchFile, coord)!!)
         }
     }
 
     private fun handleDroppedSketchFile(
         droppedFile: File,
-        position: Coordinate
+        position: Coordinate,
+        componentAddedAction: (component: Component) -> Unit
     ) {
         if (SHIFT in modifierKeysHeld) {
             // Add the model from the file as a subcomponent
-            maybeMuteExceptions { model.addSketch(droppedFile, position) }
+            maybeMuteExceptions {
+                model.addSketch(droppedFile, position)
+                    ?.ifPresent(componentAddedAction)
+            }
         } else {
             // Replace the top level model
             val fileOpened = droppedFile.absoluteFile
