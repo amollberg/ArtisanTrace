@@ -1,4 +1,5 @@
 import SvgUtils.Companion.addBlackBackground
+import SvgUtils.Companion.removeHardcodedDimensions
 import coordinates.Coordinate
 import coordinates.Oriented
 import kotlinx.serialization.SerializationException
@@ -236,7 +237,12 @@ class ViewModel(internal var model: Model) {
                 is SvgMacro.ZigZagEnd -> obj.draw(cd)
                 is SvgMacro.ViaArray -> obj.draw(cd)
             }
-            val svgText = addBlackBackground(writeSVG(cd.composition))
+            val svgText =
+                removeHardcodedDimensions(
+                    addBlackBackground(
+                        writeSVG(cd.composition)
+                    )
+                )
             svgFile.writeText(svgText)
             componentAddedAction(model.addSvg(svgFile, coord))
         }

@@ -1,5 +1,6 @@
 import Svg.Companion.fromFile
 import SvgUtils.Companion.addBlackBackground
+import SvgUtils.Companion.removeHardcodedDimensions
 import coordinates.Coordinate
 import coordinates.System
 import coordinates.System.Companion.root
@@ -194,7 +195,13 @@ class Model(@Transient val system: System = root()) : FileBacked {
             OrientedDrawer(cd, system, false),
             interfacesToIgnore = getInterfacesRecursively().toSet()
         )
-        svgFile.writeText(addBlackBackground(writeSVG(cd.composition)))
+        svgFile.writeText(
+            removeHardcodedDimensions(
+                addBlackBackground(
+                    writeSVG(cd.composition)
+                )
+            )
+        )
     }
 
     private val svgFile: File get() = File(backingFile.path + ".svg")
