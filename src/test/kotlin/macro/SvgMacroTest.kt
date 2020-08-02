@@ -80,9 +80,9 @@ class SvgMacroTest : WithImplicitView() {
             SvgMacro.ViaArray()
         ).forEach {
             val className = it::class.simpleName!!.toLowerCase()
-            File("components/${className}_default.atg").writeText(
-                it.serialize()
-            )
+            val macroFile = File("components/${className}_default.atg")
+            macroFile.writeText(it.serialize())
+            dropFiles(view, DropEvent(Vector2.ZERO, listOf(macroFile)))
         }
     }
 }
