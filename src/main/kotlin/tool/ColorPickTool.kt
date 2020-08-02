@@ -11,7 +11,11 @@ class ColorPickTool(viewModel: ViewModel) : BaseTool(viewModel) {
 
     override fun mouseClicked(position: Coordinate) {
         val selectedSvgComponent = svgSelector.getSvgComponent() ?: return
-        selectedSvgComponent.svg.composition?.findShapes()?.first()
-            ?.effectiveStroke?.ifPresent { viewModel.model.color = it }
+        val xy = position.xyIn(selectedSvgComponent.system)
+        selectedSvgComponent.svg.composition?.findShapes()
+            ?.firstOrNull { it.shape.contains(xy) }?.effectiveStroke
+            ?.ifPresent {
+                viewModel.model.color = it
+            }
     }
 }
