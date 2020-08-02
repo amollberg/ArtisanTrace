@@ -2,7 +2,7 @@ import Poly.Companion.rect
 import TestUtils.Companion.assertEquals
 import TestUtils.Companion.at
 import org.junit.jupiter.api.Test
-import org.openrndr.KeyModifier.ALT
+import org.openrndr.KeyModifier.CTRL
 import org.openrndr.math.Vector2
 
 class InterfaceMoveToolTest : WithImplicitView() {
@@ -35,7 +35,7 @@ class InterfaceMoveToolTest : WithImplicitView() {
         val tool = InterfaceMoveTool(view)
         view.changeTool(tool)
         clickMouse(startItf.center)
-        clickMouse(at(view, boundaryX + 13, 20), setOf(ALT))
+        clickMouse(at(view, boundaryX + 13, 20), setOf(CTRL))
 
         val expectedCenterX = (boundaryX
                 - startItf.length / 2

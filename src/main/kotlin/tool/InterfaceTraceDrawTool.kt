@@ -1,6 +1,5 @@
 import coordinates.Coordinate
-import org.openrndr.KeyModifier
-import org.openrndr.KeyModifier.ALT
+import org.openrndr.KeyModifier.CTRL
 import org.openrndr.KeyModifier.SHIFT
 import org.openrndr.MouseEvent
 import org.openrndr.math.clamp
@@ -55,7 +54,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
                 terminalSelector.getInterface()?.terminalCount ?: leads
             )
             terminalSelector.desiredLeads = leads
-        } else if (mouse.modifiers.contains(KeyModifier.CTRL)) {
+        } else if (mouse.modifiers.contains(CTRL)) {
             // Reverse the knee if Control key is held
             reverseKnee = !reverseKnee
         } else {
@@ -85,7 +84,7 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
     private fun update() {
         itf.center = viewModel.mousePoint
         // Snap the interface to a group member bound if alt is held
-        val doSnap = ALT in viewModel.modifierKeysHeld
+        val doSnap = CTRL in viewModel.modifierKeysHeld
         snapper.updateSnapTarget(itf, doSnap)
         if (doSnap) {
             itf.center = snapper.getSnappedPosition(itf)

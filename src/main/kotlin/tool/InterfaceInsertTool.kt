@@ -1,5 +1,5 @@
 import coordinates.Coordinate
-import org.openrndr.KeyModifier.ALT
+import org.openrndr.KeyModifier.CTRL
 
 /** Tool to chop up a trace segment and insert an interface in-between */
 class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
@@ -33,7 +33,7 @@ class InterfaceInsertTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
         val (_, seg) = getNearestSegment(position) ?: return
         itf.center = viewModel.mousePoint
         // Snap the interface to a group member bound if alt is held
-        val doSnap = ALT in viewModel.modifierKeysHeld
+        val doSnap = CTRL in viewModel.modifierKeysHeld
         snapper.updateSnapTarget(itf, doSnap)
         if (doSnap) {
             itf.center = snapper.getSnappedPosition(itf)

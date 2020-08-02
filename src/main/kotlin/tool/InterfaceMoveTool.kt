@@ -1,7 +1,6 @@
 import coordinates.Coordinate
 import coordinates.Length
-import org.openrndr.KeyModifier.ALT
-import org.openrndr.KeyModifier.SHIFT
+import org.openrndr.KeyModifier.*
 import org.openrndr.MouseEvent
 import org.openrndr.math.Vector2
 import kotlin.math.max
@@ -64,7 +63,7 @@ class InterfaceMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
         // with this tool
         if (itf.center.system == viewModel.root) {
             // Snap the interface to a group member bound if alt is held
-            val doSnap = ALT in viewModel.modifierKeysHeld
+            val doSnap = CTRL in viewModel.modifierKeysHeld
             snapper.updateSnapTarget(itf, doSnap)
             if (doSnap) {
                 itf.center = snapper.getSnappedPosition(itf)

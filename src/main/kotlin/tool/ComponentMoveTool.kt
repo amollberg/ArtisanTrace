@@ -2,6 +2,7 @@ import coordinates.Coordinate
 import coordinates.Length
 import org.openrndr.KeyEvent
 import org.openrndr.KeyModifier
+import org.openrndr.KeyModifier.CTRL
 import org.openrndr.MouseEvent
 import kotlin.math.PI
 
@@ -61,7 +62,7 @@ class ComponentMoveTool(viewModel: ViewModel) : BaseTool(viewModel) {
         val component = selectedComponent ?: return
         component.system.originCoord = viewModel.mousePoint - mouseOffset!!
 
-        val doSnap = KeyModifier.ALT in viewModel.modifierKeysHeld
+        val doSnap = CTRL in viewModel.modifierKeysHeld
         snapper.updateSnapTarget(component, doSnap)
         if (doSnap) {
             component.system.originCoord = snapper.getSnappedPosition(component)
