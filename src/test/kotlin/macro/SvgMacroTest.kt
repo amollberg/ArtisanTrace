@@ -91,7 +91,7 @@ class SvgMacroTest : WithImplicitView() {
     // Writes ATG files to components/ which will show up in the diff if changed
     @Test
     fun generateAllDefaults() {
-        listOf(
+        setOf(
             SvgMacro.IntegratedCircuit(),
             SvgMacro.MicroController(),
             SvgMacro.RectGrid(),
@@ -100,8 +100,11 @@ class SvgMacroTest : WithImplicitView() {
             SvgMacro.ViaArray()
         ).forEach {
             val className = it::class.simpleName!!.toLowerCase()
-            val macroFile = File("components/${className}_default.atg")
-            macroFile.writeText(it.serialize())
+            val diffedMacroFile = File("components/${className}_default.atg")
+            diffedMacroFile.writeText(it.serialize())
+            val macroFile = File("build/components/${className}_default.atg")
+            macroFile.mkdirs()
+            diffedMacroFile.copyTo(macroFile, true)
             dropFiles(view, DropEvent(Vector2.ZERO, listOf(macroFile)))
         }
     }

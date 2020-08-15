@@ -13,7 +13,16 @@ class ComponentFolderTest : WithImplicitView() {
 
     @Test
     fun generateAndImportAllMacros() {
+        // Copy all files to build directory
         File("components").walkTopDown().filter {
+            it.extension == "atg"
+        }.forEach { macroFile ->
+            val targetFile = File("build/$macroFile")
+            targetFile.mkdirs()
+            macroFile.copyTo(targetFile, true)
+        }
+        // Then import all macro files
+        File("build/components").walkTopDown().filter {
             it.extension == "atg"
         }.forEach { macroFile ->
             dropFiles(view, DropEvent(Vector2.ZERO, listOf(macroFile)))
