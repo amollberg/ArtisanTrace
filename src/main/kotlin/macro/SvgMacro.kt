@@ -1,5 +1,6 @@
 @file:UseSerializers(Vector2Serializer::class)
 
+import DoubleOrRandom.Random
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.Json
@@ -17,11 +18,11 @@ sealed class SvgMacro {
 
     @Serializable
     data class RectGrid(
-        var width: Double = 100.0,
-        var height: Double = 100.0,
-        var circleRadius: Double = 2.0,
-        var countX: Int = 2,
-        var countY: Int = 2,
+        var width: DoubleOrRandom = Random(20.0, 150.0),
+        var height: DoubleOrRandom = Random(20.0, 150.0),
+        var circleRadius: DoubleOrRandom = Random(1.0, 5.0),
+        var countX: IntOrRandom = IntOrRandom.Random(2, 5),
+        var countY: IntOrRandom = IntOrRandom.Random(2, 5),
         var margin: Double = 0.05
     ) : SvgMacro()
 

@@ -1,9 +1,29 @@
 {
     "type": "SvgMacro.RectGrid",
-    "width": 100.0,
-    "height": 100.0,
-    "circleRadius": 2.0,
-    "countX": 2,
-    "countY": 2,
+    "width": {
+        "type": "DoubleOrRandom.Random",
+        "min": 20.0,
+        "max": 150.0
+    },
+    "height": {
+        "type": "DoubleOrRandom.Random",
+        "min": 20.0,
+        "max": 150.0
+    },
+    "circleRadius": {
+        "type": "DoubleOrRandom.Random",
+        "min": 1.0,
+        "max": 5.0
+    },
+    "countX": {
+        "type": "IntOrRandom.Random",
+        "min": 2,
+        "max": 5
+    },
+    "countY": {
+        "type": "IntOrRandom.Random",
+        "min": 2,
+        "max": 5
+    },
     "margin": 0.05
 }

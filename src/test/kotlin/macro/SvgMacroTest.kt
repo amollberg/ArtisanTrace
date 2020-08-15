@@ -59,7 +59,10 @@ class SvgMacroTest : WithImplicitView() {
             view, DropEvent(
                 Vector2.ZERO, listOf(
                     tempAtgFile(
-                        """{"type": "SvgMacro.RectGrid", "countX": 4}"""
+                        """{"type": "SvgMacro.RectGrid",
+                                   "countX": {
+                                     "type": "IntOrRandom.Constant",
+                                     "value": 4 }}"""
                     )
                 )
             )

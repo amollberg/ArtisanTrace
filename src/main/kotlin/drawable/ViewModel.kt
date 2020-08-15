@@ -225,7 +225,7 @@ class ViewModel(internal var model: Model) {
             SvgMacro.json.parse(SvgMacro.serializer(), content)
         }
         obj?.ifPresent {
-            val svgFile = File(droppedFile.absoluteFile.path + ".svg")
+
             val cd = CompositionDrawer()
             cd.stroke = GREEN
             cd.fill = BLACK
@@ -237,12 +237,14 @@ class ViewModel(internal var model: Model) {
                 is SvgMacro.ZigZagEnd -> obj.draw(cd)
                 is SvgMacro.ViaArray -> obj.draw(cd)
             }
+            println("obj: $obj")
             val svgText =
                 removeHardcodedDimensions(
                     addBlackBackground(
                         writeSVG(cd.composition)
                     )
                 )
+            val svgFile = File(droppedFile.absoluteFile.path + ".svg")
             svgFile.writeText(svgText)
             componentAddedAction(model.addSvg(svgFile, coord))
         }
