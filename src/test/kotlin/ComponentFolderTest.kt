@@ -1,10 +1,16 @@
 import TestUtils.Companion.dropFiles
+import org.junit.BeforeClass
 import org.junit.jupiter.api.Test
 import org.openrndr.DropEvent
 import org.openrndr.math.Vector2
 import java.io.File
 
 class ComponentFolderTest : WithImplicitView() {
+    @BeforeClass
+    fun cleanBuildDir() {
+        File("build/components").deleteRecursively()
+    }
+
     @Test
     fun generateAndImportAllMacros() {
         File("components").walkTopDown().filter {
