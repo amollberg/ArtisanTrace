@@ -237,14 +237,16 @@ class ViewModel(internal var model: Model) {
                 is SvgMacro.ZigZagEnd -> obj.draw(cd)
                 is SvgMacro.ViaArray -> obj.draw(cd)
             }
-            println("obj: $obj")
+
             val svgText =
                 removeHardcodedDimensions(
                     addBlackBackground(
                         writeSVG(cd.composition)
                     )
                 )
-            val svgFile = File(droppedFile.absoluteFile.path + ".svg")
+            val svgFile = File(
+                "${droppedFile.absoluteFile.path}_${dataClassToFileName(obj)}.svg"
+            )
             svgFile.writeText(svgText)
             componentAddedAction(model.addSvg(svgFile, coord))
         }

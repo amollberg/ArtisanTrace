@@ -16,6 +16,8 @@ sealed class SvgMacro {
 
     fun serialize() = json.stringify(serializer(), this)
 
+    val fileNameSuffix: String get() = dataClassToFileName(this)
+
     @Serializable
     data class RectGrid(
         var width: DoubleOrRandom = Random(20.0, 150.0),
