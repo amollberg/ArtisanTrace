@@ -62,4 +62,17 @@ sealed class SvgMacro {
         var terminals: IntOrRandom = IntOrRandom.Random(2, 11),
         var pitch: DoubleOrRandom = Random(11.0, 20.0)
     ) : SvgMacro()
+
+    @Serializable
+    data class BevelRectGrid(
+        var width: DoubleOrRandom = Random(20.0, 150.0),
+        var height: DoubleOrRandom = Random(20.0, 150.0),
+        var circleRadius: DoubleOrRandom = Random(1.0, 5.0),
+        var countX: IntOrRandom = IntOrRandom.Random(2, 6),
+        var countY: IntOrRandom = IntOrRandom.Random(2, 3),
+        var margin: Double = 0.05,
+        var bevelOffset: DoubleOrRandom = DoubleOrRandom.Random(2.0, 10.0),
+        var pinsPerSide: IntOrRandom = IntOrRandom.Random(2, 12),
+        var pinCornerMargin: Double = 2 / 3.0
+    ) : SvgMacro()
 }

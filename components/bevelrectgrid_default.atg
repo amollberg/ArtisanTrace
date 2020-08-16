@@ -1,0 +1,40 @@
+{
+    "type": "SvgMacro.BevelRectGrid",
+    "width": {
+        "type": "DoubleOrRandom.Random",
+        "min": 20.0,
+        "max": 150.0
+    },
+    "height": {
+        "type": "DoubleOrRandom.Random",
+        "min": 20.0,
+        "max": 150.0
+    },
+    "circleRadius": {
+        "type": "DoubleOrRandom.Random",
+        "min": 1.0,
+        "max": 5.0
+    },
+    "countX": {
+        "type": "IntOrRandom.Random",
+        "min": 2,
+        "max": 6
+    },
+    "countY": {
+        "type": "IntOrRandom.Random",
+        "min": 2,
+        "max": 3
+    },
+    "margin": 0.05,
+    "bevelOffset": {
+        "type": "DoubleOrRandom.Random",
+        "min": 2.0,
+        "max": 10.0
+    },
+    "pinsPerSide": {
+        "type": "IntOrRandom.Random",
+        "min": 2,
+        "max": 12
+    },
+    "pinCornerMargin": 0.6666666666666666
+}

@@ -236,6 +236,7 @@ open class ViewModel(internal var model: Model) {
                 is SvgMacro.MicroController -> obj.draw(cd)
                 is SvgMacro.ZigZagEnd -> obj.draw(cd)
                 is SvgMacro.ViaArray -> obj.draw(cd)
+                is SvgMacro.BevelRectGrid -> obj.draw(cd)
             }
 
             val svgText =

@@ -103,7 +103,8 @@ class SvgMacroTest : WithImplicitView() {
             SvgMacro.RectGrid(),
             SvgMacro.VerticalPins(),
             SvgMacro.ZigZagEnd(),
-            SvgMacro.ViaArray()
+            SvgMacro.ViaArray(),
+            SvgMacro.BevelRectGrid()
         ).forEach {
             val className = it::class.simpleName!!.toLowerCase()
             val diffedMacroFile = File("components/${className}_default.atg")
