@@ -25,16 +25,21 @@ data class SelfContainedTraceMacro(
     ): Trace {
         startVia.move(
             startVia.interfaces.first(),
-            path.positions.first().coordinate
+            path.positions.first().coordinate.relativeTo(model.system)
         )
         endVia.move(
             endVia.interfaces.first(),
-            path.positions.last().coordinate
+            path.positions.last().coordinate.relativeTo(model.system)
         )
         val trace = trace(previewModel.system) {
             terminals(Terminals(startVia.interfaces.first(), 0..0))
             path.positions.drop(1).dropLast(1).forEach { gridPosition ->
-                val itf = Interface(gridPosition.coordinate, 0.0, 0.01, 1)
+                val itf = Interface(
+                    gridPosition.coordinate.relativeTo(model.system),
+                    0.0,
+                    0.01,
+                    1
+                )
                 previewModel.addInterface(itf)
                 terminals(Terminals(itf, 0..0))
             }
