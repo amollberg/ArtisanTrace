@@ -2,6 +2,7 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.math.Vector2
 import org.openrndr.shape.CompositionDrawer
 import org.openrndr.shape.Rectangle
+import org.openrndr.shape.Segment
 import org.openrndr.shape.SegmentJoin.BEVEL
 import kotlin.math.min
 
@@ -17,9 +18,24 @@ fun SvgMacro.BevelRectGrid.draw(drawer: CompositionDrawer) {
         width.value,
         height.value
     )
-    drawer.contour(rect.contour.offset(marginAbs + bevelOffset.value, BEVEL))
+    drawer.contour(rect.contour.offset(marginAbs + bevelOffset, BEVEL))
     drawer.contour(rect.contour.offset(marginAbs, BEVEL))
     drawGrid(drawer)
+    val outerRect = rect.offsetEdges(0.0, marginAbs + bevelOffset)
+    drawPins(
+        drawer,
+        bottomSide(outerRect),
+        pinsPerSide.value,
+        0.001,
+        pinCornerMargin
+    )
+    drawPins(
+        drawer,
+        topSide(outerRect),
+        pinsPerSide.value,
+        0.001,
+        pinCornerMargin
+    )
 }
 
 private fun SvgMacro.BevelRectGrid.drawGrid(drawer: CompositionDrawer) {
@@ -39,3 +55,12 @@ private fun SvgMacro.BevelRectGrid.drawGrid(drawer: CompositionDrawer) {
         }
     }
 }
+
+fun topSide(rect: Rectangle) =
+    Segment(rect.corner + Vector2(rect.width, 0.0), rect.corner)
+
+fun bottomSide(rect: Rectangle) =
+    Segment(
+        rect.corner + Vector2(0.0, rect.height),
+        rect.corner + Vector2(rect.width, rect.height)
+    )
