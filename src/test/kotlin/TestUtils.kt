@@ -133,6 +133,17 @@ class TestUtils {
             }
         }
 
+        fun rightClickMouse(
+            view: ViewModel,
+            position: Coordinate,
+            modifiers: Set<KeyModifier> = emptySet()
+        ) {
+            withModifiers(view, modifiers) {
+                view.mousePoint = position.relativeTo(view.root)
+                view.activeTool.mouseRightClicked(view.mousePoint)
+            }
+        }
+
         fun dropFiles(
             view: ViewModel,
             dropEvent: DropEvent,

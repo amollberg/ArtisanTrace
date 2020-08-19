@@ -44,6 +44,10 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
         }
     }
 
+    override fun mouseRightClicked(position: Coordinate) {
+        reverseKnee = !reverseKnee
+    }
+
     override fun mouseScrolled(mouse: MouseEvent) {
         if (!hasPlacedStart) {
             // Update number of leads to be placed
@@ -54,9 +58,6 @@ class InterfaceTraceDrawTool(viewModel: ViewModel) :
                 terminalSelector.getInterface()?.terminalCount ?: leads
             )
             terminalSelector.desiredLeads = leads
-        } else if (mouse.modifiers.contains(CTRL)) {
-            // Reverse the knee if Control key is held
-            reverseKnee = !reverseKnee
         } else {
             // Behave like any other interface tool
             super.mouseScrolled(mouse)

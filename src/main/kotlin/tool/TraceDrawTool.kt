@@ -1,5 +1,4 @@
 import coordinates.Coordinate
-import org.openrndr.KeyModifier
 import org.openrndr.MouseEvent
 import org.openrndr.math.clamp
 
@@ -30,6 +29,10 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
         previousTerminals = clickedTerminals
     }
 
+    override fun mouseRightClicked(position: Coordinate) {
+        reverseKnee = !reverseKnee
+    }
+
     override fun mouseScrolled(mouse: MouseEvent) {
         if (!hasPlacedStart) {
             // Update number of leads to be placed
@@ -41,14 +44,9 @@ class TraceDrawTool(viewModel: ViewModel) : BaseTool(viewModel) {
             )
             terminalSelector.desiredLeads = leads
         } else {
-            if (mouse.modifiers.contains(KeyModifier.CTRL)) {
-                // Reverse the knee if Control key is held
-                reverseKnee = !reverseKnee
-            } else {
-                // Change the match order of the destination terminals
-                terminalSelector.reverseTerminalOrder =
-                    !terminalSelector.reverseTerminalOrder
-            }
+            // Change the match order of the destination terminals
+            terminalSelector.reverseTerminalOrder =
+                !terminalSelector.reverseTerminalOrder
         }
     }
 

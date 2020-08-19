@@ -1,4 +1,5 @@
 import coordinates.System.Companion.root
+import org.openrndr.MouseButton
 import org.openrndr.application
 
 fun main() = application {
@@ -22,9 +23,12 @@ fun main() = application {
             viewModel.mousePoint = viewModel.root.coord(it.position)
         }
         mouse.clicked.listen {
-            viewModel.activeTool.mouseClicked(
-                viewModel.root.coord(it.position)
-            )
+            val position = viewModel.root.coord(it.position)
+            when (it.button) {
+                MouseButton.RIGHT ->
+                    viewModel.activeTool.mouseRightClicked(position)
+                else -> viewModel.activeTool.mouseClicked(position)
+            }
         }
         mouse.scrolled.listen {
             viewModel.activeTool.mouseScrolled(it)

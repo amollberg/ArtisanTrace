@@ -4,6 +4,7 @@ import TestUtils.Companion.at
 import TestUtils.Companion.clickMouse
 import TestUtils.Companion.createViewModel
 import TestUtils.Companion.dropFiles
+import TestUtils.Companion.rightClickMouse
 import TestUtils.Companion.scrollMouse
 import TestUtils.Companion.tempAtgFile
 import coordinates.System
@@ -126,7 +127,7 @@ class ViewModelTest {
         original.changeTool(TraceDrawTool(original))
         clickMouse(original, at(original, ORIGINAL_COMP1_ORIGIN))
         // Reverse the knee
-        scrollMouse(original, 1, setOf(KeyModifier.CTRL))
+        rightClickMouse(original, at(original, COMP2_ORIGIN))
         clickMouse(original, at(original, COMP2_ORIGIN))
         // Assign a component to a group
         original.changeTool(GroupAssignTool(original))
