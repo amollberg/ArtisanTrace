@@ -1,8 +1,10 @@
 import coordinates.Coordinate
+import org.openrndr.KeyEvent
 import org.openrndr.KeyModifier
 import org.openrndr.KeyModifier.ALT
 import org.openrndr.KeyModifier.CTRL
 import org.openrndr.MouseEvent
+import org.openrndr.extra.noise.Random
 import kotlin.math.max
 
 class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
@@ -22,6 +24,16 @@ class InterfaceDrawTool(viewModel: ViewModel) : BaseInterfaceTool(viewModel) {
             itf.terminalCount = max(1, itf.terminalCount)
         } else {
             itf.angle -= mouse.rotation.y * 45 % 360
+        }
+    }
+
+    override fun keyUp(key: KeyEvent) {
+        if (key.name == "space") {
+            // Randomize interface on Space key press
+            val rand = Random.rnd
+            itf.terminalCount = rand.nextInt(1, 7)
+            itf.length = itf.terminalCount * 6 * rand.nextDouble(0.5, 1.5)
+            itf.angle = rand.nextInt(8) * 45.0
         }
     }
 
