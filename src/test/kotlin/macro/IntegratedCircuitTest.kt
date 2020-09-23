@@ -8,11 +8,11 @@ class IntegratedCircuitTest {
     @Test
     fun generateFourPinsPerSideAtCorrectLocations() {
         val ic = SvgMacro.IntegratedCircuit(
-            pinsPerSide = 4,
-            pinPitch = 2.0,
+            pinsPerSide = IntOrRandom.Constant(4),
+            pinPitch = DoubleOrRandom.Constant(2.0),
             pinLength = 3.0,
             pinCornerMargin = 0.75,
-            width = 10.0
+            width = DoubleOrRandom.Constant(10.0)
         )
         val expectedTerminalPositions = listOf(
             listOf(

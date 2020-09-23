@@ -11,7 +11,9 @@ class SvgMacroTest : WithImplicitView() {
     @Test
     fun deserializeVerticalPins() {
         SvgMacro.deserialize(
-            """{"type": "SvgMacro.VerticalPins", "pins": 2}"""
+            """{"type": "SvgMacro.VerticalPins", "pins": {
+                                     "type": "IntOrRandom.Constant",
+                                     "value": 2 }}"""
         )
     }
 
@@ -26,7 +28,9 @@ class SvgMacroTest : WithImplicitView() {
             view, DropEvent(
                 Vector2.ZERO, listOf(
                     tempAtgFile(
-                        """{"type": "SvgMacro.VerticalPins", "pins":2}"""
+                        """{"type": "SvgMacro.VerticalPins", "pins": {
+                                     "type": "IntOrRandom.Constant",
+                                     "value": 2 }}"""
                     )
                 )
             )
@@ -42,7 +46,9 @@ class SvgMacroTest : WithImplicitView() {
             view, DropEvent(
                 Vector2.ZERO, listOf(
                     tempAtgFile(
-                        """{"type": "SvgMacro.VerticalPins", "pins":5}"""
+                        """{"type": "SvgMacro.VerticalPins", "pins":{
+                                     "type": "IntOrRandom.Constant",
+                                     "value": 5 }}"""
                     )
                 )
             )

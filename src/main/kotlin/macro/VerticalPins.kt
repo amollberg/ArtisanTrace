@@ -32,7 +32,7 @@ fun SvgMacro.VerticalPins.draw(drawer: CompositionDrawer) {
         )
     })
     drawer.fill = drawer.stroke
-    drawer.circles((0 until pins).map {
+    drawer.circles((0 until pins.value).map {
         Vector2(
             it * sideWithMargin,
             sideWithMargin / 2
@@ -42,6 +42,6 @@ fun SvgMacro.VerticalPins.draw(drawer: CompositionDrawer) {
     // Interfaces
     var itfVec = Vector2(innerRect.x, 0.0)
     val ySide = Vector2(0.0, innerRect.y)
-    drawSvgInterface(drawer, LineSegment(Vector2.ZERO, itfVec), pins)
-    drawSvgInterface(drawer, LineSegment(ySide, ySide + itfVec), pins)
+    drawSvgInterface(drawer, LineSegment(Vector2.ZERO, itfVec), pins.value)
+    drawSvgInterface(drawer, LineSegment(ySide, ySide + itfVec), pins.value)
 }

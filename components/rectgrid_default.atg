@@ -18,12 +18,12 @@
     "countX": {
         "type": "IntOrRandom.Random",
         "min": 2,
-        "max": 5
+        "max": 4
     },
     "countY": {
         "type": "IntOrRandom.Random",
         "min": 2,
-        "max": 5
+        "max": 4
     },
     "margin": 0.05
 }

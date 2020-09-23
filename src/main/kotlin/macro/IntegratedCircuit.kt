@@ -8,13 +8,13 @@ fun SvgMacro.IntegratedCircuit.draw(drawer: CompositionDrawer) {
     drawer.fill = ColorRGBa.BLACK
 
     val height = pinPitch * (pinsPerSide - 1 + 2 * pinCornerMargin)
-    drawer.rectangle(0.0, 0.0, width, height)
+    drawer.rectangle(0.0, 0.0, width.value, height)
 
     drawPins(
         drawer, Segment(
             Vector2(0.0, 0.0),
             Vector2(0.0, height)
-        ), pinsPerSide, pinLength, pinCornerMargin
+        ), pinsPerSide.value, pinLength, pinCornerMargin
     )
 
     // Pins are drawn on the right side as seen walking from start to end, so
@@ -22,9 +22,9 @@ fun SvgMacro.IntegratedCircuit.draw(drawer: CompositionDrawer) {
     // edge
     drawPins(
         drawer, Segment(
-            Vector2(width, height),
-            Vector2(width, 0.0)
-        ), pinsPerSide, pinLength, pinCornerMargin
+            Vector2(width.value, height),
+            Vector2(width.value, 0.0)
+        ), pinsPerSide.value, pinLength, pinCornerMargin
     )
 }
 

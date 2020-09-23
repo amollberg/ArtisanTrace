@@ -12,28 +12,28 @@ fun SvgMacro.MicroController.draw(drawer: CompositionDrawer) {
     drawPins(
         drawer,
         Segment(Vector2(0.0, 0.0), Vector2(0.0, sideLength)),
-        pinsPerSide,
+        pinsPerSide.value,
         pinLength,
         pinCornerMargin
     )
     drawPins(
         drawer,
         Segment(Vector2(0.0, sideLength), Vector2(sideLength, sideLength)),
-        pinsPerSide,
+        pinsPerSide.value,
         pinLength,
         pinCornerMargin
     )
     drawPins(
         drawer,
         Segment(Vector2(sideLength, sideLength), Vector2(sideLength, 0.0)),
-        pinsPerSide,
+        pinsPerSide.value,
         pinLength,
         pinCornerMargin
     )
     drawPins(
         drawer,
         Segment(Vector2(sideLength, 0.0), Vector2(0.0, 0.0)),
-        pinsPerSide,
+        pinsPerSide.value,
         pinLength,
         pinCornerMargin
     )

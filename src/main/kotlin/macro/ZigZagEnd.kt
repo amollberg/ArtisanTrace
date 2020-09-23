@@ -23,6 +23,6 @@ fun SvgMacro.ZigZagEnd.draw(drawer: CompositionDrawer) {
     drawSvgInterface(
         drawer,
         LineSegment(positionOf(0), positionOf(terminals - 1)),
-        terminals
+        terminals.value
     )
 }

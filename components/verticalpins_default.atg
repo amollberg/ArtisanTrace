@@ -1,6 +1,14 @@
 {
     "type": "SvgMacro.VerticalPins",
-    "pins": 2,
-    "pinSize": 6.0,
+    "pins": {
+        "type": "IntOrRandom.Random",
+        "min": 1,
+        "max": 6
+    },
+    "pinSize": {
+        "type": "DoubleOrRandom.Random",
+        "min": 3.0,
+        "max": 9.0
+    },
     "margin": 1.2
 }

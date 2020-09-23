@@ -1,4 +1,8 @@
 {
     "type": "SvgMacro.ZigZagEnd",
-    "terminals": 4
+    "terminals": {
+        "type": "IntOrRandom.Random",
+        "min": 2,
+        "max": 10
+    }
 }
