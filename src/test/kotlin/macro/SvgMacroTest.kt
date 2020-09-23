@@ -11,7 +11,9 @@ class SvgMacroTest : WithImplicitView() {
     @Test
     fun deserializeVerticalPins() {
         SvgMacro.deserialize(
-            """{"type": "SvgMacro.VerticalPins", "pins": 2}"""
+            """{"type": "SvgMacro.VerticalPins", "pins": {
+                                     "type": "IntOrRandom.Constant",
+                                     "value": 2 }}"""
         )
     }
 
@@ -26,7 +28,9 @@ class SvgMacroTest : WithImplicitView() {
             view, DropEvent(
                 Vector2.ZERO, listOf(
                     tempAtgFile(
-                        """{"type": "SvgMacro.VerticalPins", "pins":2}"""
+                        """{"type": "SvgMacro.VerticalPins", "pins": {
+                                     "type": "IntOrRandom.Constant",
+                                     "value": 2 }}"""
                     )
                 )
             )
@@ -42,7 +46,9 @@ class SvgMacroTest : WithImplicitView() {
             view, DropEvent(
                 Vector2.ZERO, listOf(
                     tempAtgFile(
-                        """{"type": "SvgMacro.VerticalPins", "pins":5}"""
+                        """{"type": "SvgMacro.VerticalPins", "pins":{
+                                     "type": "IntOrRandom.Constant",
+                                     "value": 5 }}"""
                     )
                 )
             )
@@ -59,7 +65,10 @@ class SvgMacroTest : WithImplicitView() {
             view, DropEvent(
                 Vector2.ZERO, listOf(
                     tempAtgFile(
-                        """{"type": "SvgMacro.RectGrid", "countX": 4}"""
+                        """{"type": "SvgMacro.RectGrid",
+                                   "countX": {
+                                     "type": "IntOrRandom.Constant",
+                                     "value": 4 }}"""
                     )
                 )
             )
@@ -68,10 +77,27 @@ class SvgMacroTest : WithImplicitView() {
         assertEquals(1, view.model.svgComponents.size)
     }
 
+    @Test
+    fun generatedFilenameSuffix() {
+        val rectGrid = SvgMacro.RectGrid(
+            width = DoubleOrRandom.Constant(21.0),
+            height = DoubleOrRandom.Constant(32.0),
+            circleRadius = DoubleOrRandom.Constant(2.1),
+            countX = IntOrRandom.Constant(3),
+            countY = IntOrRandom.Constant(4),
+            margin = 0.06
+        )
+        assertEquals(
+            "RectGrid_width21.0_height32.0" +
+                    "_circleRadius2.1_countX3_countY4_margin0.06",
+            rectGrid.fileNameSuffix
+        )
+    }
+
     // Writes ATG files to components/ which will show up in the diff if changed
     @Test
     fun generateAllDefaults() {
-        listOf(
+        setOf(
             SvgMacro.IntegratedCircuit(),
             SvgMacro.MicroController(),
             SvgMacro.RectGrid(),
@@ -80,8 +106,11 @@ class SvgMacroTest : WithImplicitView() {
             SvgMacro.ViaArray()
         ).forEach {
             val className = it::class.simpleName!!.toLowerCase()
-            val macroFile = File("components/${className}_default.atg")
-            macroFile.writeText(it.serialize())
+            val diffedMacroFile = File("components/${className}_default.atg")
+            diffedMacroFile.writeText(it.serialize())
+            val macroFile = File("build/components/${className}_default.atg")
+            macroFile.mkdirs()
+            diffedMacroFile.copyTo(macroFile, true)
             dropFiles(view, DropEvent(Vector2.ZERO, listOf(macroFile)))
         }
     }

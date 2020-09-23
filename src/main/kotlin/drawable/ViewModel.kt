@@ -24,7 +24,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import kotlin.math.PI
 
-class ViewModel(internal var model: Model) {
+open class ViewModel(internal var model: Model) {
     val root = model.system
     var mousePoint = root.coord(Vector2(-1.0, -1.0))
     var activeTool: BaseTool = EmptyTool(this)
@@ -45,7 +45,7 @@ class ViewModel(internal var model: Model) {
         )
     }
 
-    fun keyUp(key: KeyEvent) {
+    open fun keyUp(key: KeyEvent) {
         updateModifiers(key)
         when (key.name) {
             "q" -> {
@@ -106,7 +106,7 @@ class ViewModel(internal var model: Model) {
         }
     }
 
-    private fun toggleExtendedVisualization() {
+    protected fun toggleExtendedVisualization() {
         extendedVisualization = !extendedVisualization
     }
 
@@ -136,11 +136,11 @@ class ViewModel(internal var model: Model) {
         updateModifiers(key)
     }
 
-    private fun updateModifiers(key: KeyEvent) {
+    protected fun updateModifiers(key: KeyEvent) {
         modifierKeysHeld = key.modifiers.toMutableSet()
     }
 
-    fun fileDrop(drop: DropEvent) {
+    open fun fileDrop(drop: DropEvent) {
         val previouslyAdded: MutableList<Component> = mutableListOf()
         fun moveAddedComponent(component: Component) {
             moveToAvoidCollision(component, previouslyAdded)
@@ -171,7 +171,7 @@ class ViewModel(internal var model: Model) {
         }
     }
 
-    private fun moveToAvoidCollision(
+    protected fun moveToAvoidCollision(
         component: Component,
         componentsToAvoid: List<Component>
     ) {
@@ -193,7 +193,7 @@ class ViewModel(internal var model: Model) {
         }
     }
 
-    private fun handleDroppedMacroFile(
+    protected fun handleDroppedMacroFile(
         droppedFile: File,
         coord: Coordinate,
         componentAddedAction: (component: Component) -> Unit
@@ -218,14 +218,14 @@ class ViewModel(internal var model: Model) {
     private fun handleDroppedSvgMacroFile(
         droppedFile: File,
         coord: Coordinate,
-        componentAddedAction: (component: Component) -> Unit
+        componentAddedAction: (component: Component) -> Unit,
+        writeBackingFile: Boolean = false
     ) {
         val content = droppedFile.readText()
         val obj = maybeMuteExceptions {
             SvgMacro.json.parse(SvgMacro.serializer(), content)
         }
         obj?.ifPresent {
-            val svgFile = File(droppedFile.absoluteFile.path + ".svg")
             val cd = CompositionDrawer()
             cd.stroke = GREEN
             cd.fill = BLACK
@@ -237,18 +237,22 @@ class ViewModel(internal var model: Model) {
                 is SvgMacro.ZigZagEnd -> obj.draw(cd)
                 is SvgMacro.ViaArray -> obj.draw(cd)
             }
+
             val svgText =
                 removeHardcodedDimensions(
                     addBlackBackground(
                         writeSVG(cd.composition)
                     )
                 )
+            val svgFile = File(
+                "${droppedFile.absoluteFile.path}_${dataClassToFileName(obj)}.svg"
+            )
             svgFile.writeText(svgText)
             componentAddedAction(model.addSvg(svgFile, coord))
         }
     }
 
-    private fun handleDroppedSvgFile(
+    protected fun handleDroppedSvgFile(
         droppedFile: File,
         position: Coordinate,
         componentAddedAction: (component: Component) -> Unit

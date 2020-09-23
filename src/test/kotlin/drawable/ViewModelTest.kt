@@ -138,7 +138,9 @@ class ViewModelTest {
                 SVGMACRO_ORIGIN,
                 listOf(
                     tempAtgFile(
-                        """{"type": "SvgMacro.VerticalPins", "pins":2}"""
+                        """{"type": "SvgMacro.VerticalPins", "pins":{
+                                     "type": "IntOrRandom.Constant",
+                                     "value": 2 }}"""
                     )
                 )
             )

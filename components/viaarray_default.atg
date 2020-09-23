@@ -1,5 +1,13 @@
 {
     "type": "SvgMacro.ViaArray",
-    "terminals": 2,
-    "pitch": 13.0
+    "terminals": {
+        "type": "IntOrRandom.Random",
+        "min": 2,
+        "max": 11
+    },
+    "pitch": {
+        "type": "DoubleOrRandom.Random",
+        "min": 11.0,
+        "max": 20.0
+    }
 }

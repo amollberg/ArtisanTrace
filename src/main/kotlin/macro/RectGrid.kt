@@ -10,30 +10,30 @@ fun SvgMacro.RectGrid.draw(drawer: CompositionDrawer) {
     drawer.rectangle(
         Rectangle(
             -Vector2(
-                width / 2,
-                height / 2
+                width.value / 2,
+                height.value / 2
             ),
-            width,
-            height
+            width.value,
+            height.value
         )
     )
     drawGrid(drawer)
 }
 
 private fun SvgMacro.RectGrid.drawGrid(drawer: CompositionDrawer) {
-    val marginAbs = min(width, height) * margin
+    val marginAbs = min(width.value, height.value) * margin
     val innerDim = Vector2(
-        width - circleRadius * 2 - marginAbs * 2,
-        height - circleRadius * 2 - marginAbs * 2
+        width.value - circleRadius.value * 2 - marginAbs * 2,
+        height.value - circleRadius.value * 2 - marginAbs * 2
     )
-    (0 until countX).forEach { xi ->
-        (0 until countY).forEach { yi ->
+    (0 until countX.value).forEach { xi ->
+        (0 until countY.value).forEach { yi ->
             drawer.circle(
                 -innerDim * 0.5 +
                         Vector2(
-                            xi * innerDim.x / (countX - 1),
-                            yi * innerDim.y / (countY - 1)
-                        ), circleRadius
+                            xi * innerDim.x / (countX.value - 1),
+                            yi * innerDim.y / (countY.value - 1)
+                        ), circleRadius.value
             )
         }
     }
