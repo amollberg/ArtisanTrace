@@ -81,7 +81,10 @@ data class SvgComponent(
     override fun clone(parentModel: Model): Component {
         // Import a new instance of the SVG, placed on the same position
         val cloneComponent =
-            parentModel.addSvg(svg.backingFile, system.originCoord)
+            parentModel.addSvg(
+                svg.resolveBackingFileFrom(parentModel.workingDir),
+                system.originCoord
+            )
         // Make sure it has the same rotation and scaling as the original
         cloneComponent.system.setAbsoluteFrom(system)
         return cloneComponent

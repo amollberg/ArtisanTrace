@@ -12,4 +12,9 @@ interface FileBacked {
             .relativize(backingFile.absoluteFile.toPath())
             .toFile()
     }
+
+    /** Get the backingFile resolved as an absolute path */
+    fun resolveBackingFileFrom(workingDir: Path): File {
+        return workingDir.resolve(backingFile.path).toFile()
+    }
 }
