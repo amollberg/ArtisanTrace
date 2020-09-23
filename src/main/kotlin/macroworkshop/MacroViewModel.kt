@@ -34,6 +34,9 @@ class MacroViewModel(model: Model) : ViewModel(model) {
             "q" -> {
                 changeTool(EmptyTool(this))
             }
+            "w" -> {
+                changeTool(ComponentSaveTool(this))
+            }
             "x" -> {
                 toggleExtendedVisualization()
             }
